@@ -33,17 +33,20 @@ export function SwipeableCatchRow({
   const colors = useColors();
   const translateX = useRef(new Animated.Value(0)).current;
   const currentTranslateX = useRef(0);
-  const deleteBackground = useRef(new Animated.Value(0)).current;
 
+  // Track current translateX for gesture handling
   useEffect(() => {
     const listenerId = translateX.addListener(({ value }) => {
       currentTranslateX.current = value;
-      // Interpolate background color intensity based on swipe distance
-      const normalizedValue = Math.min(Math.abs(value) / Math.abs(DELETE_THRESHOLD), 1);
-      deleteBackground.setValue(normalizedValue);
     });
     return () => translateX.removeListener(listenerId);
-  }, [translateX, deleteBackground]);
+  }, [translateX]);
+
+  // Interpolate background color directly from translateX
+  const deleteBackgroundColor = translateX.interpolate({
+    inputRange: [DELETE_THRESHOLD, SWIPE_THRESHOLD, 0],
+    outputRange: ['#A93226', '#C0392B', '#E74C3C'],
+  });
 
   const closeSwipe = useCallback(() => {
     Animated.spring(translateX, {
@@ -115,13 +118,12 @@ export function SwipeableCatchRow({
           });
         },
         onPanResponderMove: (_, gestureState) => {
-          // Only allow swiping left (negative dx)
+          // Allow swiping in both directions with offset applied
           const newTranslateX = gestureState.dx;
-          const clampedTranslateX = Math.min(newTranslateX, 0);
 
-          // Allow swiping beyond delete button to trigger auto-delete
+          // Allow swiping beyond delete button to trigger auto-delete (left swipe)
           const maxSwipe = DELETE_THRESHOLD - 50; // Allow a bit more for smooth gesture
-          const finalTranslateX = Math.max(clampedTranslateX, maxSwipe);
+          const finalTranslateX = Math.max(newTranslateX, maxSwipe);
 
           translateX.setValue(finalTranslateX);
         },
@@ -179,14 +181,11 @@ export function SwipeableCatchRow({
         onPress={confirmDelete}
         activeOpacity={0.9}
       >
-        <Animated.View 
+        <Animated.View
           style={[
             styles.rightAction,
             {
-              backgroundColor: deleteBackground.interpolate({
-                inputRange: [0, 0.5, 1],
-                outputRange: ['#E74C3C', '#C0392B', '#A93226'],
-              }),
+              backgroundColor: deleteBackgroundColor,
             },
           ]}
         >
