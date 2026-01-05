@@ -64,9 +64,15 @@ export function QuickCaptureButton({
           ]}
         >
           {loading ? (
-            <Ionicons name="hourglass" size={48} color="white" />
+            <>
+              <Ionicons name="hourglass" size={48} color="white" style={styles.icon} />
+              <Text style={styles.statusText}>Getting location...</Text>
+            </>
           ) : success ? (
-            <Ionicons name="checkmark" size={48} color="white" />
+            <>
+              <Ionicons name="checkmark" size={48} color="white" style={styles.icon} />
+              <Text style={styles.statusText}>Catch saved!</Text>
+            </>
           ) : (
             <>
               <Ionicons name="fish" size={48} color="white" style={styles.icon} />
@@ -75,18 +81,6 @@ export function QuickCaptureButton({
           )}
         </Pressable>
       </Animated.View>
-      
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <Text style={styles.loadingText}>Getting location...</Text>
-        </View>
-      )}
-      
-      {success && (
-        <View style={styles.successOverlay}>
-          <Text style={styles.successText}>Catch saved!</Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -136,19 +130,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  loadingOverlay: {
-    marginTop: 16,
-  },
-  loadingText: {
-    color: '#666',
+  statusText: {
+    color: 'white',
     fontSize: 14,
-  },
-  successOverlay: {
-    marginTop: 16,
-  },
-  successText: {
-    color: '#27AE60',
-    fontSize: 16,
     fontWeight: '600',
+    textAlign: 'center',
+    maxWidth: 140,
   },
 });

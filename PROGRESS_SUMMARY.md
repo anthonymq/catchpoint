@@ -9,6 +9,7 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
 *   **UI Safe Area Handling:** Proper layout support for devices with notches, home indicators, and dynamic safe areas
 *   **Map Integration:** Full @rnmapbox/maps integration with clustering, markers, and navigation
 *   **Enhanced Log Screen:** Swipe-to-delete with haptic feedback, filter modal (date/species), improved card UI
+*   **Optimistic UI & Performance:** Ultra-responsive "Fish On" button with 0.3s feedback, async location/weather fetching
 *   **Expo & Router Setup:** Configured Expo SDK 54 with `expo-router`.
 *   **Database (Drizzle + SQLite):** Initialized `expo-sqlite` with Drizzle ORM. Created `catches` and `species` schemas and implemented a migration system.
 *   **State Management:** Built a Zustand `catchStore` for CRUD operations and a `settingsStore` for user preferences.
@@ -32,6 +33,7 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
 *   ✅ Phase 2 (Catch Details) - COMPLETE
 *   ✅ Phase 3 (Map & Log Views) - **COMPLETE** 🚀
 *   ✅ UI Safe Area Fixes - **COMPLETE** ✨
+*   ✅ Quick Capture Performance Optimization - **COMPLETE** ⚡
 *   🚀 Ready for **Phase 4 (Statistics & Cloud Sync)**
 *   **Blocker:** Valid `EXPO_PUBLIC_OPENWEATHERMAP_API_KEY` required in `.env` for weather fetching.
 *   **Note:** Map screen requires Mapbox access token for native builds. Shows placeholder in Expo Go.
@@ -64,6 +66,14 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
   *   Fixed all tab screens (Home, Log, Map, Settings) with proper top/bottom insets
   *   Map controls and badges now position dynamically based on safe areas
   *   Consistent layout across iOS (notch/home indicator) and Android devices
+*   **"Fish On" Button Performance (3-4s delay):** Quick capture was too slow due to blocking location/weather fetches. Implemented optimistic UI pattern:
+  *   **Before:** Click → wait 3-4s for GPS + weather → success
+  *   **After:** Click → 0.3s → success (instant feedback)
+  *   Optimistic UI: Shows success immediately while work happens in background
+  *   Smart location strategy: Try fresh location (8s timeout) → fallback to cached → refresh cache async
+  *   Non-blocking weather: Weather API call moved to background, doesn't block UI
+  *   Button UI fix: Status text ("Getting location...", "Catch saved!") now displays inside button instead of below to prevent vertical movement
+  *   Files changed: `app/(tabs)/index.tsx`, `src/components/QuickCaptureButton.tsx`
 
 ---
 

@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { QuickCaptureButton } from '../../src/components/QuickCaptureButton';
 import { useCatchStore } from '../../src/stores/catchStore';
 import { useNetworkStatus } from '../../src/hooks/useNetworkStatus';
-import { getCurrentLocation } from '../../src/services/location';
+import { getCurrentLocation, getCachedLocation } from '../../src/services/location';
 import { fetchWeather, setWeatherApiKey } from '../../src/services/weather';
 import { useFocusEffect } from 'expo-router';
 import { useColors } from '../../src/context/ThemeContext';
@@ -40,76 +40,103 @@ export default function HomeScreen() {
   }, [catches]);
 
   const handleCapture = async () => {
+    // Optimistic UI - show success immediately
     setLoading(true);
     setSuccess(false);
-
-    try {
-      // Get current location
-      const location = await getCurrentLocation();
-      
-      // Create catch with location
-      const newCatch = await createCatch({
-        latitude: location.latitude,
-        longitude: location.longitude,
-        temperature: null,
-        temperatureUnit: 'C',
-        weatherCondition: null,
-        pressure: null,
-        pressureUnit: 'hPa',
-        humidity: null,
-        windSpeed: null,
-        weatherFetchedAt: null,
-        species: null,
-        weight: null,
-        weightUnit: 'kg',
-        length: null,
-        lengthUnit: 'cm',
-        lure: null,
-        notes: null,
-        photoUri: null,
-        isDraft: true,
-        pendingWeatherFetch: true,
-        syncedAt: null,
-      });
-
-      // Fetch weather if online
-      if (networkStatus.status === 'online') {
-        try {
-          const weather = await fetchWeather(location.latitude, location.longitude);
-          
-          await useCatchStore.getState().markWeatherFetched(newCatch.id, {
-            temperature: weather.temperature,
-            temperatureUnit: weather.temperatureUnit,
-            weatherCondition: weather.weatherCondition,
-            pressure: weather.pressure,
-            pressureUnit: weather.pressureUnit,
-            humidity: weather.humidity,
-            windSpeed: weather.windSpeed,
-            weatherFetchedAt: weather.fetchedAt,
-          });
-        } catch (weatherError) {
-          console.error('[Home] Weather fetch failed:', weatherError);
-          // Don't fail the capture if weather fetch fails
-        }
-      }
-
+    
+    // Short delay to show "Getting location..." state
+    setTimeout(() => {
+      setLoading(false);
       setSuccess(true);
       
       // Reset success state after 2 seconds
       setTimeout(() => {
         setSuccess(false);
       }, 2000);
-      
-    } catch (error) {
-      console.error('[Home] Capture failed:', error);
-      Alert.alert(
-        'Capture Failed',
-        error instanceof Error ? error.message : 'Unable to capture catch. Please try again.',
-        [{ text: 'OK' }]
-      );
-    } finally {
-      setLoading(false);
-    }
+    }, 300);
+
+    // Do all the actual work asynchronously in the background
+    (async () => {
+      try {
+        // Try to get fresh location with 8s timeout, fallback to cached if it takes too long
+        let location = await Promise.race([
+          getCurrentLocation(),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)), // 8s timeout
+        ]);
+
+        // If fresh location failed or timed out, use cached location
+        if (!location) {
+          console.log('[Home] Fresh location timed out, using cached location');
+          location = await getCachedLocation();
+          
+          // If still no location, try fresh one more time (wait for it)
+          if (!location) {
+            console.log('[Home] No cached location, waiting for fresh location');
+            location = await getCurrentLocation();
+          } else {
+            // We're using cached, but refresh in background for next time
+            getCurrentLocation().catch((error) => {
+              console.log('[Home] Background location refresh failed:', error);
+            });
+          }
+        }
+        
+        // Create catch with location
+        const newCatch = await createCatch({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          temperature: null,
+          temperatureUnit: 'C',
+          weatherCondition: null,
+          pressure: null,
+          pressureUnit: 'hPa',
+          humidity: null,
+          windSpeed: null,
+          weatherFetchedAt: null,
+          species: null,
+          weight: null,
+          weightUnit: 'kg',
+          length: null,
+          lengthUnit: 'cm',
+          lure: null,
+          notes: null,
+          photoUri: null,
+          isDraft: true,
+          pendingWeatherFetch: true,
+          syncedAt: null,
+        });
+
+        // Fetch weather in background (non-blocking)
+        if (networkStatus.status === 'online') {
+          fetchWeather(location.latitude, location.longitude)
+            .then((weather) => {
+              return useCatchStore.getState().markWeatherFetched(newCatch.id, {
+                temperature: weather.temperature,
+                temperatureUnit: weather.temperatureUnit,
+                weatherCondition: weather.weatherCondition,
+                pressure: weather.pressure,
+                pressureUnit: weather.pressureUnit,
+                humidity: weather.humidity,
+                windSpeed: weather.windSpeed,
+                weatherFetchedAt: weather.fetchedAt,
+              });
+            })
+            .catch((weatherError) => {
+              console.error('[Home] Weather fetch failed:', weatherError);
+              // Don't fail the capture if weather fetch fails
+            });
+        }
+        
+      } catch (error) {
+        console.error('[Home] Background capture failed:', error);
+        // Show error alert even though UI already showed success
+        Alert.alert(
+          'Capture Failed',
+          error instanceof Error ? error.message : 'Unable to capture catch. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+    })();
   };
 
   return (
