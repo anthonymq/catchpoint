@@ -88,6 +88,7 @@ function MapboxMapScreen({
 
   const cameraRef = useRef<any>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [hasNavigatedToLastCatch, setHasNavigatedToLastCatch] = useState(false);
 
   // Convert catches to GeoJSON FeatureCollection
   const catchFeatures = useMemo<CatchFeature[]>(() => {
@@ -140,6 +141,19 @@ function MapboxMapScreen({
       });
     }
   }, [userLocation]);
+
+  // Navigate to last catch location when catches load (only once)
+  useEffect(() => {
+    if (!hasNavigatedToLastCatch && catchFeatures.length > 0 && cameraRef.current) {
+      const lastCatch = catchFeatures[0]; // Already sorted by createdAt DESC
+      cameraRef.current.setCamera({
+        centerCoordinate: lastCatch.geometry.coordinates,
+        zoomLevel: 14,
+        animationDuration: 0, // No animation on initial load
+      });
+      setHasNavigatedToLastCatch(true);
+    }
+  }, [catchFeatures, hasNavigatedToLastCatch]);
 
   useEffect(() => {
     (async () => {
