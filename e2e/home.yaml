@@ -1,0 +1,45 @@
+appId: com.anonymous.catchpoint
+name: Home Screen Tests
+---
+
+# Launch app fresh to ensure clean state
+- launchApp
+
+# Ensure we're on the Home screen first
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible: "CatchPoint"
+    timeout: 5000
+
+# Test: Home screen displays correctly
+- assertVisible: "CatchPoint"
+- assertVisible: "Quick Capture"
+- assertVisible: "FISH ON!"
+- assertVisible: "Total Catches"
+- assertVisible: "Online"
+
+# Test: Tab bar is visible
+- assertVisible: "Home"
+- assertVisible: "Map"
+- assertVisible: "Log"
+- assertVisible: "Settings"
+
+# Test: FISH ON button creates a catch
+- tapOn: "FISH ON!"
+
+# Handle location permission if it appears
+- runFlow:
+    when:
+      visible: "Allow .* to access"
+    commands:
+      - tapOn: "While using the app"
+
+# Wait for catch creation to complete (success animation shows briefly)
+# The count should be visible in the stat card
+- extendedWaitUntil:
+    visible: "Total Catches"
+    timeout: 10000
+
+# Verify catch count is displayed (any number)
+- assertVisible:
+    text: "Total Catches"

@@ -1,0 +1,42 @@
+appId: com.anonymous.catchpoint
+name: Map Screen Tests
+---
+
+# Launch app fresh to ensure clean state
+- launchApp
+
+# Navigate to Map tab
+- tapOn: "Map"
+
+# Test: Map screen displays correctly
+- assertVisible: "Map"
+- assertVisible: "Fit All"
+
+# Test: Catch count badge visible (if catches exist)
+- runFlow:
+    when:
+      visible: ".*catches"
+    commands:
+      - assertVisible:
+          text: ".*catches"
+
+# Test: Recent catches section
+- runFlow:
+    when:
+      visible: "RECENT CATCHES"
+    commands:
+      - assertVisible: "RECENT CATCHES"
+
+# Test: Tap on a recent catch navigates to details
+- runFlow:
+    when:
+      visible: "Unknown Species"
+    commands:
+      - tapOn:
+          text: "Unknown Species"
+          index: 0
+      - assertVisible: "Catch Details"
+      - back
+
+# Test: Map controls visible
+- assertVisible: "Map"

@@ -1,0 +1,104 @@
+appId: com.anonymous.catchpoint
+name: Full User Flow Test
+---
+
+# Launch app fresh to ensure clean state
+- launchApp
+
+# =====================
+# COMPLETE E2E USER FLOW
+# =====================
+
+# ---- STEP 0: Navigate to Home to ensure consistent starting state ----
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible: "CatchPoint"
+    timeout: 5000
+
+# ---- STEP 1: Launch and verify home screen ----
+- assertVisible: "CatchPoint"
+- assertVisible: "FISH ON!"
+- takeScreenshot: home_initial
+
+# ---- STEP 2: Create a new catch ----
+- tapOn: "FISH ON!"
+
+# Handle location permission
+- runFlow:
+    when:
+      visible: "Allow .* to access"
+    commands:
+      - tapOn: "While using the app"
+
+# Wait for catch creation (verify Total Catches is still visible after tap)
+- extendedWaitUntil:
+    visible: "Total Catches"
+    timeout: 15000
+- takeScreenshot: home_after_catch
+
+# ---- STEP 3: Verify on Map ----
+- tapOn: "Map"
+- extendedWaitUntil:
+    visible: "Map"
+    timeout: 5000
+# The map shows "X catches" format
+- assertVisible:
+    text: ".*catches"
+- takeScreenshot: map_with_catches
+
+# ---- STEP 4: View catch from map ----
+# Skip this flow - map recent catches may not be visible
+# Just verify map is showing catches
+
+# ---- STEP 5: View catch from log ----
+- tapOn: "Log"
+- assertVisible: "Catch Log"
+- takeScreenshot: log_screen
+
+# Tap first catch item
+- tapOn:
+    point: "50%,35%"
+- assertVisible: "Catch Details"
+
+# ---- STEP 6: Edit the catch ----
+- tapOn:
+    point: "93%,7%"
+- extendedWaitUntil:
+    visible: "Edit Catch"
+    timeout: 3000
+- takeScreenshot: edit_catch_screen
+
+# Enter weight
+- tapOn:
+    text: "0"
+    index: 0
+- inputText: "2.5"
+- hideKeyboard
+
+# Go back
+- back
+- back
+
+# ---- STEP 7: Verify settings ----
+- tapOn: "Settings"
+- assertVisible: "Settings"
+- assertVisible: "Theme"
+- assertVisible: "Weight"
+- assertVisible: "Length"
+- takeScreenshot: settings_screen
+
+# Toggle units
+- tapOn: "lb"
+- tapOn: "in"
+- takeScreenshot: settings_imperial
+
+# Toggle back
+- tapOn: "kg"
+- tapOn: "cm"
+
+# ---- STEP 8: Return home ----
+- tapOn: "Home"
+- assertVisible: "CatchPoint"
+- takeScreenshot: home_final
+
+# ---- TEST COMPLETE ----

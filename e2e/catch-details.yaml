@@ -1,0 +1,65 @@
+appId: com.anonymous.catchpoint
+name: Catch Details Tests
+---
+
+# Launch app fresh to ensure clean state
+- launchApp
+
+# Navigate to Home first to ensure app is in known state
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible: "CatchPoint"
+    timeout: 5000
+
+# Navigate to Log and open first catch
+- tapOn: "Log"
+- extendedWaitUntil:
+    visible: "Catch Log"
+    timeout: 5000
+
+# Wait for catches to load (check for "catches" in the count text)
+- extendedWaitUntil:
+    visible: ".*catches"
+    timeout: 5000
+- tapOn:
+    point: "50%,35%"
+
+# Test: Catch details screen displays correctly
+- assertVisible: "Catch Details"
+- assertVisible: "WHEN"
+- assertVisible: "WHERE"
+- assertVisible: "WEATHER"
+- assertVisible: "SPECIES"
+- assertVisible: "SIZE"
+- assertVisible: "LURE / BAIT"
+- assertVisible: "NOTES"
+
+# Test: Weather data is shown (temperature contains °C)
+- assertVisible:
+    text: ".*°C.*"
+
+# Test: Edit button exists (pencil icon area)
+# Note: Icon buttons are hard to assert in Maestro
+
+# Test: Navigate to edit screen
+- tapOn:
+    point: "93%,7%"  # Top right area where edit button is
+
+- extendedWaitUntil:
+    visible: "Edit Catch"
+    timeout: 3000
+
+# Test: Edit screen displays correctly
+- assertVisible: "Edit Catch"
+- assertVisible: "Cancel"
+- assertVisible: "Save"
+- assertVisible: "SPECIES"
+- assertVisible: "SIZE"
+- assertVisible: "LURE / BAIT"
+
+# Test: Unit conversion buttons visible
+- assertVisible: "kg"
+- assertVisible: "cm"
+
+# Go back without saving
+- back
