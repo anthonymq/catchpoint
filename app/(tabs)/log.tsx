@@ -371,9 +371,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   filterButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48, // Increased from 44
+    height: 48, // Increased from 44
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -405,10 +405,11 @@ const styles = StyleSheet.create({
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    gap: 6,
+    paddingHorizontal: 16, // Increased from 12
+    paddingVertical: 10, // Increased from 6
+    borderRadius: 20, // Increased from 16
+    gap: 8,
+    minHeight: 40,
   },
   filterChipText: {
     fontSize: 13,
@@ -496,13 +497,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   clearFiltersButton: {
-    marginTop: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+    marginTop: 24, // Increased from 16
+    paddingHorizontal: 24, // Increased from 20
+    paddingVertical: 14, // Increased from 10
+    borderRadius: 12,
+    minWidth: 160,
+    alignItems: 'center',
   },
   clearFiltersText: {
-    fontSize: 14,
+    fontSize: 16, // Increased from 14
     fontWeight: '600',
   },
 });

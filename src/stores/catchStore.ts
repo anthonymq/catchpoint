@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as Crypto from 'expo-crypto';
+import { Platform } from 'react-native';
 import { db } from '../db/client';
 import { catches, InsertCatch, Catch } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
@@ -28,12 +29,155 @@ interface CatchState {
   }) => Promise<void>;
 }
 
+// Helper to check if we're on web
+const isWeb = Platform.OS === 'web';
+
+// Mock data for web platform
+const MOCK_CATCHES: Catch[] = [
+  {
+    id: '1',
+    createdAt: new Date('2024-01-15T14:30:00'),
+    updatedAt: new Date('2024-01-15T14:35:00'),
+    latitude: 37.7749,
+    longitude: -122.4194,
+    temperature: 18,
+    temperatureUnit: 'C',
+    weatherCondition: 'Partly Cloudy',
+    pressure: 1013,
+    pressureUnit: 'hPa',
+    humidity: 65,
+    windSpeed: 12,
+    weatherFetchedAt: new Date('2024-01-15T14:31:00'),
+    species: 'Bass',
+    weight: 2.5,
+    weightUnit: 'kg',
+    length: 45,
+    lengthUnit: 'cm',
+    lure: 'Spinnerbait',
+    notes: 'Great fight! Caught near the old pier.',
+    photoUri: null,
+    isDraft: false,
+    pendingWeatherFetch: false,
+    syncedAt: null,
+  },
+  {
+    id: '2',
+    createdAt: new Date('2024-01-14T09:15:00'),
+    updatedAt: new Date('2024-01-14T09:20:00'),
+    latitude: 37.8044,
+    longitude: -122.2711,
+    temperature: 16,
+    temperatureUnit: 'C',
+    weatherCondition: 'Sunny',
+    pressure: 1015,
+    pressureUnit: 'hPa',
+    humidity: 55,
+    windSpeed: 8,
+    weatherFetchedAt: new Date('2024-01-14T09:16:00'),
+    species: 'Trout',
+    weight: 1.8,
+    weightUnit: 'kg',
+    length: 38,
+    lengthUnit: 'cm',
+    lure: 'Fly - Woolly Bugger',
+    notes: 'Beautiful rainbow trout in the morning light',
+    photoUri: null,
+    isDraft: false,
+    pendingWeatherFetch: false,
+    syncedAt: null,
+  },
+  {
+    id: '3',
+    createdAt: new Date('2024-01-13T16:45:00'),
+    updatedAt: new Date('2024-01-13T16:50:00'),
+    latitude: 37.7599,
+    longitude: -122.5148,
+    temperature: 20,
+    temperatureUnit: 'C',
+    weatherCondition: 'Clear',
+    pressure: 1012,
+    pressureUnit: 'hPa',
+    humidity: 70,
+    windSpeed: 15,
+    weatherFetchedAt: new Date('2024-01-13T16:46:00'),
+    species: 'Salmon',
+    weight: 5.2,
+    weightUnit: 'kg',
+    length: 65,
+    lengthUnit: 'cm',
+    lure: 'Herring',
+    notes: 'Big salmon! Took 20 minutes to reel in.',
+    photoUri: null,
+    isDraft: false,
+    pendingWeatherFetch: false,
+    syncedAt: null,
+  },
+  {
+    id: '4',
+    createdAt: new Date('2024-01-12T07:00:00'),
+    updatedAt: null,
+    latitude: 37.7833,
+    longitude: -122.4167,
+    temperature: 15,
+    temperatureUnit: 'C',
+    weatherCondition: 'Cloudy',
+    pressure: 1010,
+    pressureUnit: 'hPa',
+    humidity: 75,
+    windSpeed: 10,
+    weatherFetchedAt: new Date('2024-01-12T07:01:00'),
+    species: 'Perch',
+    weight: 0.8,
+    weightUnit: 'kg',
+    length: 25,
+    lengthUnit: 'cm',
+    lure: 'Worm',
+    notes: 'Early morning catch',
+    photoUri: null,
+    isDraft: false,
+    pendingWeatherFetch: false,
+    syncedAt: null,
+  },
+  {
+    id: '5',
+    createdAt: new Date('2024-01-10T12:20:00'),
+    updatedAt: null,
+    latitude: 37.7694,
+    longitude: -122.4862,
+    temperature: 19,
+    temperatureUnit: 'C',
+    weatherCondition: 'Sunny',
+    pressure: 1014,
+    pressureUnit: 'hPa',
+    humidity: 60,
+    windSpeed: 5,
+    weatherFetchedAt: new Date('2024-01-10T12:21:00'),
+    species: 'Catfish',
+    weight: 3.1,
+    weightUnit: 'kg',
+    length: 52,
+    lengthUnit: 'cm',
+    lure: 'Cut Bait',
+    notes: 'Bottom fishing success',
+    photoUri: null,
+    isDraft: false,
+    pendingWeatherFetch: false,
+    syncedAt: null,
+  },
+];
+
 export const useCatchStore = create<CatchState>((set, get) => ({
   catches: [],
   loading: false,
   error: null,
 
   fetchCatches: async () => {
+    if (isWeb) {
+      console.log('[Store] Loading mock data for web platform');
+      set({ catches: MOCK_CATCHES, loading: false });
+      return;
+    }
+
     set({ loading: true, error: null });
     try {
       const result = await db.select().from(catches).orderBy(desc(catches.createdAt));
@@ -45,6 +189,11 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   },
 
   createCatch: async (catchData) => {
+    if (isWeb) {
+      console.warn('[Store] Database operations not available on web');
+      throw new Error('Database not available on web platform');
+    }
+
     set({ loading: true, error: null });
     try {
       const newCatch: InsertCatch = {
@@ -77,6 +226,12 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   },
 
   getCatchById: async (id) => {
+    if (isWeb) {
+      console.log('[Store] Fetching mock catch by id:', id);
+      const catch_ = MOCK_CATCHES.find(c => c.id === id);
+      return catch_ || null;
+    }
+
     try {
       const result = await db.select().from(catches).where(eq(catches.id, id)).limit(1);
       return result[0] ?? null;
@@ -87,6 +242,11 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   },
 
   updateCatch: async (id, updates) => {
+    if (isWeb) {
+      console.warn('[Store] Database operations not available on web');
+      return;
+    }
+
     set({ loading: true, error: null });
     try {
       await db.update(catches)
@@ -111,6 +271,11 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   },
 
   deleteCatch: async (id) => {
+    if (isWeb) {
+      console.warn('[Store] Database operations not available on web');
+      return;
+    }
+
     set({ loading: true, error: null });
     try {
       await db.delete(catches).where(eq(catches.id, id));
@@ -127,6 +292,11 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   },
 
   getPendingWeatherFetches: async () => {
+    if (isWeb) {
+      console.warn('[Store] Database operations not available on web');
+      return [];
+    }
+
     try {
       const result = await db
         .select()
@@ -140,6 +310,11 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   },
 
   markWeatherFetched: async (id, weatherData) => {
+    if (isWeb) {
+      console.warn('[Store] Database operations not available on web');
+      return;
+    }
+
     try {
       await db.update(catches)
         .set({

@@ -29,6 +29,7 @@ export default function CatchDetailsScreen() {
   const { weightUnit, lengthUnit, setWeightUnit, setLengthUnit } = useSettingsStore();
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const headerHeight = 60 + insets.top; // Approximate header height for offset
 
   const [catchData, setCatchData] = useState<Catch | null>(null);
   const [loading, setLoading] = useState(true);
@@ -169,7 +170,7 @@ export default function CatchDetailsScreen() {
 
   if (!catchData) {
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
             <Ionicons name="arrow-back" size={24} color={colors.text} />
@@ -180,12 +181,12 @@ export default function CatchDetailsScreen() {
           <Ionicons name="alert-circle" size={48} color={colors.error} />
           <Text style={[styles.errorText, { color: colors.textSecondary }]}>Catch not found</Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
       {/* Header */}
       <View style={[styles.header, { backgroundColor: colors.surface }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -220,9 +221,15 @@ export default function CatchDetailsScreen() {
 
       <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
       >
-        <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 20 }]}>
+        <ScrollView 
+          style={styles.scrollView} 
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           {/* Date & Time */}
           <View style={[styles.section, { backgroundColor: colors.surface }]}>
             <View style={styles.sectionHeader}>
@@ -251,11 +258,11 @@ export default function CatchDetailsScreen() {
                 <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Weather</Text>
               </View>
               <View style={styles.weatherRow}>
-                <Text style={[styles.sectionValue, { color: colors.text }]}>
+                <Text style={[styles.weatherItem, { color: colors.text }]}>
                   🌡️ {catchData.temperature}°{catchData.temperatureUnit}
                 </Text>
-                <Text style={[styles.sectionValue, { color: colors.text }]}>💧 {catchData.humidity}%</Text>
-                <Text style={[styles.sectionValue, { color: colors.text }]}>💨 {catchData.windSpeed} m/s</Text>
+                <Text style={[styles.weatherItem, { color: colors.text }]}>💧 {catchData.humidity}%</Text>
+                <Text style={[styles.weatherItem, { color: colors.text }]}>💨 {catchData.windSpeed} m/s</Text>
               </View>
               {catchData.weatherCondition && (
                 <Text style={[styles.weatherCondition, { color: colors.textSecondary }]}>
@@ -291,35 +298,39 @@ export default function CatchDetailsScreen() {
               <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Size</Text>
             </View>
             {isEditing ? (
-              <View style={styles.sizeInputsRow}>
-                <View style={styles.sizeInput}>
-                  <NumericInput
-                    value={formData.weight}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, weight: value }))}
-                    placeholder="0"
-                    unit={weightUnit}
+              <View style={styles.sizeInputsContainer}>
+                <View style={styles.sizeInputRow}>
+                  <View style={styles.sizeInput}>
+                    <NumericInput
+                      value={formData.weight}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, weight: value }))}
+                      placeholder="0"
+                      unit={weightUnit}
+                    />
+                  </View>
+                  <UnitToggle
+                    value={weightUnit}
+                    onValueChange={(value) => setWeightUnit(value as 'kg' | 'lb')}
+                    options={['kg', 'lb']}
+                    size="large"
                   />
                 </View>
-                <UnitToggle
-                  value={weightUnit}
-                  onValueChange={(value) => setWeightUnit(value as 'kg' | 'lb')}
-                  options={['kg', 'lb']}
-                  size="small"
-                />
-                <View style={styles.sizeInput}>
-                  <NumericInput
-                    value={formData.length}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, length: value }))}
-                    placeholder="0"
-                    unit={lengthUnit}
+                <View style={styles.sizeInputRow}>
+                  <View style={styles.sizeInput}>
+                    <NumericInput
+                      value={formData.length}
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, length: value }))}
+                      placeholder="0"
+                      unit={lengthUnit}
+                    />
+                  </View>
+                  <UnitToggle
+                    value={lengthUnit}
+                    onValueChange={(value) => setLengthUnit(value as 'cm' | 'in')}
+                    options={['cm', 'in']}
+                    size="large"
                   />
                 </View>
-                <UnitToggle
-                  value={lengthUnit}
-                  onValueChange={(value) => setLengthUnit(value as 'cm' | 'in')}
-                  options={['cm', 'in']}
-                  size="small"
-                />
               </View>
             ) : (
               <View style={styles.sizeRow}>
@@ -420,7 +431,7 @@ export default function CatchDetailsScreen() {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -443,9 +454,11 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
+    minHeight: 60,
   },
   backButton: {
-    padding: 4,
+    padding: 12,
+    marginLeft: -8,
   },
   headerTitle: {
     flex: 1,
@@ -457,11 +470,13 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 16,
   },
   headerButton: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
+    minHeight: 44,
+    justifyContent: 'center',
   },
   headerButtonText: {
     fontSize: 16,
@@ -470,17 +485,19 @@ const styles = StyleSheet.create({
   saveButton: {
     backgroundColor: '#FF6B35',
     borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
   },
   editButton: {
-    padding: 4,
+    padding: 12,
+    marginRight: -8,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: 20,
+    gap: 16,
   },
   errorContainer: {
     flex: 1,
@@ -492,19 +509,19 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   section: {
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 14,
@@ -519,8 +536,12 @@ const styles = StyleSheet.create({
   },
   weatherRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     marginLeft: 28,
     gap: 16,
+  },
+  weatherItem: {
+    fontSize: 16,
   },
   weatherCondition: {
     marginTop: 4,
@@ -531,15 +552,18 @@ const styles = StyleSheet.create({
     marginLeft: 28,
     gap: 32,
   },
-  sizeInputsRow: {
+  sizeInputsContainer: {
+    gap: 16,
+    marginLeft: 28,
+  },
+  sizeInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 28,
     gap: 12,
   },
   sizeInput: {
     flex: 1,
-    maxWidth: 120,
+    // maxWidth removed to allow full width
   },
   sizeItem: {
     flexDirection: 'column',

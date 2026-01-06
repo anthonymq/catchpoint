@@ -26,22 +26,22 @@ export function UnitToggle({
   const getFontSize = () => {
     switch (size) {
       case 'small':
-        return 12;
+        return 14; // increased from 12
       case 'large':
         return 18;
       default:
-        return 14;
+        return 16; // increased from 14
     }
   };
 
   const getPadding = () => {
     switch (size) {
       case 'small':
-        return 6;
+        return 10; // increased from 6
       case 'large':
-        return 14;
+        return 16; // increased from 14
       default:
-        return 10;
+        return 12; // increased from 10
     }
   };
 
@@ -218,13 +218,14 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     paddingHorizontal: 16,
     flex: 1,
+    minHeight: 56, // Enforce min height
   },
   input: {
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
     color: '#2C3E50',
-    paddingVertical: 14,
+    paddingVertical: 16, // Increased vertical padding
   },
   unitLabel: {
     fontSize: 16,
@@ -241,10 +242,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16, // Increased vertical padding
     fontSize: 16,
     color: '#2C3E50',
-    height: 52,
+    minHeight: 56, // Enforce min height
   },
   formInputMultiline: {
     height: 120,
@@ -263,9 +264,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
-    paddingVertical: 20,
+    paddingVertical: 24, // Increased from 20
     paddingHorizontal: 24,
     flex: 1,
+    minHeight: 80,
   },
   photoButtonText: {
     fontSize: 16,

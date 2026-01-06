@@ -146,7 +146,7 @@ export function SpeciesAutocomplete({
                 autoFocus
               />
               {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
+                <TouchableOpacity onPress={() => setSearchQuery('')} style={{ padding: 8 }}>
                   <Ionicons name="close-circle" size={20} color="#BDC3C7" />
                 </TouchableOpacity>
               )}
@@ -197,9 +197,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16, // Increased from 14
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    minHeight: 56,
   },
   inputIcon: {
     marginRight: 12,
@@ -209,7 +210,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   clearButton: {
-    padding: 4,
+    padding: 12, // Increased from 4
+    marginRight: -8,
   },
   modalOverlay: {
     flex: 1,
@@ -228,17 +230,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 20, // Increased from 16
     borderBottomWidth: 1,
     borderBottomColor: '#E0E0E0',
+    minHeight: 64,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20, // Increased from 18
     fontWeight: '600',
     color: '#2C3E50',
   },
   closeButton: {
-    padding: 4,
+    padding: 12, // Increased from 4
+    marginRight: -8,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -248,9 +252,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    minHeight: 56,
   },
   searchIcon: {
     marginRight: 12,
@@ -267,9 +272,10 @@ const styles = StyleSheet.create({
   speciesItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,
+    paddingVertical: 16, // Increased from 14
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
+    minHeight: 60,
   },
   speciesInfo: {
     flex: 1,
@@ -342,14 +348,17 @@ const styles = StyleSheet.create({
   },
   quickAccessChip: {
     backgroundColor: 'white',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: 16, // Increased from 12
+    paddingVertical: 12, // Increased from 8
+    borderRadius: 12, // Increased from 8
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    minHeight: 44,
+    justifyContent: 'center',
   },
   quickAccessChipText: {
     fontSize: 14,
     color: '#2C3E50',
+    fontWeight: '500',
   },
 });

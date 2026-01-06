@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
+    padding: 20, // Increased from 16
   },
   headerTitle: {
     fontSize: 28,
@@ -271,9 +271,11 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   unitOption: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 20, // Increased from 16
+    paddingVertical: 12, // Increased from 8
     borderRadius: 6,
+    minHeight: 44, // Added minHeight
+    justifyContent: 'center',
   },
   unitOptionSelected: {
     // Background set inline
