@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react';
 import {
   View,
   Text,
@@ -63,17 +63,21 @@ interface CatchFeature {
   };
 }
 
-function MapboxMapScreen({
-  catches,
-  loading,
-  colors,
-  isDark,
-}: {
+export interface MapboxMapScreenHandle {
+  fitToCatches: () => void;
+}
+
+const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
   catches: Catch[];
   loading: boolean;
   colors: any;
   isDark: boolean;
-}) {
+}>(function MapboxMapScreen({
+  catches,
+  loading,
+  colors,
+  isDark,
+}, ref) {
   const insets = useSafeAreaInsets();
 
   if (!MapboxComponents || !MapboxMapView) {
@@ -131,6 +135,11 @@ function MapboxMapScreen({
       animationDuration: 1000,
     });
   }, [catchFeatures]);
+
+  // Expose fitToCatches via ref
+  useImperativeHandle(ref, () => ({
+    fitToCatches: handleFitToCatches,
+  }), [handleFitToCatches]);
 
   const handleGoToUserLocation = useCallback(() => {
     if (userLocation) {
@@ -290,7 +299,7 @@ function MapboxMapScreen({
       )}
     </View>
   );
-}
+});
 
 function ExpoGoPlaceholder({ colors }: { colors: any }) {
   return (
@@ -313,6 +322,7 @@ export default function MapScreen() {
   const colors = useColors();
   const isDark = useIsDark();
   const insets = useSafeAreaInsets();
+  const mapboxRef = useRef<MapboxMapScreenHandle>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -323,6 +333,10 @@ export default function MapScreen() {
   const catchFeatures = useMemo(() => {
     return catches.filter((c: Catch) => c.latitude && c.longitude);
   }, [catches]);
+
+  const handleFitAll = useCallback(() => {
+    mapboxRef.current?.fitToCatches();
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -335,7 +349,7 @@ export default function MapScreen() {
           {catchFeatures.length > 0 && (
             <TouchableOpacity
               style={[styles.headerButton, { backgroundColor: colors.surfaceSecondary }]}
-              onPress={() => {}}
+              onPress={handleFitAll}
               activeOpacity={0.7}
             >
               <Ionicons name="scan" size={20} color={colors.primary} />
@@ -349,7 +363,7 @@ export default function MapScreen() {
       {Platform.OS === 'web' ? (
         <ExpoGoPlaceholder colors={colors} />
       ) : MapboxComponents ? (
-        <MapboxMapScreen catches={catches} loading={loading} colors={colors} isDark={isDark} />
+        <MapboxMapScreen ref={mapboxRef} catches={catches} loading={loading} colors={colors} isDark={isDark} />
       ) : (
         <ExpoGoPlaceholder colors={colors} />
       )}

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useColorScheme } from 'react-native';
-import { ThemeMode, ThemeColors, getThemeColors, getDefaultThemeMode } from '../theme/colors';
+import { ThemeMode, ThemeColors, getThemeColors } from '../theme/colors';
+import { useSettingsStore } from '../stores/settingsStore';
 
 interface ThemeContextType {
   themeMode: ThemeMode;
@@ -18,7 +19,8 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const systemColorScheme = useColorScheme();
-  const [themeMode, setThemeMode] = useState<ThemeMode>(getDefaultThemeMode());
+  // Use the settings store as the source of truth for theme mode
+  const { themeMode, setThemeMode: setStoreThemeMode } = useSettingsStore();
   const [colors, setColors] = useState<ThemeColors>(() =>
     getThemeColors(themeMode, systemColorScheme === 'dark')
   );
@@ -31,17 +33,18 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   }, [themeMode, systemColorScheme]);
 
   const setThemeModeCallback = useCallback((mode: ThemeMode) => {
-    setThemeMode(mode);
-  }, []);
+    setStoreThemeMode(mode);
+  }, [setStoreThemeMode]);
 
   const toggleTheme = useCallback(() => {
-    setThemeMode((current) => {
-      if (current === 'light') return 'dark';
-      if (current === 'dark') return 'system';
-      // If current is 'system', toggle to light
-      return 'light';
-    });
-  }, []);
+    if (themeMode === 'light') {
+      setStoreThemeMode('dark');
+    } else if (themeMode === 'dark') {
+      setStoreThemeMode('system');
+    } else {
+      setStoreThemeMode('light');
+    }
+  }, [themeMode, setStoreThemeMode]);
 
   const value: ThemeContextType = {
     themeMode,
