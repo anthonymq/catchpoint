@@ -75,12 +75,14 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
   colors: any;
   isDark: boolean;
   showHeatmap: boolean;
+  isTabFocused: boolean;
 }>(function MapboxMapScreen({
   catches,
   loading,
   colors,
   isDark,
   showHeatmap,
+  isTabFocused,
 }, ref) {
   const insets = useSafeAreaInsets();
 
@@ -96,7 +98,7 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
 
   const cameraRef = useRef<any>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
-  const [hasNavigatedToLastCatch, setHasNavigatedToLastCatch] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(14);
 
   // Convert catches to GeoJSON FeatureCollection
   const catchFeatures = useMemo<CatchFeature[]>(() => {
@@ -152,28 +154,53 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
         zoomLevel: 14,
         animationDuration: 1500,
       });
+      setCurrentZoom(14);
     }
   }, [userLocation]);
 
-  // Navigate to last catch location when catches load (only once)
+  const handleZoomIn = useCallback(() => {
+    const newZoom = Math.min(currentZoom + 1, 20);
+    cameraRef.current?.setCamera({
+      zoomLevel: newZoom,
+      animationDuration: 300,
+    });
+    setCurrentZoom(newZoom);
+  }, [currentZoom]);
+
+  const handleZoomOut = useCallback(() => {
+    const newZoom = Math.max(currentZoom - 1, 1);
+    cameraRef.current?.setCamera({
+      zoomLevel: newZoom,
+      animationDuration: 300,
+    });
+    setCurrentZoom(newZoom);
+  }, [currentZoom]);
+
+  // Navigate to last catch location when catches load or tab becomes focused
   useEffect(() => {
-    if (!hasNavigatedToLastCatch && catchFeatures.length > 0 && cameraRef.current) {
+    if (isTabFocused && catchFeatures.length > 0 && cameraRef.current) {
       const lastCatch = catchFeatures[0]; // Already sorted by createdAt DESC
       cameraRef.current.setCamera({
         centerCoordinate: lastCatch.geometry.coordinates,
         zoomLevel: 14,
-        animationDuration: 0, // No animation on initial load
+        animationDuration: 500,
       });
-      setHasNavigatedToLastCatch(true);
     }
-  }, [catchFeatures, hasNavigatedToLastCatch]);
+  }, [isTabFocused, catchFeatures]);
 
   useEffect(() => {
     (async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === 'granted') {
-        const location = await Location.getCurrentPositionAsync({});
-        setUserLocation([location.coords.longitude, location.coords.latitude]);
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          setUserLocation([location.coords.longitude, location.coords.latitude]);
+        }
+      } catch (error) {
+        // Location unavailable - silently ignore, user can still use the map
+        console.log('[Map] Location unavailable:', error);
       }
     })();
   }, []);
@@ -189,9 +216,12 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
       <MapView
         style={styles.map}
         styleURL={MAPBOX_STYLE_URL}
-        onPress={handleMarkerPress}
         logoEnabled={false}
         attributionEnabled={false}
+        zoomEnabled={true}
+        scrollEnabled={true}
+        pitchEnabled={true}
+        rotateEnabled={true}
       >
         <Camera ref={cameraRef} defaultSettings={{ zoomLevel: 4 }} />
 
@@ -290,10 +320,29 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
         </ShapeSource>
       </MapView>
 
-      {/* Map Controls */}
-      <View style={[styles.mapControls, { bottom: insets.bottom + 70 }]}>
+      {/* Map Controls - positioned above preview container */}
+      <View style={[styles.mapControls]}>
+        {/* Zoom In */}
         <TouchableOpacity
-          style={[styles.mapButton, { backgroundColor: colors.surface }]}
+          style={[styles.mapButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}
+          onPress={handleZoomIn}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="add" size={28} color={colors.primary} />
+        </TouchableOpacity>
+
+        {/* Zoom Out */}
+        <TouchableOpacity
+          style={[styles.mapButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}
+          onPress={handleZoomOut}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="remove" size={28} color={colors.primary} />
+        </TouchableOpacity>
+
+        {/* Go to User Location */}
+        <TouchableOpacity
+          style={[styles.mapButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]}
           onPress={handleGoToUserLocation}
           activeOpacity={0.7}
           disabled={!userLocation}
@@ -371,10 +420,16 @@ export default function MapScreen() {
   const insets = useSafeAreaInsets();
   const mapboxRef = useRef<MapboxMapScreenHandle>(null);
   const [showHeatmap, setShowHeatmap] = useState(false);
+  const [isTabFocused, setIsTabFocused] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
+      setIsTabFocused(true);
       fetchCatches();
+      
+      return () => {
+        setIsTabFocused(false);
+      };
     }, [fetchCatches])
   );
 
@@ -446,6 +501,7 @@ export default function MapScreen() {
           colors={colors}
           isDark={isDark}
           showHeatmap={showHeatmap}
+          isTabFocused={isTabFocused}
         />
       ) : (
         <ExpoGoPlaceholder colors={colors} />
@@ -489,9 +545,11 @@ const styles = StyleSheet.create({
   },
   mapControls: {
     position: 'absolute',
-    bottom: 160,
+    top: 80,
     right: 16,
+    flexDirection: 'column',
     gap: 8,
+    zIndex: 100,
   },
   mapButton: {
     width: 48,
@@ -501,9 +559,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 4,
+    elevation: 6,
   },
   catchCountBadge: {
     position: 'absolute',

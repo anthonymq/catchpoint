@@ -1,4 +1,18 @@
 import { Catch } from '../db/schema';
+import { getMoonPhase, MoonPhaseName, MOON_PHASES } from './moonPhase';
+
+export type PressureTrend = 'Rising' | 'Falling' | 'Stable' | 'Unknown';
+
+export type SkyCondition = 'Clear' | 'Clouds' | 'Rain' | 'Snow' | 'Other' | 'Unknown';
+
+export interface GoldenHourInsight {
+  peakHourStart: number;  // 0-23
+  peakHourEnd: number;    // 0-23
+  peakCount: number;
+  averageCount: number;
+  multiplier: number;     // How many times more likely (e.g., 3 = 3x more likely)
+  insightText: string;    // "You are 3x more likely to catch between 05:00-08:00"
+}
 
 export interface CatchStatistics {
   totalCatches: number;
@@ -11,6 +25,11 @@ export interface CatchStatistics {
   catchesByHour: { hour: number; count: number }[];
   bestDay: { date: string; count: number } | null;
   uniqueLocations: number;
+  // New Phase 4.5 fields
+  catchesByMoonPhase: { phase: MoonPhaseName; count: number }[];
+  catchesByPressureTrend: { trend: PressureTrend; count: number }[];
+  catchesBySkyCondition: { condition: SkyCondition; count: number; icon: string }[];
+  goldenHourInsight: GoldenHourInsight | null;
 }
 
 /**
@@ -29,6 +48,10 @@ export function calculateStatistics(catches: Catch[]): CatchStatistics {
       catchesByHour: [],
       bestDay: null,
       uniqueLocations: 0,
+      catchesByMoonPhase: MOON_PHASES.map((phase) => ({ phase, count: 0 })),
+      catchesByPressureTrend: [],
+      catchesBySkyCondition: [],
+      goldenHourInsight: null,
     };
   }
 
@@ -121,6 +144,27 @@ export function calculateStatistics(catches: Catch[]): CatchStatistics {
   });
   const uniqueLocations = locationSet.size;
 
+  // Catches by moon phase
+  const moonPhaseCount = new Map<MoonPhaseName, number>();
+  MOON_PHASES.forEach((phase) => moonPhaseCount.set(phase, 0));
+  catches.forEach((c) => {
+    const moonInfo = getMoonPhase(new Date(c.createdAt));
+    moonPhaseCount.set(moonInfo.name, (moonPhaseCount.get(moonInfo.name) || 0) + 1);
+  });
+  const catchesByMoonPhase = MOON_PHASES.map((phase) => ({
+    phase,
+    count: moonPhaseCount.get(phase) || 0,
+  }));
+
+  // Catches by pressure trend (simplified - compare to typical pressure)
+  const catchesByPressureTrend = calculatePressureTrendStats(catches);
+
+  // Catches by sky condition
+  const catchesBySkyCondition = calculateSkyConditionStats(catches);
+
+  // Golden hour insight
+  const goldenHourInsight = calculateGoldenHourInsight(catchesByHour);
+
   return {
     totalCatches,
     totalWeight,
@@ -132,6 +176,10 @@ export function calculateStatistics(catches: Catch[]): CatchStatistics {
     catchesByHour,
     bestDay,
     uniqueLocations,
+    catchesByMoonPhase,
+    catchesByPressureTrend,
+    catchesBySkyCondition,
+    goldenHourInsight,
   };
 }
 
@@ -219,3 +267,148 @@ export function formatHourLabel(hour: number): string {
   if (hour < 12) return `${hour} AM`;
   return `${hour - 12} PM`;
 }
+
+// ============================================================================
+// Phase 4.5: Advanced Statistics Helpers
+// ============================================================================
+
+const SKY_CONDITION_ICONS: Record<SkyCondition, string> = {
+  Clear: '☀️',
+  Clouds: '☁️',
+  Rain: '🌧️',
+  Snow: '❄️',
+  Other: '🌤️',
+  Unknown: '❓',
+};
+
+/**
+ * Categorize weather condition string into simplified SkyCondition
+ */
+function categorizeSkyCondition(weatherCondition: string | null): SkyCondition {
+  if (!weatherCondition) return 'Unknown';
+  
+  const condition = weatherCondition.toLowerCase();
+  
+  if (condition.includes('clear') || condition.includes('sun')) {
+    return 'Clear';
+  }
+  if (condition.includes('rain') || condition.includes('drizzle') || condition.includes('shower')) {
+    return 'Rain';
+  }
+  if (condition.includes('snow') || condition.includes('sleet')) {
+    return 'Snow';
+  }
+  if (condition.includes('cloud') || condition.includes('overcast') || condition.includes('fog') || condition.includes('mist')) {
+    return 'Clouds';
+  }
+  
+  return 'Other';
+}
+
+/**
+ * Calculate sky condition statistics from catches
+ */
+function calculateSkyConditionStats(catches: Catch[]): { condition: SkyCondition; count: number; icon: string }[] {
+  const conditionCount = new Map<SkyCondition, number>();
+  
+  catches.forEach((c) => {
+    const condition = categorizeSkyCondition(c.weatherCondition);
+    conditionCount.set(condition, (conditionCount.get(condition) || 0) + 1);
+  });
+  
+  // Return sorted by count, filter out zero counts
+  return (['Clear', 'Clouds', 'Rain', 'Snow', 'Other', 'Unknown'] as SkyCondition[])
+    .filter((condition) => (conditionCount.get(condition) || 0) > 0)
+    .map((condition) => ({
+      condition,
+      count: conditionCount.get(condition) || 0,
+      icon: SKY_CONDITION_ICONS[condition],
+    }))
+    .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Determine pressure trend based on pressure value
+ * Standard pressure is ~1013 hPa. We use simple thresholds:
+ * - Rising: > 1020 hPa
+ * - Falling: < 1005 hPa
+ * - Stable: 1005-1020 hPa
+ */
+function categorizePressure(pressure: number | null): PressureTrend {
+  if (pressure === null || pressure === undefined) return 'Unknown';
+  
+  if (pressure > 1020) return 'Rising';
+  if (pressure < 1005) return 'Falling';
+  return 'Stable';
+}
+
+/**
+ * Calculate pressure trend statistics from catches
+ */
+function calculatePressureTrendStats(catches: Catch[]): { trend: PressureTrend; count: number }[] {
+  const trendCount = new Map<PressureTrend, number>();
+  
+  catches.forEach((c) => {
+    const trend = categorizePressure(c.pressure);
+    trendCount.set(trend, (trendCount.get(trend) || 0) + 1);
+  });
+  
+  // Return sorted by count, filter out Unknown if empty
+  return (['Rising', 'Stable', 'Falling', 'Unknown'] as PressureTrend[])
+    .filter((trend) => (trendCount.get(trend) || 0) > 0)
+    .map((trend) => ({
+      trend,
+      count: trendCount.get(trend) || 0,
+    }));
+}
+
+/**
+ * Calculate golden hour insight from hourly catch data
+ * Finds the best 3-hour window and compares to average
+ */
+function calculateGoldenHourInsight(catchesByHour: { hour: number; count: number }[]): GoldenHourInsight | null {
+  const totalCatches = catchesByHour.reduce((sum, h) => sum + h.count, 0);
+  if (totalCatches < 5) return null; // Need minimum data
+  
+  const averagePerHour = totalCatches / 24;
+  
+  // Find best 3-hour window
+  let bestStart = 0;
+  let bestCount = 0;
+  
+  for (let i = 0; i < 24; i++) {
+    const windowCount = 
+      catchesByHour[i].count + 
+      catchesByHour[(i + 1) % 24].count + 
+      catchesByHour[(i + 2) % 24].count;
+    
+    if (windowCount > bestCount) {
+      bestCount = windowCount;
+      bestStart = i;
+    }
+  }
+  
+  const peakHourEnd = (bestStart + 3) % 24;
+  const multiplier = averagePerHour > 0 ? (bestCount / 3) / averagePerHour : 1;
+  
+  // Format hours for display
+  const formatHour = (h: number) => {
+    const suffix = h < 12 ? 'AM' : 'PM';
+    const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${String(hour12).padStart(2, '0')}:00 ${suffix}`;
+  };
+  
+  const insightText = multiplier >= 1.5 
+    ? `You are ${multiplier.toFixed(1)}x more likely to catch between ${formatHour(bestStart)} - ${formatHour(peakHourEnd)}`
+    : `Your catches are evenly distributed throughout the day`;
+  
+  return {
+    peakHourStart: bestStart,
+    peakHourEnd,
+    peakCount: bestCount,
+    averageCount: averagePerHour,
+    multiplier: Math.round(multiplier * 10) / 10,
+    insightText,
+  };
+}
+

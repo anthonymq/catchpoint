@@ -2,24 +2,44 @@
 
 ## Current Progress Summary
 
-We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + Polish)**, and **Phase 3 (Map & Log Views)**. Ready to start **Phase 4 (Statistics & Cloud Sync)**.
+We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + Polish)**, **Phase 3 (Map & Log Views)**, and **Phase 4 (Statistics & Cloud Sync)**. Ready for **Phase 4.5 (Advanced Insights & Analytics)**.
 
 ### Key Achievements:
-*   **Phase 1 - 3 COMPLETE** ✅
+*   **Phase 1 - 4 COMPLETE** ✅
+*   **Phase 4.5 In Progress** 🚀
 *   **UI Safe Area Handling:** Proper layout support for devices with notches, home indicators, and dynamic safe areas
-*   **Map Integration:** Full @rnmapbox/maps integration with clustering, markers, and navigation
+*   **Map Integration:** Full @rnmapbox/maps integration with clustering, markers, heatmap, and navigation
 *   **Enhanced Log Screen:** Swipe-to-delete with haptic feedback, filter modal (date/species), improved card UI
 *   **Optimistic UI & Performance:** Ultra-responsive "Fish On" button with 0.3s feedback, async location/weather fetching
-*   **Expo & Router Setup:** Configured Expo SDK 54 with `expo-router`.
-*   **Database (Drizzle + SQLite):** Initialized `expo-sqlite` with Drizzle ORM. Created `catches` and `species` schemas and implemented a migration system.
-*   **State Management:** Built a Zustand `catchStore` for CRUD operations and a `settingsStore` for user preferences.
-*   **Quick Capture Flow:** Implemented "Fish On!" button logic with GPS capture, UUID generation, and haptic feedback.
-*   **Weather & Sync Service:** Built background sync for weather using OpenWeatherMap API 2.5.
-*   **Catch Details Screen:** Full edit mode with species autocomplete, unit toggles, photo capture, and form inputs.
-*   **Dark Mode:** Complete theme system with light/dark mode support and settings toggle.
-*   **Species Database:** Comprehensive species data file with 100+ fish species for autocomplete.
-*   **Photo Service:** Local photo storage service using expo-image-picker and expo-file-system.
-*   **E2E Testing:** Full Maestro E2E test suite with 7 passing tests covering all app screens and user flows.
+*   **Statistics Dashboard:** Comprehensive stats with charts (victory-native), time range filters, summary cards
+*   **Charts:** Catches Over Time (line), Species Distribution (pie), Hourly Activity (bar)
+*   **Heatmap:** Map heatmap layer with catch density visualization
+*   **CSV Export:** Export catches to CSV with native share sheet
+*   **Settings Persistence:** User preferences persist across app restarts
+*   **E2E Testing:** Full Maestro E2E test suite with 9 passing tests
+
+### Phase 4.5 Progress - Advanced Insights & Analytics:
+*   ✅ **Moon Phase (Solunar) Dashboard:** 
+    - Installed `suncalc` library for accurate moon phase calculations
+    - Created `getMoonPhase()` utility with phase icons (🌑🌓🌕🌗)
+    - Built `MoonPhaseChart` component with horizontal bars and catch percentages
+    - Shows best phase insight with highlighted text
+*   ✅ **Golden Hour Heatmap:**
+    - 24-hour horizontal bar chart with color grading (cold blue → hot red)
+    - Interactive tap for hour-by-hour tooltips
+    - Smart insight text: "You are 3x more likely to catch between 05:00-08:00"
+    - Legend showing color scale
+*   ✅ **Weather Impact Analysis:**
+    - **Pressure Performance Chart:** Rising/Falling/Stable pressure trends with icons (📈➡️📉)
+    - **Sky Conditions Chart:** Clear/Clouds/Rain/Snow with weather icons and color coding
+    - Both charts show best conditions insight
+*   ✅ **Empty State Handling:**
+    - 0 catches: "Log catches to unlock insights"
+    - <5 catches: Warning banner "Not enough data for accurate patterns"
+*   ✅ **Stats Screen Reorganization:**
+    - Section headers: "My Patterns", "Weather Impact", "Catch Analytics"
+    - Descriptive subtitles for each chart section
+    - Unified card design with emojis for visual hierarchy
 
 ### Technical Decisions:
 *   **Native Crypto:** Switched to `expo-crypto` for native UUID generation.
@@ -27,90 +47,37 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
 *   **Theme System:** Built custom ThemeContext with system theme detection.
 *   **Gesture Handling:** Initially used react-native-gesture-handler + Reanimated, but migrated to React Native's native PanResponder to eliminate GestureHandlerRootView requirement.
 *   **Mapbox:** Integrated with conditional imports for Expo Go compatibility.
-*   **Safe Area Handling:** Uses `react-native-safe-area-context` with SafeAreaProvider at app root and `useSafeAreaInsets()` hooks in each screen for dynamic layout adjustments. Explicit insets preferred over SafeAreaView wrapper to ensure consistent behavior across all device types.
-*   **E2E Testing (Maestro):** Configured Maestro CLI for mobile E2E testing with `launchApp` for clean state, regex assertions for dynamic text, and proper tap coordinates for UI elements.
+*   **Safe Area Handling:** Uses `react-native-safe-area-context` with SafeAreaProvider at app root and `useSafeAreaInsets()` hooks in each screen for dynamic layout adjustments.
+*   **Moon Phase Calculation:** Uses `suncalc` library for accurate lunar phase calculations based on date.
+*   **Charting:** victory-native + @shopify/react-native-skia for all chart components.
 
 ### Current Status:
 *   ✅ Phase 1 (Quick Capture) - COMPLETE
 *   ✅ Phase 2 (Catch Details) - COMPLETE
-*   ✅ Phase 3 (Map & Log Views) - **COMPLETE** 🚀
-*   ✅ UI Safe Area Fixes - **COMPLETE** ✨
-*   ✅ Quick Capture Performance Optimization - **COMPLETE** ⚡
-*   ✅ E2E Testing Suite (Maestro) - **COMPLETE** 🧪
-*   🚀 Ready for **Phase 4 (Statistics & Cloud Sync)**
+*   ✅ Phase 3 (Map & Log Views) - COMPLETE
+*   ✅ Phase 4 (Statistics & Cloud Sync) - COMPLETE
+*   ✅ Phase 4.5 (Advanced Insights) - **COMPLETE** 🚀
 *   **Blocker:** Valid `EXPO_PUBLIC_OPENWEATHERMAP_API_KEY` required in `.env` for weather fetching.
 *   **Note:** Map screen requires Mapbox access token for native builds. Shows placeholder in Expo Go.
 
-### Android Build Requirements:
-*   **Mapbox SDK Version:** Must use `11.16.2` (matches `@rnmapbox/maps` v10.2.10 expectations)
-*   **Environment Variable:** Set `RNMAPBOX_MAPS_DOWNLOAD_TOKEN` before building:
-    ```bash
-    export RNMAPBOX_MAPS_DOWNLOAD_TOKEN=$(grep "^RNMAPBOX_MAPS_DOWNLOAD_TOKEN=" .env | cut -d'=' -f2)
-    npx expo prebuild --clean --platform android
-    cd android && ./gradlew app:assembleDebug
-    ```
-*   **Dependencies:** Expo SDK 54 requires `react-native-reanimated@~4.1.1` and `react-native-gesture-handler@~2.28.0`
+### New Dependencies (Phase 4.5):
+*   `suncalc@^1.9.0` - Moon phase calculations
+*   `@types/suncalc@^1.9.2` - TypeScript types for suncalc
 
-### New Dependencies (Phase 3):
-*   `@rnmapbox/maps@^10.2.10` - Mapbox Maps SDK (requires Mapbox SDK 11.16.2)
-*   `react-native-gesture-handler@~2.28.0` - Gesture recognition (installed but SwipeableCatchRow uses native PanResponder instead)
-*   `react-native-reanimated@~4.1.1` - UI-thread animations (Expo SDK 54 compatible, still used for other animations)
-*   `expo-build-properties` - Native build configuration
+### New Files (Phase 4.5):
+| File | Description |
+|------|-------------|
+| `src/utils/moonPhase.ts` | Moon phase calculation utility with `getMoonPhase()`, icons, and colors |
+| `src/components/stats/GoldenHourHeatmap.tsx` | 24-hour heatmap with color grading and insight text |
+| `src/components/stats/MoonPhaseChart.tsx` | Moon phase distribution with icons and bar chart |
+| `src/components/stats/PressurePerformanceChart.tsx` | Barometric pressure trend analysis |
+| `src/components/stats/SkyConditionsChart.tsx` | Weather conditions impact chart |
 
-### Known Issues & Fixes:
-*   **Mapbox 401 Unauthorized:** The download token must be a real environment variable, not in `app.json`. Use `export RNMAPBOX_MAPS_DOWNLOAD_TOKEN=sk.xxx` before build.
-*   **`android-ndk27` not found:** Caused by SDK version mismatch. Use SDK 11.16.2 (not 11.0.0 or 11.10.0).
-*   **Reanimated compilation errors:** Must use version `~4.1.1` for RN 0.81.x compatibility.
-*   **GestureDetector/GestureHandlerRootView Error:** Both ReanimatedSwipeable and GestureDetector require GestureHandlerRootView wrapper. Fixed by migrating SwipeableCatchRow to use React Native's native PanResponder API with Animated.Value, eliminating the gesture-handler dependency requirement.
-*   **UI Layout Issues on Modern Devices:** Top and bottom elements (buttons, controls, content) were not properly displayed on devices with notches and home indicators. Fixed by implementing proper safe area handling with `react-native-safe-area-context`:
-  *   Added `SafeAreaProvider` at app root level (`app/_layout.tsx`)
-  *   Replaced hardcoded padding values with dynamic `useSafeAreaInsets()` hooks
-  *   Updated tab bar to dynamically adjust height for bottom safe areas (`60 + insets.bottom`)
-  *   Fixed all tab screens (Home, Log, Map, Settings) with proper top/bottom insets
-  *   Map controls and badges now position dynamically based on safe areas
-  *   Consistent layout across iOS (notch/home indicator) and Android devices
-*   **"Fish On" Button Performance (3-4s delay):** Quick capture was too slow due to blocking location/weather fetches. Implemented optimistic UI pattern:
-    *   **Before:** Click → wait 3-4s for GPS + weather → success
-    *   **After:** Click → 0.3s → success (instant feedback)
-    *   Optimistic UI: Shows success immediately while work happens in background
-    *   Smart location strategy: Try fresh location (8s timeout) → fallback to cached → refresh cache async
-    *   Non-blocking weather: Weather API call moved to background, doesn't block UI
-    *   Button UI fix: Status text ("Getting location...", "Catch saved!") now displays inside button instead of below to prevent vertical movement
-    *   Files changed: `app/(tabs)/index.tsx`, `src/components/QuickCaptureButton.tsx`
-
-### E2E Testing (Maestro):
-*   **Test Suite:** 7 comprehensive E2E tests covering all app screens and user flows
-*   **Framework:** Maestro CLI v2.0.10 (installed via `brew install mobile-dev-inc/tap/maestro`)
-*   **Test Files:**
-    | Test File | Coverage |
-    |-----------|----------|
-    | `e2e/home.yaml` | Home screen, FISH ON! button, catch count |
-    | `e2e/map.yaml` | Map display, Fit All, recent catches, marker tap |
-    | `e2e/log.yaml` | Catch log list, filtering, catch cards |
-    | `e2e/settings.yaml` | Settings display, unit toggles (kg/lb, cm/in) |
-    | `e2e/catch-details.yaml` | Catch details view, weather display, edit mode |
-    | `e2e/delete-catch.yaml` | Swipe-to-delete flow |
-    | `e2e/full-flow.yaml` | Complete user journey with screenshots |
-
-*   **Issues Fixed During Setup:**
-    1.  **Tests assumed fresh app state:** Added `- launchApp` at beginning of all tests
-    2.  **Hardcoded count assertions** (`"1"`, `"0"`): Changed to verify `"Total Catches"` visibility
-    3.  **Exact text matching** (`"catches"`): Changed to regex `".*catches"` for dynamic text
-    4.  **Temperature assertion** (`"°C"`): Changed to `".*°C.*"` to handle emoji prefixes
-    5.  **Edit button tap position** (`95%,4%`): Fixed to `93%,7%` for correct button hit area
-    6.  **Missing navigation:** Added `tapOn: "Home"` with wait before asserting Home screen
-
-*   **Running Tests:**
-    ```bash
-    # Install Maestro
-    brew install mobile-dev-inc/tap/maestro
-    
-    # Run all tests
-    npm run test:e2e
-    
-    # Run individual test
-    maestro test e2e/home.yaml
-    ```
+### Updated Files (Phase 4.5):
+| File | Changes |
+|------|---------|
+| `src/utils/statistics.ts` | Added `catchesByMoonPhase`, `catchesByPressureTrend`, `catchesBySkyCondition`, `goldenHourInsight` |
+| `app/(tabs)/stats.tsx` | New PRD layout with "My Patterns" and "Weather Impact" sections |
 
 ---
 
@@ -121,41 +88,32 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
 > **Current Progress:**
 > - ✅ Phase 1 (Quick Capture) is **COMPLETE**
 > - ✅ Phase 2 (Catch Details) is **COMPLETE**
-> - ✅ Phase 3 (Map & Log Views) is **COMPLETE**:
->   - ✅ Map screen with Mapbox integration, clustering, and markers
->   - ✅ Swipe-to-delete with haptic feedback on Log screen
->   - ✅ Filter modal for date range and species filtering
->   - ✅ Enhanced catch cards with species icons and photo indicators
-> - ✅ UI Safe Area Fixes is **COMPLETE**:
->   - ✅ SafeAreaProvider at app root for global safe area context
->   - ✅ Dynamic tab bar height with bottom inset handling
->   - ✅ All screens (Home, Log, Map, Settings, Catch Details) with proper safe area insets
->   - ✅ No more hardcoded padding values - fully responsive to device notches and home indicators
-> - ✅ E2E Testing Suite is **COMPLETE**:
->   - ✅ 7 Maestro tests passing (home, map, log, settings, catch-details, delete-catch, full-flow)
->   - ✅ Tests launch app fresh for clean state
->   - ✅ Regex assertions for dynamic text content
+> - ✅ Phase 3 (Map & Log Views) is **COMPLETE**
+> - ✅ Phase 4 (Statistics & Cloud Sync) is **COMPLETE**
+> - ✅ Phase 4.5 (Advanced Insights) is **COMPLETE**:
+>   - ✅ Golden Hour Heatmap with color grading and smart insights
+>   - ✅ Moon Phase (Solunar) Dashboard with icons and percentages
+>   - ✅ Pressure Performance chart (Rising/Falling/Stable)
+>   - ✅ Sky Conditions chart with weather icons
+>   - ✅ Empty state handling for <5 catches
 >
 > **Key Files to Reference:**
-> - `app/(tabs)/map.tsx`: Map screen with Mapbox view and catch markers
-> - `app/(tabs)/log.tsx`: Enhanced Log screen with swipe actions and filters
-> - `src/components/SwipeableCatchRow.tsx`: PanResponder-based swipeable row component (migrated from ReanimatedSwipeable)
-> - `src/components/FilterModal.tsx`: Filter modal with date/species options
-> - `e2e/*.yaml`: Maestro E2E test files
+> - `app/(tabs)/stats.tsx`: Statistics screen with all charts
+> - `src/utils/statistics.ts`: Statistics calculations including moon phase, pressure, sky conditions
+> - `src/utils/moonPhase.ts`: Moon phase calculation utility
+> - `src/components/stats/*.tsx`: All chart components
 >
 > **Goal:**
-> Start **Phase 4: Statistics & Cloud Sync**.
+> Start **Phase 5: Cloud Sync & Account**.
 >
 > **Immediate Tasks:**
-> 1.  **Statistics Screen:** Create Statistics screen shell with summary cards
-> 2.  **Charting:** Install and configure charting library (victory-native or react-native-chart-kit)
-> 3.  **Time Analysis:** Build "Best Time of Day" bar chart
-> 4.  **Species Stats:** Build species breakdown pie/donut chart
-> 5.  **Monthly Trend:** Build monthly catch count line chart
-> 6.  **Export Feature:** Implement CSV export functionality
-> 7.  **Cloud Sync (Optional):** Research Firebase/Supabase sync options
+> 1.  **Firebase Setup:** Initialize Firebase project and configure auth
+> 2.  **User Authentication:** Implement email/password and Google sign-in
+> 3.  **Firestore Sync:** Bidirectional sync for catches collection
+> 4.  **Conflict Resolution:** Handle offline changes and merge conflicts
+> 5.  **Account Settings:** Profile screen with sign out option
 >
-> Please start Phase 4 implementation."
+> Please start Phase 5 implementation."
 
 ---
 
@@ -175,6 +133,8 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
 | Weather API | OpenWeatherMap 2.5 (Free) |
 | Camera | expo-image-picker |
 | Location | expo-location |
+| Charts | victory-native + @shopify/react-native-skia |
+| Moon Phase | suncalc |
 
 ---
 
@@ -230,7 +190,7 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
 
 ---
 
-### Phase 3: Map & Log Views
+### Phase 3: Map & Log Views (COMPLETED)
 **Goal**: Visualize catches on map with clustering, scrollable log history
 
 | ID | Task | Size | Status |
@@ -259,15 +219,58 @@ We have completed **Phase 1 (MVP - Quick Capture)**, **Phase 2 (Catch Details + 
 
 ---
 
-### Phase 4: Statistics & Cloud Sync (V2)
+### Phase 4: Statistics & Cloud Sync (COMPLETED)
 **Goal**: Analytics charts, optional cloud backup, data export
 
 | ID | Task | Size | Status |
 |----|------|------|--------|
-| 4.1 | Create Statistics screen shell | M | [ ] |
-| 4.2 | Install charting library (victory-native) | S | [ ] |
-| 4.3 | Build "Best Time of Day" bar chart | M | [ ] |
-| 4.8 | Add statistics summary cards | M | [ ] |
-| 4.10 | Create Settings screen | M | [ ] |
-| 4.16 | Build Firebase sync service (Optional) | L | [ ] |
-| 4.22 | Implement CSV export | M | [ ] |
+| 4.1 | Create Statistics screen shell | M | [x] |
+| 4.2 | Install charting library (victory-native + skia) | S | [x] |
+| 4.3 | Build Catches Over Time line chart | M | [x] |
+| 4.4 | Build Species Distribution pie chart | M | [x] |
+| 4.5 | Build Hourly Activity bar chart | M | [x] |
+| 4.6 | Add statistics summary cards (Overview Section) | M | [x] |
+| 4.7 | Add time range filter (7D, 30D, 1Y, All) | S | [x] |
+| 4.8 | Implement test data generation | M | [x] |
+| 4.9 | Add Load Test Data / Wipe Data buttons | S | [x] |
+| 4.10 | Build Map Heatmap layer | M | [x] |
+| 4.11 | Implement CSV export | M | [x] |
+| 4.12 | Add settings persistence | M | [x] |
+| 4.13 | Write E2E tests for Stats and Export | S | [x] |
+
+---
+
+### Phase 4.5: Advanced Insights & Analytics (COMPLETED)
+**Goal**: Deep fishing insights with moon phases, pressure, and weather analysis
+
+| ID | Task | Size | Status |
+|----|------|------|--------|
+| 4.5.1 | Install suncalc for moon phase calculations | S | [x] |
+| 4.5.2 | Create moon phase utility (getMoonPhase) | M | [x] |
+| 4.5.3 | Create pressure trend utility | S | [x] |
+| 4.5.4 | Update statistics.ts with new aggregations | M | [x] |
+| 4.5.5 | Build GoldenHourHeatmap component | M | [x] |
+| 4.5.6 | Build MoonPhaseChart component | M | [x] |
+| 4.5.7 | Build PressurePerformanceChart component | M | [x] |
+| 4.5.8 | Build SkyConditionsChart component | M | [x] |
+| 4.5.9 | Update Stats screen with PRD layout | M | [x] |
+| 4.5.10 | Add Smart Insight text generation | S | [x] |
+| 4.5.11 | Add empty state handling (<5 catches) | S | [x] |
+
+---
+
+### Phase 5: Cloud Sync & Account (PLANNED)
+**Goal**: User accounts with cloud backup and cross-device sync
+
+| ID | Task | Size | Status |
+|----|------|------|--------|
+| 5.1 | Set up Firebase project | S | [ ] |
+| 5.2 | Configure Firebase Auth (email, Google) | M | [ ] |
+| 5.3 | Build sign-in/sign-up screens | M | [ ] |
+| 5.4 | Create user profile store | S | [ ] |
+| 5.5 | Set up Firestore catches collection | M | [ ] |
+| 5.6 | Implement upload to cloud | M | [ ] |
+| 5.7 | Implement download from cloud | M | [ ] |
+| 5.8 | Handle conflict resolution | L | [ ] |
+| 5.9 | Add sync status indicator | S | [ ] |
+| 5.10 | Build account settings screen | M | [ ] |

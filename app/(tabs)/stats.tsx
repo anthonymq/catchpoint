@@ -6,11 +6,13 @@ import { useState, useMemo } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { calculateStatistics, getDateRangeForFilter, getCatchesForDateRange } from '../../src/utils/statistics';
 import { TEST_CATCHES } from '../../src/data/testCatches';
-import StatCard from '../../src/components/stats/StatCard';
 import OverviewSection from '../../src/components/stats/OverviewSection';
 import CatchesByTimeChart from '../../src/components/stats/CatchesByTimeChart';
 import SpeciesDistributionChart from '../../src/components/stats/SpeciesDistributionChart';
-import HourlyActivityChart from '../../src/components/stats/HourlyActivityChart';
+import GoldenHourHeatmap from '../../src/components/stats/GoldenHourHeatmap';
+import MoonPhaseChart from '../../src/components/stats/MoonPhaseChart';
+import PressurePerformanceChart from '../../src/components/stats/PressurePerformanceChart';
+import SkyConditionsChart from '../../src/components/stats/SkyConditionsChart';
 
 type TimeFilter = 'week' | 'month' | 'year' | 'all';
 
@@ -41,6 +43,9 @@ export default function StatsScreen() {
     { label: 'All', value: 'all' },
   ];
 
+  // Low data warning threshold
+  const showLowDataWarning = stats.totalCatches > 0 && stats.totalCatches < 5;
+
   if (loading) {
     return (
       <View style={[styles.container, styles.centered, { backgroundColor: colors.background }]}>
@@ -57,7 +62,7 @@ export default function StatsScreen() {
           <Ionicons name="stats-chart-outline" size={80} color={colors.textSecondary} />
           <Text style={[styles.emptyTitle, { color: colors.text }]}>No Statistics Yet</Text>
           <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-            Start logging catches to see your fishing statistics and trends.
+            Log catches to unlock insights
           </Text>
           <TouchableOpacity
             style={[styles.testDataButton, { backgroundColor: colors.primary }]}
@@ -110,25 +115,95 @@ export default function StatsScreen() {
           ))}
         </View>
 
+        {/* Low Data Warning */}
+        {showLowDataWarning && (
+          <View style={[styles.warningContainer, { backgroundColor: colors.surface, borderColor: colors.warning }]}>
+            <Ionicons name="warning-outline" size={18} color={colors.warning} />
+            <Text style={[styles.warningText, { color: colors.textSecondary }]}>
+              Not enough data for accurate patterns. Log more catches!
+            </Text>
+          </View>
+        )}
+
         {/* Overview Stats */}
         <OverviewSection stats={stats} />
 
+        {/* ============================================= */}
+        {/* SECTION: My Patterns */}
+        {/* ============================================= */}
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>My Patterns</Text>
+          <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
+            Discover your fishing sweet spots
+          </Text>
+        </View>
+
+        {/* Golden Hour Heatmap */}
+        <View style={[styles.chartSection, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.chartTitle, { color: colors.text }]}>🌅 Golden Hour</Text>
+          <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>
+            When do you catch the most fish?
+          </Text>
+          <GoldenHourHeatmap stats={stats} />
+        </View>
+
+        {/* Moon Phase */}
+        <View style={[styles.chartSection, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.chartTitle, { color: colors.text }]}>🌙 Moon Phase (Solunar)</Text>
+          <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>
+            Lunar patterns in your catches
+          </Text>
+          <MoonPhaseChart stats={stats} />
+        </View>
+
+        {/* ============================================= */}
+        {/* SECTION: Weather Impact */}
+        {/* ============================================= */}
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Weather Impact</Text>
+          <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
+            How weather affects your success
+          </Text>
+        </View>
+
+        {/* Pressure Performance */}
+        <View style={[styles.chartSection, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.chartTitle, { color: colors.text }]}>📊 Pressure Performance</Text>
+          <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>
+            Barometric pressure trends
+          </Text>
+          <PressurePerformanceChart stats={stats} />
+        </View>
+
+        {/* Sky Conditions */}
+        <View style={[styles.chartSection, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.chartTitle, { color: colors.text }]}>🌤️ Sky Conditions</Text>
+          <Text style={[styles.chartSubtitle, { color: colors.textSecondary }]}>
+            Your best weather for fishing
+          </Text>
+          <SkyConditionsChart stats={stats} />
+        </View>
+
+        {/* ============================================= */}
+        {/* SECTION: Catch Analytics */}
+        {/* ============================================= */}
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Catch Analytics</Text>
+          <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
+            Your catch history breakdown
+          </Text>
+        </View>
+
         {/* Catches Over Time Chart */}
         <View style={[styles.chartSection, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.chartTitle, { color: colors.text }]}>Catches Over Time</Text>
+          <Text style={[styles.chartTitle, { color: colors.text }]}>📈 Catches Over Time</Text>
           <CatchesByTimeChart catches={filteredCatches} />
         </View>
 
         {/* Species Distribution */}
         <View style={[styles.chartSection, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.chartTitle, { color: colors.text }]}>Top Species</Text>
+          <Text style={[styles.chartTitle, { color: colors.text }]}>🐟 Top Species</Text>
           <SpeciesDistributionChart stats={stats} />
-        </View>
-
-        {/* Hourly Activity */}
-        <View style={[styles.chartSection, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.chartTitle, { color: colors.text }]}>Best Fishing Hours</Text>
-          <HourlyActivityChart stats={stats} />
         </View>
 
         {/* Spacer for tab bar */}
@@ -185,6 +260,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  warningContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginBottom: 16,
+    gap: 8,
+  },
+  warningText: {
+    fontSize: 13,
+    flex: 1,
+  },
+  sectionHeader: {
+    marginTop: 24,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+  },
   chartSection: {
     borderRadius: 12,
     padding: 16,
@@ -193,6 +293,10 @@ const styles = StyleSheet.create({
   chartTitle: {
     fontSize: 16,
     fontWeight: '600',
+    marginBottom: 4,
+  },
+  chartSubtitle: {
+    fontSize: 13,
     marginBottom: 12,
   },
   emptyState: {
