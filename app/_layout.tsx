@@ -9,6 +9,7 @@ import { useCatchStore } from '../src/stores/catchStore';
 import { syncPendingWeather } from '../src/services/sync';
 import { useNetworkStatus } from '../src/hooks/useNetworkStatus';
 import { ThemeProvider, useColors } from '../src/context/ThemeContext';
+import { useSettingsHydrated } from '../src/stores/settingsStore';
 
 function AppContent() {
   const [isReady, setIsReady] = useState(false);
@@ -17,6 +18,7 @@ function AppContent() {
   const fetchCatches = useCatchStore((state) => state.fetchCatches);
   const colors = useColors();
   const systemColorScheme = useColorScheme();
+  const settingsHydrated = useSettingsHydrated();
 
   // Initialize database and run migrations on app start
   useEffect(() => {
@@ -50,7 +52,7 @@ function AppContent() {
   }, [isReady, networkStatus.status]);
 
   // Show loading screen while initializing
-  if (!isReady) {
+  if (!isReady || !settingsHydrated) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
         <StatusBar style={systemColorScheme === 'dark' ? 'light' : 'dark'} />

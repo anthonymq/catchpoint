@@ -26,6 +26,7 @@ let MapboxComponents: {
   ShapeSource: React.ComponentType<any>;
   CircleLayer: React.ComponentType<any>;
   SymbolLayer: React.ComponentType<any>;
+  HeatmapLayer: React.ComponentType<any>;
 } | null = null;
 
 let MapboxMapView: React.ComponentType<any> | null = null;
@@ -41,6 +42,7 @@ try {
     ShapeSource: Mapbox.ShapeSource,
     CircleLayer: Mapbox.CircleLayer,
     SymbolLayer: Mapbox.SymbolLayer,
+    HeatmapLayer: Mapbox.HeatmapLayer,
   };
   MapboxMapView = Mapbox.MapView;
 } catch (e) {
@@ -72,11 +74,13 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
   loading: boolean;
   colors: any;
   isDark: boolean;
+  showHeatmap: boolean;
 }>(function MapboxMapScreen({
   catches,
   loading,
   colors,
   isDark,
+  showHeatmap,
 }, ref) {
   const insets = useSafeAreaInsets();
 
@@ -88,7 +92,7 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
     );
   }
 
-  const { MapView, Camera, ShapeSource, CircleLayer, SymbolLayer } = MapboxComponents;
+  const { MapView, Camera, ShapeSource, CircleLayer, SymbolLayer, HeatmapLayer } = MapboxComponents;
 
   const cameraRef = useRef<any>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
@@ -198,48 +202,91 @@ const MapboxMapScreen = forwardRef<MapboxMapScreenHandle, {
             type: 'FeatureCollection',
             features: catchFeatures,
           }}
-          cluster={true}
+          cluster={!showHeatmap}
           clusterRadius={50}
           clusterMaxZoomLevel={14}
           onPress={handleMarkerPress}
         >
-          {/* Cluster Circles */}
-          <CircleLayer
-            id="clusterCircles"
-            filter={['has', 'point_count']}
-            style={{
-              circleColor: ['step', ['get', 'point_count'], colors.primary, 10, colors.warning, 50, colors.error],
-              circleRadius: ['step', ['get', 'point_count'], 20, 10, 30, 50, 40],
-              circleOpacity: 0.85,
-              circleStrokeWidth: 2,
-              circleStrokeColor: '#FFFFFF',
-            }}
-          />
+          {/* Heatmap Layer - shown when toggle is on */}
+          {showHeatmap && (
+            <HeatmapLayer
+              id="catchHeatmap"
+              style={{
+                heatmapColor: [
+                  'interpolate',
+                  ['linear'],
+                  ['heatmap-density'],
+                  0, 'rgba(33,102,172,0)',
+                  0.2, 'rgb(103,169,207)',
+                  0.4, 'rgb(209,229,240)',
+                  0.6, 'rgb(253,219,119)',
+                  0.8, 'rgb(239,138,98)',
+                  1, 'rgb(178,24,43)',
+                ],
+                heatmapWeight: 1,
+                heatmapIntensity: [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  0, 1,
+                  9, 3,
+                ],
+                heatmapRadius: [
+                  'interpolate',
+                  ['linear'],
+                  ['zoom'],
+                  0, 15,
+                  9, 30,
+                  15, 50,
+                ],
+                heatmapOpacity: 0.8,
+              }}
+            />
+          )}
 
-          {/* Cluster Count Labels */}
-          <SymbolLayer
-            id="clusterCounts"
-            filter={['has', 'point_count']}
-            style={{
-              textField: ['get', 'point_count_abbreviated'],
-              textSize: 14,
-              textColor: '#FFFFFF',
-              textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            }}
-          />
+          {/* Cluster Circles - hidden when heatmap is shown */}
+          {!showHeatmap && (
+            <CircleLayer
+              id="clusterCircles"
+              filter={['has', 'point_count']}
+              style={{
+                circleColor: ['step', ['get', 'point_count'], colors.primary, 10, colors.warning, 50, colors.error],
+                circleRadius: ['step', ['get', 'point_count'], 20, 10, 30, 50, 40],
+                circleOpacity: 0.85,
+                circleStrokeWidth: 2,
+                circleStrokeColor: '#FFFFFF',
+              }}
+            />
+          )}
 
-          {/* Individual Catch Markers */}
-          <CircleLayer
-            id="catchMarkers"
-            filter={['!', ['has', 'point_count']]}
-            style={{
-              circleColor: colors.primary,
-              circleRadius: 12,
-              circleStrokeWidth: 3,
-              circleStrokeColor: '#FFFFFF',
-              circleOpacity: 0.9,
-            }}
-          />
+          {/* Cluster Count Labels - hidden when heatmap is shown */}
+          {!showHeatmap && (
+            <SymbolLayer
+              id="clusterCounts"
+              filter={['has', 'point_count']}
+              style={{
+                textField: ['get', 'point_count_abbreviated'],
+                textSize: 14,
+                textColor: '#FFFFFF',
+                textFont: ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+              }}
+            />
+          )}
+
+          {/* Individual Catch Markers - hidden when heatmap is shown */}
+          {!showHeatmap && (
+            <CircleLayer
+              id="catchMarkers"
+              filter={['!', ['has', 'point_count']]}
+              style={{
+                circleColor: colors.primary,
+                circleRadius: 12,
+                circleStrokeWidth: 3,
+                circleStrokeColor: '#FFFFFF',
+                circleOpacity: 0.9,
+              }}
+            />
+          )}
         </ShapeSource>
       </MapView>
 
@@ -323,6 +370,7 @@ export default function MapScreen() {
   const isDark = useIsDark();
   const insets = useSafeAreaInsets();
   const mapboxRef = useRef<MapboxMapScreenHandle>(null);
+  const [showHeatmap, setShowHeatmap] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -338,6 +386,10 @@ export default function MapScreen() {
     mapboxRef.current?.fitToCatches();
   }, []);
 
+  const toggleHeatmap = useCallback(() => {
+    setShowHeatmap((prev) => !prev);
+  }, []);
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
@@ -347,14 +399,38 @@ export default function MapScreen() {
         <Text style={[styles.title, { color: colors.text }]}>Map</Text>
         <View style={styles.headerActions}>
           {catchFeatures.length > 0 && (
-            <TouchableOpacity
-              style={[styles.headerButton, { backgroundColor: colors.surfaceSecondary }]}
-              onPress={handleFitAll}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="scan" size={20} color={colors.primary} />
-              <Text style={[styles.headerButtonText, { color: colors.primary }]}>Fit All</Text>
-            </TouchableOpacity>
+            <>
+              <TouchableOpacity
+                style={[
+                  styles.headerButton,
+                  { backgroundColor: showHeatmap ? colors.primary : colors.surfaceSecondary },
+                ]}
+                onPress={toggleHeatmap}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name="flame"
+                  size={20}
+                  color={showHeatmap ? '#FFFFFF' : colors.primary}
+                />
+                <Text
+                  style={[
+                    styles.headerButtonText,
+                    { color: showHeatmap ? '#FFFFFF' : colors.primary },
+                  ]}
+                >
+                  Heatmap
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.headerButton, { backgroundColor: colors.surfaceSecondary }]}
+                onPress={handleFitAll}
+                activeOpacity={0.7}
+              >
+                <Ionicons name="scan" size={20} color={colors.primary} />
+                <Text style={[styles.headerButtonText, { color: colors.primary }]}>Fit All</Text>
+              </TouchableOpacity>
+            </>
           )}
         </View>
       </View>
@@ -363,7 +439,14 @@ export default function MapScreen() {
       {Platform.OS === 'web' ? (
         <ExpoGoPlaceholder colors={colors} />
       ) : MapboxComponents ? (
-        <MapboxMapScreen ref={mapboxRef} catches={catches} loading={loading} colors={colors} isDark={isDark} />
+        <MapboxMapScreen
+          ref={mapboxRef}
+          catches={catches}
+          loading={loading}
+          colors={colors}
+          isDark={isDark}
+          showHeatmap={showHeatmap}
+        />
       ) : (
         <ExpoGoPlaceholder colors={colors} />
       )}

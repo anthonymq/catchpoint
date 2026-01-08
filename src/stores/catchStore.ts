@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import { db } from '../db/client';
 import { catches, InsertCatch, Catch } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
+import { generateTestCatches } from '../data/testCatches';
 
 interface CatchState {
   catches: Catch[];
@@ -27,6 +28,8 @@ interface CatchState {
     windSpeed: number;
     weatherFetchedAt: Date;
   }) => Promise<void>;
+  loadTestData: () => Promise<number>;
+  wipeAllData: () => Promise<void>;
 }
 
 // Helper to check if we're on web
@@ -353,6 +356,85 @@ export const useCatchStore = create<CatchState>((set, get) => ({
       }));
     } catch (error) {
       console.error('[Store] Failed to mark weather fetched:', error);
+      throw error;
+    }
+  },
+
+  loadTestData: async () => {
+    if (isWeb) {
+      console.warn('[Store] Database operations not available on web');
+      return 0;
+    }
+
+    set({ loading: true, error: null });
+    try {
+      const testCatches = generateTestCatches();
+      console.log(`[Store] Loading ${testCatches.length} test catches...`);
+
+      // Insert all test catches into database
+      for (const testCatch of testCatches) {
+        const insertData: InsertCatch = {
+          id: testCatch.id,
+          createdAt: testCatch.createdAt,
+          updatedAt: testCatch.updatedAt,
+          latitude: testCatch.latitude,
+          longitude: testCatch.longitude,
+          species: testCatch.species,
+          weight: testCatch.weight,
+          weightUnit: testCatch.weightUnit,
+          length: testCatch.length,
+          lengthUnit: testCatch.lengthUnit,
+          lure: testCatch.lure,
+          notes: testCatch.notes,
+          photoUri: testCatch.photoUri,
+          temperature: testCatch.temperature,
+          temperatureUnit: testCatch.temperatureUnit,
+          weatherCondition: testCatch.weatherCondition,
+          pressure: testCatch.pressure,
+          pressureUnit: testCatch.pressureUnit,
+          humidity: testCatch.humidity,
+          windSpeed: testCatch.windSpeed,
+          weatherFetchedAt: testCatch.weatherFetchedAt,
+          isDraft: testCatch.isDraft,
+          pendingWeatherFetch: testCatch.pendingWeatherFetch,
+          syncedAt: testCatch.syncedAt,
+        };
+        await db.insert(catches).values(insertData);
+      }
+
+      // Refresh catches from database
+      const result = await db.select().from(catches).orderBy(desc(catches.createdAt));
+      set({ catches: result, loading: false });
+      
+      console.log(`[Store] Successfully loaded ${testCatches.length} test catches`);
+      return testCatches.length;
+    } catch (error) {
+      console.error('[Store] Failed to load test data:', error);
+      set({ error: 'Failed to load test data', loading: false });
+      throw error;
+    }
+  },
+
+  wipeAllData: async () => {
+    if (isWeb) {
+      console.warn('[Store] Database operations not available on web');
+      return;
+    }
+
+    set({ loading: true, error: null });
+    try {
+      console.log('[Store] Wiping all catches...');
+      
+      // Delete all catches from database
+      await db.delete(catches);
+      
+      // Clear local state
+      set({ catches: [], loading: false });
+      
+      console.log('[Store] Successfully wiped all data');
+    } catch (error) {
+      console.error('[Store] Failed to wipe data:', error);
+      set({ error: 'Failed to wipe data', loading: false });
       throw error;
     }
   },

@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useSettingsStore } from '../../src/stores/settingsStore';
 import { useTheme, useColors } from '../../src/context/ThemeContext';
 import { ThemeMode } from '../../src/theme/colors';
 import { useState } from 'react';
+import { useCatchStore } from '../../src/stores/catchStore';
+import { exportCatchesToCSV } from '../../src/services/export';
 
 type SettingItemProps = {
   icon: string;
@@ -43,6 +45,83 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { themeMode, setThemeMode, weightUnit, setWeightUnit, lengthUnit, setLengthUnit } = useSettingsStore();
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isLoadingTestData, setIsLoadingTestData] = useState(false);
+  const [isWiping, setIsWiping] = useState(false);
+  const { catches, loadTestData, wipeAllData } = useCatchStore();
+
+  const handleExport = async () => {
+    if (catches.length === 0) {
+      Alert.alert('No Data', 'You have no catches to export yet.');
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      const result = await exportCatchesToCSV(catches);
+      if (!result.success) {
+        Alert.alert('Export Failed', result.error || 'Unknown error');
+      }
+    } catch (error) {
+      Alert.alert('Export Failed', error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleLoadTestData = async () => {
+    Alert.alert(
+      'Load Test Data',
+      'This will add 60 sample catches to your database. This is useful for testing the stats and map features.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Load',
+          onPress: async () => {
+            setIsLoadingTestData(true);
+            try {
+              const count = await loadTestData();
+              Alert.alert('Success', `Loaded ${count} test catches!`);
+            } catch (error) {
+              Alert.alert('Error', error instanceof Error ? error.message : 'Failed to load test data');
+            } finally {
+              setIsLoadingTestData(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleWipeData = async () => {
+    if (catches.length === 0) {
+      Alert.alert('No Data', 'There is no data to delete.');
+      return;
+    }
+
+    Alert.alert(
+      'Delete All Data',
+      `Are you sure you want to delete all ${catches.length} catches? This action cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete All',
+          style: 'destructive',
+          onPress: async () => {
+            setIsWiping(true);
+            try {
+              await wipeAllData();
+              Alert.alert('Success', 'All data has been deleted.');
+            } catch (error) {
+              Alert.alert('Error', error instanceof Error ? error.message : 'Failed to delete data');
+            } finally {
+              setIsWiping(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const themeOptions: { label: string; value: ThemeMode }[] = [
     { label: 'System', value: 'system' },
@@ -159,6 +238,61 @@ export default function SettingsScreen() {
             </View>
           </View>
         </View>
+
+        {/* Data Section */}
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>Data</Text>
+        
+        <SettingItem
+          icon="download-outline"
+          title="Export to CSV"
+          subtitle={`${catches.length} catches`}
+          onPress={handleExport}
+          rightElement={
+            isExporting ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+            )
+          }
+        />
+
+        <SettingItem
+          icon="flask-outline"
+          title="Load Test Data"
+          subtitle="Add 60 sample catches for testing"
+          onPress={handleLoadTestData}
+          rightElement={
+            isLoadingTestData ? (
+              <ActivityIndicator size="small" color={colors.primary} />
+            ) : (
+              <Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+            )
+          }
+        />
+
+        <TouchableOpacity
+          style={[styles.dangerButton, { backgroundColor: colors.surface }]}
+          onPress={handleWipeData}
+          disabled={isWiping || catches.length === 0}
+          activeOpacity={0.7}
+        >
+          <View style={styles.settingLeft}>
+            <Ionicons name="trash-outline" size={24} color={catches.length === 0 ? colors.textTertiary : colors.error} />
+            <View style={styles.settingText}>
+              <Text style={[styles.settingTitle, { color: catches.length === 0 ? colors.textTertiary : colors.error }]}>
+                Delete All Data
+              </Text>
+              <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
+                Remove all {catches.length} catches permanently
+              </Text>
+            </View>
+          </View>
+          {isWiping ? (
+            <ActivityIndicator size="small" color={colors.error} />
+          ) : (
+            <Ionicons name="chevron-forward" size={20} color={catches.length === 0 ? colors.textTertiary : colors.error} />
+          )}
+        </TouchableOpacity>
 
         {/* About Section */}
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>About</Text>
@@ -286,5 +420,13 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 40,
+  },
+  dangerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
   },
 });

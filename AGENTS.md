@@ -1,7 +1,7 @@
 # CATCHPOINT - PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-01-06
-**Commit:** 86b14c5
+**Generated:** 2026-01-07
+**Commit:** Phase 4 complete
 **Branch:** main
 
 ## OVERVIEW
@@ -13,17 +13,20 @@ Offline-first mobile fishing log for iOS/Android. One-tap catch capture with aut
 ```
 catchpoint/
 ├── app/                    # Expo Router file-based routing
-│   ├── _layout.tsx         # Root: DB init, migrations, providers
-│   ├── (tabs)/             # Tab navigation (Home, Map, Log, Settings)
+│   ├── _layout.tsx         # Root: DB init, migrations, providers, hydration guard
+│   ├── (tabs)/             # Tab navigation (Home, Map, Log, Stats, Settings)
+│   │   └── stats.tsx       # Statistics dashboard with charts
 │   └── catch/[id].tsx      # Dynamic catch detail/edit route
 ├── src/
 │   ├── components/         # UI: QuickCaptureButton, SwipeableCatchRow, FilterModal
+│   │   └── stats/          # Chart components (StatCard, OverviewSection, charts)
 │   ├── context/            # ThemeContext (light/dark)
 │   ├── db/                 # Drizzle schema, client, migrations
 │   ├── hooks/              # useLocation, useNetworkStatus
-│   ├── services/           # weather, location, photo, sync (background)
-│   ├── stores/             # Zustand: catchStore, settingsStore
-│   └── data/               # species.ts (100+ fish for autocomplete)
+│   ├── services/           # weather, location, photo, sync, export (CSV)
+│   ├── stores/             # Zustand: catchStore, settingsStore (with persistence)
+│   ├── utils/              # statistics.ts (aggregation, date ranges)
+│   └── data/               # species.ts (100+ fish), testCatches.ts (60 test catches)
 ├── drizzle/                # Auto-generated migrations
 └── e2e/                    # Maestro YAML tests (see e2e/README.md)
 ```
@@ -40,6 +43,8 @@ catchpoint/
 | State management | `src/stores/` | Zustand with persistence |
 | E2E tests | `e2e/*.yaml` | Maestro; run with `npm run test:e2e` |
 | Map integration | `app/(tabs)/map.tsx` | Requires native build, not Expo Go |
+| Statistics/charts | `app/(tabs)/stats.tsx` | Uses victory-native + Skia |
+| CSV export | `src/services/export.ts` | Uses expo-sharing |
 
 ## CONVENTIONS
 
@@ -136,4 +141,33 @@ RNMAPBOX_MAPS_DOWNLOAD_TOKEN=sk.xxx      # Mapbox downloads (build-time)
 - **New Architecture**: Enabled (`newArchEnabled: true`)
 - **Typed Routes**: Expo Router experiment enabled
 - **Phase 3 complete**: Map, Log, Settings, Catch Details all functional
-- **Phase 4 pending**: Statistics, Charts, Cloud Sync, CSV Export
+- **Phase 4 complete**: Statistics dashboard, Charts (victory-native), CSV Export, Settings Persistence
+
+## PHASE 4 FEATURES
+
+### Statistics Dashboard (`app/(tabs)/stats.tsx`)
+- Time range filter: 7D, 30D, 1Y, All
+- Overview section with 4 stat cards (Total, Avg Weight, Biggest, Best Day)
+- Charts: Catches Over Time (line), Top Species (pie), Best Fishing Hours (bar)
+- Empty state with "Load Test Data" button for demo
+- Uses victory-native + @shopify/react-native-skia for charting
+
+### CSV Export (`src/services/export.ts`)
+- `exportCatchesToCSV()` - generates and shares CSV file
+- Export button in Settings screen
+- Uses expo-sharing for native share sheet
+
+### Settings Persistence (`src/stores/settingsStore.ts`)
+- Zustand persist middleware with @react-native-async-storage/async-storage
+- Theme, units, and preferences persist across app restarts
+- Hydration guard in `_layout.tsx` prevents flash of wrong theme
+
+### Statistics Utilities (`src/utils/statistics.ts`)
+- `calculateStatistics()` - comprehensive aggregation
+- Date range filtering and grouping functions
+- By-hour, by-species, by-weather breakdowns
+
+### Test Dataset (`src/data/testCatches.ts`)
+- 60 realistic test catches spanning 1 year
+- Varied species, locations, weather conditions, times
+- Used for chart testing when no real data exists

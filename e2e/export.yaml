@@ -1,0 +1,26 @@
+appId: com.anonymous.catchpoint
+---
+# Export E2E Test
+# Tests the CSV export functionality in Settings
+
+- launchApp:
+    clearState: false
+
+# Navigate to Settings tab
+- tapOn: "Settings"
+
+# Wait for screen to load
+- assertVisible: "Settings"
+
+# Scroll to find Data section
+- scrollUntilVisible:
+    element: "Export to CSV"
+    direction: DOWN
+
+# Verify Data section is visible
+- assertVisible: "Data"
+- assertVisible: "Export to CSV"
+
+# Note: We can't fully test the share sheet in Maestro,
+# but we can verify the button exists and is tappable
+# The actual share dialog is handled by the OS
