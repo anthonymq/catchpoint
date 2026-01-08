@@ -102,9 +102,12 @@ catchpoint/
 ## COMMANDS
 
 ```bash
-# Android Emulator (ALWAYS start first)
+# Android Emulator (ALWAYS start first with DNS fix)
 export ANDROID_SDK_ROOT=~/Library/Android/sdk
-emulator -avd Medium_Phone_API_36.1 &
+emulator -avd Medium_Phone_API_36.1 -dns-server 8.8.8.8,8.8.4.4 &
+
+# Set mock location (San Francisco - Lake Merced area)
+adb emu geo fix -122.4534 37.7295
 
 # Development
 npm start                    # Expo dev server
