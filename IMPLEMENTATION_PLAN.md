@@ -12,10 +12,10 @@
   - `src/services/weather.ts` (Weather API logic - **Update**: Remove `expo-network`, use `fetch`)
   - `src/services/export.ts` (CSV formatting only - **Update**: Remove `expo-sharing`)
   - `src/theme/colors.ts` (Color palette)
-- [ ] **Nuke Old Codebase**: Remove all Expo/React Native files
+- [x] **Nuke Old Codebase**: Remove all Expo/React Native files
   - Directories: `src/`, `e2e/`, `android/`, `ios/`, `app/`, `assets/`, `drizzle/`
   - Configs: `package.json`, `package-lock.json`, `tsconfig.json`, `babel.config.js`, `app.json`, `metro.config.js`, `expo-env.d.ts`
-- [ ] **Clean Git**: Ensure working directory is clean before starting fresh
+- [x] **Clean Git**: Ensure working directory is clean before starting fresh
 
 ## Phase 2: Foundation (Day 1)
 - [ ] **Initialize Vite Project**: React + TypeScript + SWC
