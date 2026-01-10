@@ -76,7 +76,7 @@
   - `src/pages/Map.tsx`: Mapbox GL integration
   - Clustering & Marker rendering
   - Filter integration (Deferred to separate task)
-- [ ] **Statistics**
+- [x] **Statistics**
   - `src/pages/Stats.tsx`: Dashboard layout
   - `src/utils/statistics.ts`: Update to match new `Catch` type
   - Charts (Line, Pie, Bar) integration
