@@ -6,8 +6,11 @@ import MapPage from "./pages/Map";
 import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import CatchDetail from "./pages/CatchDetail";
+import { useTheme } from "./hooks/useTheme";
 
 function App() {
+  useTheme();
+
   return (
     <BrowserRouter>
       <Routes>

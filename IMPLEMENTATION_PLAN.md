@@ -80,7 +80,7 @@
   - `src/pages/Stats.tsx`: Dashboard layout
   - `src/utils/statistics.ts`: Update to match new `Catch` type
   - Charts (Line, Pie, Bar) integration
-- [ ] **Settings**
+- [x] **Settings**
   - `src/pages/Settings.tsx`: Preferences form
   - Theme switcher logic
   - Data export (CSV) - Implement using `Blob` download
