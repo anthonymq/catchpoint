@@ -1,94 +1,136 @@
-# CATCHPOINT - PROJECT KNOWLEDGE BASE
+# CATCHPOINT PWA - PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-01-07
-**Commit:** Phase 4 complete
+**Generated:** 2026-01-10
+**Status:** PWA Rewrite - Starting Fresh
 **Branch:** main
 
 ## OVERVIEW
 
-Offline-first mobile fishing log for iOS/Android. One-tap catch capture with auto GPS + weather. Stack: Expo SDK 54, Expo Router, Drizzle ORM + SQLite, Zustand, Mapbox.
+Offline-first Progressive Web App fishing log. One-tap catch capture with auto GPS + weather. 
+Stack: Vite + React 18, React Router, Dexie.js (IndexedDB), Zustand, Mapbox GL JS, Workbox (Service Worker).
 
 ## STRUCTURE
 
 ```
 catchpoint/
-├── app/                    # Expo Router file-based routing
-│   ├── _layout.tsx         # Root: DB init, migrations, providers, hydration guard
-│   ├── (tabs)/             # Tab navigation (Home, Map, Log, Stats, Settings)
-│   │   └── stats.tsx       # Statistics dashboard with charts
-│   └── catch/[id].tsx      # Dynamic catch detail/edit route
+├── public/
+│   ├── manifest.json          # PWA manifest
+│   ├── sw.js                  # Service worker (generated)
+│   └── icons/                 # PWA icons (192, 512, maskable)
 ├── src/
-│   ├── components/         # UI: QuickCaptureButton, SwipeableCatchRow, FilterModal
-│   │   └── stats/          # Chart components (StatCard, OverviewSection, charts)
-│   ├── context/            # ThemeContext (light/dark)
-│   ├── db/                 # Drizzle schema, client, migrations
-│   ├── hooks/              # useLocation, useNetworkStatus
-│   ├── services/           # weather, location, photo, sync, export (CSV)
-│   ├── stores/             # Zustand: catchStore, settingsStore (with persistence)
-│   ├── utils/              # statistics.ts (aggregation, date ranges)
-│   └── data/               # species.ts (100+ fish), testCatches.ts (60 test catches)
-├── drizzle/                # Auto-generated migrations
-└── e2e/                    # Maestro YAML tests (see e2e/README.md)
+│   ├── main.tsx               # App entry point
+│   ├── App.tsx                # Root component with router
+│   ├── pages/                 # Route pages
+│   │   ├── Home.tsx           # Home with Quick Capture button
+│   │   ├── Map.tsx            # Map view with Mapbox GL JS
+│   │   ├── Log.tsx            # Catch log list
+│   │   ├── Stats.tsx          # Statistics dashboard
+│   │   ├── Settings.tsx       # User preferences
+│   │   └── CatchDetail.tsx    # Catch detail/edit
+│   ├── components/            # Reusable UI components
+│   │   ├── QuickCaptureButton.tsx
+│   │   ├── CatchCard.tsx
+│   │   ├── FilterModal.tsx
+│   │   ├── BottomNav.tsx
+│   │   └── stats/             # Chart components
+│   ├── db/                    # Dexie.js database
+│   │   └── index.ts           # Schema and DB instance
+│   ├── hooks/                 # Custom React hooks
+│   │   ├── useLocation.ts
+│   │   ├── useNetworkStatus.ts
+│   │   └── useTheme.ts
+│   ├── services/              # Business logic
+│   │   ├── weather.ts
+│   │   ├── sync.ts
+│   │   └── export.ts
+│   ├── stores/                # Zustand stores
+│   │   ├── catchStore.ts
+│   │   └── settingsStore.ts
+│   ├── utils/                 # Utility functions
+│   │   ├── statistics.ts
+│   │   └── format.ts
+│   ├── data/                  # Static data
+│   │   ├── species.ts
+│   │   └── testCatches.ts
+│   └── styles/                # CSS
+│       ├── index.css          # Global styles + CSS variables
+│       └── components/        # Component-specific styles
+├── specs/                     # Feature specifications
+├── ralph/                     # Autonomous dev loop
+└── e2e/                       # Playwright tests
 ```
 
 ## WHERE TO LOOK
 
 | Task | Location | Notes |
 |------|----------|-------|
-| Add new screen | `app/(tabs)/` | File = route. Use `_layout.tsx` for tab config |
-| Add catch field | `src/db/schema.ts` → run `drizzle-kit generate` | Update `catchStore.ts` too |
+| Add new page | `src/pages/` + update `App.tsx` router | React Router v6 |
+| Add catch field | `src/db/index.ts` | Update Dexie schema version |
 | Modify quick capture | `src/components/QuickCaptureButton.tsx` | Optimistic UI pattern |
 | Weather fetching | `src/services/weather.ts` + `sync.ts` | Background sync on network change |
-| Theme changes | `src/context/ThemeContext.tsx` | Synced with settingsStore |
-| State management | `src/stores/` | Zustand with persistence |
-| E2E tests | `e2e/*.yaml` | Maestro; run with `npm run test:e2e` |
-| Map integration | `app/(tabs)/map.tsx` | Requires native build, not Expo Go |
-| Statistics/charts | `app/(tabs)/stats.tsx` | Uses victory-native + Skia |
-| CSV export | `src/services/export.ts` | Uses expo-sharing |
+| Theme changes | `src/hooks/useTheme.ts` + CSS vars | Synced with settingsStore |
+| State management | `src/stores/` | Zustand with localStorage persist |
+| E2E tests | `e2e/*.spec.ts` | Playwright |
+| Map integration | `src/pages/Map.tsx` | react-map-gl or mapbox-gl |
+| Statistics/charts | `src/pages/Stats.tsx` | Recharts or Chart.js |
+| CSV export | `src/services/export.ts` | Web Share API + download fallback |
+| Service Worker | `public/sw.js` or Vite plugin | Workbox for caching |
 
 ## CONVENTIONS
 
-### Safe Areas (CRITICAL)
-- Use `useSafeAreaInsets()` hook, NOT `<SafeAreaView>` wrapper
-- Apply insets dynamically: `paddingTop: insets.top`
-- Tab bar height: `60 + insets.bottom`
+### CSS Custom Properties (Theming)
+```css
+:root {
+  --color-primary: #0f3460;
+  --color-background: #ffffff;
+  --color-text: #1a1a2e;
+  /* ... */
+}
 
-### Gestures
-- Use React Native's native `PanResponder` + `Animated`, NOT react-native-gesture-handler Swipeable
-- GestureHandlerRootView already wraps app in `_layout.tsx`
+[data-theme="dark"] {
+  --color-primary: #3282b8;
+  --color-background: #1a1a2e;
+  --color-text: #eaeaea;
+}
+```
+
+### Responsive Design
+- Mobile-first approach
+- Breakpoints: 480px (sm), 768px (md), 1024px (lg)
+- Bottom navigation on mobile, sidebar on desktop (optional)
 
 ### Optimistic UI (Quick Capture)
 - Show success immediately (~0.3s), background the work
 - Location: try fresh (8s timeout) → fallback cached → refresh async
 - Weather: never block UI, queue for background sync
 
-### Database
-- Drizzle ORM with expo-sqlite
-- Types exported from `src/db/schema.ts`: `Catch`, `InsertCatch`
-- Migrations in `/drizzle/`, run via `runMigrations()` in `_layout.tsx`
-- Web platform: DB is mocked (expo-sqlite is native-only)
+### Database (IndexedDB via Dexie.js)
+- Schema defined in `src/db/index.ts`
+- Types exported: `Catch`, `InsertCatch`
+- Version migrations handled by Dexie
+- All operations are async
 
 ### State
 - Zustand stores in `src/stores/`
-- `catchStore`: CRUD for catches, platform-aware (mocks on web)
-- `settingsStore`: user prefs (units, theme)
+- `catchStore`: CRUD for catches, syncs with IndexedDB
+- `settingsStore`: user prefs (units, theme), persisted to localStorage
 
 ## ANTI-PATTERNS
 
 | Pattern | Why Forbidden |
 |---------|---------------|
-| `SafeAreaView` wrapper | Use `useSafeAreaInsets()` for granular control |
 | Blocking location/weather on capture | Breaks optimistic UI; must be async |
-| Mapbox in app.json env vars | Token MUST be shell env: `export RNMAPBOX_MAPS_DOWNLOAD_TOKEN=...` |
-| Expo Go for map testing | Maps require native build: `expo run:android` |
-| `any` for icon names | Type properly or use `as const` |
-| Testing on iOS | Android only - do not build/test iOS version |
+| Synchronous localStorage in render | Causes hydration issues |
+| Direct DOM manipulation | Use React state/refs |
+| `any` types | Type properly |
+| Inline styles (excessive) | Use CSS classes or CSS-in-JS consistently |
+| Ignoring offline state | App must work fully offline |
 
 ## UNIQUE STYLES
 
 ### Logging
-- Prefix: `[App]`, `[Weather]`, `[Sync]`, etc.
-- Heavy `console.log` for debugging (TODO: replace with logger before prod)
+- Prefix: `[App]`, `[Weather]`, `[Sync]`, `[DB]`, etc.
+- Use `console.log` for debugging (consider structured logger for prod)
 
 ### Weather
 - OpenWeatherMap 2.5 (free tier)
@@ -96,81 +138,125 @@ catchpoint/
 - `pendingWeatherFetch` flag on catches, synced when online
 
 ### Icons
-- `@expo/vector-icons` (Ionicons)
-- Commonly cast with `as any` due to type limitations
+- Use Lucide React, Heroicons, or similar icon library
+- SVG icons for PWA icons
 
 ## COMMANDS
 
 ```bash
-# Android Emulator (ALWAYS start first with DNS fix)
-export ANDROID_SDK_ROOT=~/Library/Android/sdk
-emulator -avd Medium_Phone_API_36.1 -dns-server 8.8.8.8,8.8.4.4 &
-
-# Set mock location (San Francisco - Lake Merced area)
-adb emu geo fix -122.4534 37.7295
-
 # Development
-npm start                    # Expo dev server
-expo run:android             # Native Android build (required for maps)
-expo run:ios                 # Native iOS build
-
-# Database
-npx drizzle-kit generate     # Generate migration from schema changes
-npx drizzle-kit studio       # Visual DB browser
+npm run dev              # Vite dev server (http://localhost:5173)
+npm run build            # Production build
+npm run preview          # Preview production build
 
 # Testing
-npm run test:e2e             # All Maestro tests
-npm run test:e2e:home        # Single test
-maestro test e2e/home.yaml   # Direct Maestro
+npm run test             # Unit tests (Vitest)
+npm run test:e2e         # E2E tests (Playwright)
 
-# Build (Android)
-export RNMAPBOX_MAPS_DOWNLOAD_TOKEN=$(grep "^RNMAPBOX_MAPS_DOWNLOAD_TOKEN=" .env | cut -d'=' -f2)
-npx expo prebuild --clean --platform android
-cd android && ./gradlew app:assembleDebug
+# Linting
+npm run lint             # ESLint
+npm run typecheck        # TypeScript check
 ```
 
 ## ENVIRONMENT
 
 Required in `.env`:
 ```
-EXPO_PUBLIC_OPENWEATHERMAP_API_KEY=xxx   # Weather API (BLOCKER)
-RNMAPBOX_MAPS_DOWNLOAD_TOKEN=sk.xxx      # Mapbox downloads (build-time)
+VITE_OPENWEATHERMAP_API_KEY=xxx    # Weather API (BLOCKER)
+VITE_MAPBOX_ACCESS_TOKEN=pk.xxx    # Mapbox public token
 ```
+
+## TECH STACK
+
+| Category | Technology | Notes |
+|----------|------------|-------|
+| Framework | React 18 | With hooks, no class components |
+| Build | Vite | Fast HMR, ESM-first |
+| Router | React Router v6 | File-based not required |
+| State | Zustand | Lightweight, no boilerplate |
+| Database | Dexie.js | IndexedDB wrapper |
+| Maps | Mapbox GL JS | Via react-map-gl or direct |
+| Charts | Recharts | Or Chart.js / D3 |
+| Service Worker | Workbox | Via vite-plugin-pwa |
+| Styling | Vanilla CSS | CSS variables for theming |
+| Testing | Vitest + Playwright | Unit + E2E |
+
+## PWA REQUIREMENTS
+
+### Manifest (`public/manifest.json`)
+- Name, short_name, description
+- Icons: 192x192, 512x512, maskable
+- display: standalone
+- theme_color, background_color
+- start_url: "/"
+
+### Service Worker
+- Precache app shell (HTML, CSS, JS)
+- Cache API responses (weather, map tiles)
+- Background sync for weather queue
+- Offline fallback page
+
+### Install Prompt
+- Capture `beforeinstallprompt` event
+- Show install button in Settings
+- Track installation state
 
 ## NOTES
 
-- **Mapbox SDK**: Locked to `11.16.2` for `@rnmapbox/maps` v10.2.10 compatibility
-- **iOS**: Uses static frameworks (`useFrameworks: "static"` in app.json)
-- **New Architecture**: Enabled (`newArchEnabled: true`)
-- **Typed Routes**: Expo Router experiment enabled
-- **Phase 3 complete**: Map, Log, Settings, Catch Details all functional
-- **Phase 4 complete**: Statistics dashboard, Charts (victory-native), CSV Export, Settings Persistence
+- **Starting fresh**: Delete existing Expo/RN code before implementing
+- **Mobile-first**: Design for touch, enhance for desktop
+- **Offline-first**: IndexedDB is source of truth
+- **PWA installable**: Must pass Lighthouse PWA audit
 
-## PHASE 4 FEATURES
+## RALPH LOOP
 
-### Statistics Dashboard (`app/(tabs)/stats.tsx`)
-- Time range filter: 7D, 30D, 1Y, All
-- Overview section with 4 stat cards (Total, Avg Weight, Biggest, Best Day)
-- Charts: Catches Over Time (line), Top Species (pie), Best Fishing Hours (bar)
-- Empty state with "Load Test Data" button for demo
-- Uses victory-native + @shopify/react-native-skia for charting
+Autonomous AI development loop based on the [Ralph Wiggum Technique](https://github.com/ghuntley/how-to-ralph-wiggum).
 
-### CSV Export (`src/services/export.ts`)
-- `exportCatchesToCSV()` - generates and shares CSV file
-- Export button in Settings screen
-- Uses expo-sharing for native share sheet
+### What is RALPH?
+A bash loop that continuously feeds prompts to an AI agent for autonomous development:
+- **PLANNING mode**: Analyzes specs vs code, creates `IMPLEMENTATION_PLAN.md`
+- **BUILDING mode**: Implements from plan, runs tests, commits changes
 
-### Settings Persistence (`src/stores/settingsStore.ts`)
-- Zustand persist middleware with @react-native-async-storage/async-storage
-- Theme, units, and preferences persist across app restarts
-- Hydration guard in `_layout.tsx` prevents flash of wrong theme
+### Running RALPH
 
-### Statistics Utilities (`src/utils/statistics.ts`)
-- `calculateStatistics()` - comprehensive aggregation
-- Date range filtering and grouping functions
-- By-hour, by-species, by-weather breakdowns
+```bash
+# PLANNING mode - analyze and create/update plan
+./ralph/loop.sh plan
 
-### Test Dataset (`src/data/testCatches.ts`)
-- 60 realistic test catches spanning 1 year
-- Varied species, locations, weather conditions, times
-- Used for chart testing when no real data exists
+# BUILDING mode - implement from plan (default)
+./ralph/loop.sh
+
+# With max iterations
+./ralph/loop.sh 10          # Build mode, max 10 iterations
+./ralph/loop.sh plan 5      # Plan mode, max 5 iterations
+```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `ralph/loop.sh` | Main bash loop script |
+| `ralph/PROMPT_plan.md` | Planning mode instructions |
+| `ralph/PROMPT_build.md` | Building mode instructions |
+| `specs/*.md` | Feature specifications (source of truth) |
+| `IMPLEMENTATION_PLAN.md` | Generated task list (created by RALPH) |
+
+### When to Use Which Mode
+
+| Use PLANNING when... | Use BUILDING when... |
+|---------------------|---------------------|
+| No plan exists | Plan exists and is current |
+| Plan feels stale or wrong | Ready to implement |
+| Made significant spec changes | Tasks are clearly defined |
+| Confused about what's done | Tests are passing |
+
+### Stopping RALPH
+- `Ctrl+C` stops the loop immediately
+- `git reset --hard HEAD~N` undoes N commits if needed
+- Delete `IMPLEMENTATION_PLAN.md` to force fresh planning
+
+### Safety Notes
+- Each iteration commits changes (easy to revert)
+- Brief pause between iterations allows Ctrl+C
+- Max iterations flag prevents runaway loops
+- All changes are local until pushed
