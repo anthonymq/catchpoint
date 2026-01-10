@@ -96,9 +96,9 @@
 - [x] **Weather Service**
   - [x] `src/services/weather.ts`: Integration with new logic
   - [x] Sync queue processing (`src/services/sync.ts`)
-- [ ] **Manifest & Icons**
-  - Generate and configure `manifest.json`
-  - Add icons to `public/icons/`
+- [x] **Manifest & Icons**
+  - [x] Generate and configure `manifest.json` (Using `vite-plugin-pwa` with SVG icons)
+  - [x] Add icons to `public/icons/` (Created `icon.svg`)
 
 ## Phase 7: Verification (Day 5)
 
