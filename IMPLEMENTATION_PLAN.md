@@ -4,6 +4,7 @@
 > **Goal**: Replace existing React Native app with an offline-first PWA.
 
 ## Phase 1: Demolition & Rescue (Day 1)
+
 - [x] **Rescue Assets**: Back up reusable logic to `_rescue/` directory
   - `src/data/species.ts` (Species database)
   - `src/data/testCatches.ts` (Test data)
@@ -18,23 +19,25 @@
 - [x] **Clean Git**: Ensure working directory is clean before starting fresh
 
 ## Phase 2: Foundation (Day 1)
+
 - [x] **Initialize Vite Project**: React + TypeScript + SWC
   - Command: `npm create vite@latest catchpoint -- --template react-swc-ts`
   - Move files to root (careful with `_rescue/`)
-- [ ] **Install Core Dependencies**
+- [x] **Install Core Dependencies**
   - Production: `react-router-dom`, `zustand`, `dexie`, `mapbox-gl`, `react-map-gl`, `date-fns`, `lucide-react`, `recharts`, `clsx`, `suncalc`
   - PWA: `vite-plugin-pwa`, `workbox-window`, `workbox-precaching`, `workbox-routing`, `workbox-strategies`, `workbox-background-sync`
-- [ ] **Install Dev Dependencies**
+- [x] **Install Dev Dependencies**
   - Testing: `vitest`, `jsdom`, `@testing-library/react`, `@playwright/test`
   - Linting: `eslint`, `prettier`
   - Types: `@types/mapbox-gl`, `@types/node`, `@types/suncalc`
-- [ ] **Project Configuration**
+- [x] **Project Configuration**
   - `vite.config.ts` (Paths, PWA plugin, Environment variables)
   - `tsconfig.json` (Strict mode, path aliases `@/*`)
   - `playwright.config.ts` (Mobile viewports)
   - `.env` template (VITE_OPENWEATHERMAP_API_KEY, VITE_MAPBOX_ACCESS_TOKEN)
 
 ## Phase 3: Core Infrastructure (Day 1-2)
+
 - [ ] **Database Layer (Dexie)**
   - `src/db/index.ts`: Schema definition (Catches table)
   - `src/db/repository.ts`: Typed CRUD operations
@@ -51,6 +54,7 @@
   - `src/hooks/useNetworkStatus.ts`: Implement using `window.navigator.onLine` and events
 
 ## Phase 4: Primary Features (Day 2-3)
+
 - [ ] **Quick Capture (Home)**
   - `src/pages/Home.tsx`: Hero button
   - `src/services/location.ts`: Implement using Geolocation API
@@ -66,6 +70,7 @@
   - Species autocomplete (using rescued `species.ts`)
 
 ## Phase 5: Secondary Features (Day 3-4)
+
 - [ ] **Map View**
   - `src/pages/Map.tsx`: Mapbox GL integration
   - Clustering & Marker rendering
@@ -80,6 +85,7 @@
   - Data export (CSV) - Implement using `Blob` download
 
 ## Phase 6: PWA & Polish (Day 4)
+
 - [ ] **Service Worker**
   - Background sync for weather (Workbox BackgroundSync)
   - Offline caching (App shell, Map tiles)
@@ -91,6 +97,7 @@
   - Add icons to `public/icons/`
 
 ## Phase 7: Verification (Day 5)
+
 - [ ] **E2E Tests**
   - `e2e/capture.spec.ts`: Full capture flow
   - `e2e/offline.spec.ts`: Offline functionality
@@ -100,6 +107,7 @@
   - Ensure clean build
 
 ## Discovered Issues / Notes
+
 - [ ] **Mapbox Offline**: Check limits for offline tile caching (typically 6000 tiles).
 - [ ] **Safari Support**: Background Sync API not supported; ensure fallback to foreground sync on network restore works reliably.
 - [ ] **Storage Quota**: Monitor usage as photos are stored in IndexedDB.
