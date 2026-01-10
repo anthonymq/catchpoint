@@ -44,11 +44,11 @@
 - [x] **State Management (Zustand)**
   - `src/stores/catchStore.ts`: Store for catches (synced with DB)
   - `src/stores/settingsStore.ts`: User preferences (persisted)
-- [ ] **Routing & Layout**
+- [x] **Routing & Layout**
   - `src/App.tsx`: React Router setup
   - `src/components/Layout.tsx`: Shell with BottomNav
   - `src/components/BottomNav.tsx`: Navigation (Home, Log, Map, Stats)
-- [ ] **Global Styles**
+- [x] **Global Styles**
   - `src/styles/index.css`: CSS Variables (Theming), Reset, Typography
 - [ ] **Hooks**
   - `src/hooks/useNetworkStatus.ts`: Implement using `window.navigator.onLine` and events
