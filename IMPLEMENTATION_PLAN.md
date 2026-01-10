@@ -105,8 +105,9 @@
 - [ ] **E2E Tests**
   - [x] `e2e/capture.spec.ts`: Full capture flow
   - [x] `e2e/offline.spec.ts`: Offline functionality
-- [ ] **Unit Tests**
-  - Utilities and Hooks
+- [x] **Unit Tests**
+  - [x] Utilities (`moonPhase.ts`, `statistics.ts`)
+  - [x] Hooks (`useNetworkStatus.ts`)
 - [ ] **Lint & Build Check**
   - Ensure clean build
 

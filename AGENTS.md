@@ -75,6 +75,7 @@ catchpoint/
 | Statistics/charts    | `src/pages/Stats.tsx`, `src/components/stats/` | Recharts, `src/utils/statistics.ts`              |
 | CSV export           | `src/services/export.ts`                       | Web Share API + download fallback                |
 | Service Worker       | `public/sw.js` or Vite plugin                  | Workbox for caching                              |
+| Test config          | `vitest.config.ts`                             | Excludes `e2e/` from unit tests                  |
 | Test data            | `src/data/testCatches.ts`                      | Generator for dev/demo data                      |
 
 ## CONVENTIONS
