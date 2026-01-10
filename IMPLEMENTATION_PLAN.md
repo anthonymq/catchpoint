@@ -18,7 +18,7 @@
 - [x] **Clean Git**: Ensure working directory is clean before starting fresh
 
 ## Phase 2: Foundation (Day 1)
-- [ ] **Initialize Vite Project**: React + TypeScript + SWC
+- [x] **Initialize Vite Project**: React + TypeScript + SWC
   - Command: `npm create vite@latest catchpoint -- --template react-swc-ts`
   - Move files to root (careful with `_rescue/`)
 - [ ] **Install Core Dependencies**
