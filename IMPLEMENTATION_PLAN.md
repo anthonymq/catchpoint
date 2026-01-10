@@ -103,8 +103,8 @@
 ## Phase 7: Verification (Day 5)
 
 - [ ] **E2E Tests**
-  - `e2e/capture.spec.ts`: Full capture flow
-  - `e2e/offline.spec.ts`: Offline functionality
+  - [x] `e2e/capture.spec.ts`: Full capture flow
+  - [ ] `e2e/offline.spec.ts`: Offline functionality
 - [ ] **Unit Tests**
   - Utilities and Hooks
 - [ ] **Lint & Build Check**
