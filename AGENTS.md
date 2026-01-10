@@ -160,7 +160,7 @@ npm run preview          # Preview production build
 
 # Testing
 npm run test             # Unit tests (Vitest)
-# npm run test:e2e       # E2E tests (Playwright) - To be implemented
+# npm run test:e2e       # E2E tests (Playwright) - Requires .env with valid keys or dummies
 
 # Linting
 npm run lint             # ESLint
