@@ -55,7 +55,7 @@
 
 ## Phase 4: Primary Features (Day 2-3)
 
-- [ ] **Quick Capture (Home)**
+- [x] **Quick Capture (Home)**
   - `src/pages/Home.tsx`: Hero button
   - `src/services/location.ts`: Implement using Geolocation API
   - `src/hooks/useQuickCapture.ts`: Optimistic capture logic

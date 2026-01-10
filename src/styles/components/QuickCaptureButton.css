@@ -1,0 +1,94 @@
+.quick-capture-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  position: relative;
+  z-index: 10;
+}
+
+.quick-capture-btn {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 8px solid var(--color-surface);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary),
+    var(--color-secondary)
+  );
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s;
+  color: var(--color-text-inverse);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.quick-capture-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.quick-capture-btn.capturing {
+  animation: pulse-ring 1s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.quick-capture-btn .icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: var(--spacing-sm);
+  stroke-width: 1.5px;
+}
+
+.quick-capture-btn .label {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Success Overlay */
+.success-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #10b981; /* Success Green */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+  transition: all 0.3s ease-out;
+}
+
+.quick-capture-btn.success .success-overlay {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(233, 69, 96, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(233, 69, 96, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(233, 69, 96, 0);
+  }
+}
