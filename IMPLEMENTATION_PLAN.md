@@ -41,7 +41,7 @@
 - [x] **Database Layer (Dexie)**
   - `src/db/index.ts`: Schema definition (Catches table)
   - `src/db/repository.ts`: Typed CRUD operations
-- [ ] **State Management (Zustand)**
+- [x] **State Management (Zustand)**
   - `src/stores/catchStore.ts`: Store for catches (synced with DB)
   - `src/stores/settingsStore.ts`: User preferences (persisted)
 - [ ] **Routing & Layout**
