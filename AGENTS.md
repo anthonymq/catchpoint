@@ -62,20 +62,20 @@ catchpoint/
 
 ## WHERE TO LOOK
 
-| Task                 | Location                                | Notes                             |
-| -------------------- | --------------------------------------- | --------------------------------- |
-| Add new page         | `src/pages/` + update `App.tsx` router  | React Router v6                   |
-| Add catch field      | `src/db/index.ts`                       | Update Dexie schema version       |
-| Modify quick capture | `src/components/QuickCaptureButton.tsx` | Optimistic UI pattern             |
-| Weather fetching     | `src/services/weather.ts` + `sync.ts`   | Background sync on network change |
-| Theme changes        | `src/hooks/useTheme.ts` + CSS vars      | Synced with settingsStore         |
-| State management     | `src/stores/`                           | Zustand with localStorage persist |
-| E2E tests            | `e2e/*.spec.ts`                         | Playwright                        |
-| Map integration      | `src/pages/Map.tsx`                     | react-map-gl or mapbox-gl         |
-| Statistics/charts    | `src/pages/Stats.tsx`                   | Recharts or Chart.js              |
-| CSV export           | `src/services/export.ts`                | Web Share API + download fallback |
-| Service Worker       | `public/sw.js` or Vite plugin           | Workbox for caching               |
-| Test data            | `src/data/testCatches.ts`               | Generator for dev/demo data       |
+| Task                 | Location                                | Notes                                            |
+| -------------------- | --------------------------------------- | ------------------------------------------------ |
+| Add new page         | `src/pages/` + update `App.tsx` router  | React Router v6                                  |
+| Add catch field      | `src/db/index.ts`                       | Update Dexie schema version                      |
+| Modify quick capture | `src/components/QuickCaptureButton.tsx` | Optimistic UI pattern                            |
+| Weather fetching     | `src/services/weather.ts` + `sync.ts`   | Background sync on network change                |
+| Theme changes        | `src/hooks/useTheme.ts` + CSS vars      | Synced with settingsStore                        |
+| State management     | `src/stores/`                           | Zustand with localStorage persist                |
+| E2E tests            | `e2e/*.spec.ts`                         | Playwright                                       |
+| Map integration      | `src/pages/Map.tsx`                     | react-map-gl (import from 'react-map-gl/mapbox') |
+| Statistics/charts    | `src/pages/Stats.tsx`                   | Recharts or Chart.js                             |
+| CSV export           | `src/services/export.ts`                | Web Share API + download fallback                |
+| Service Worker       | `public/sw.js` or Vite plugin           | Workbox for caching                              |
+| Test data            | `src/data/testCatches.ts`               | Generator for dev/demo data                      |
 
 ## CONVENTIONS
 

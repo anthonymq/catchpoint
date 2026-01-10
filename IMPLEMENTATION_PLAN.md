@@ -72,10 +72,10 @@
 
 ## Phase 5: Secondary Features (Day 3-4)
 
-- [ ] **Map View**
+- [x] **Map View**
   - `src/pages/Map.tsx`: Mapbox GL integration
   - Clustering & Marker rendering
-  - Filter integration
+  - Filter integration (Deferred to separate task)
 - [ ] **Statistics**
   - `src/pages/Stats.tsx`: Dashboard layout
   - `src/utils/statistics.ts`: Update to match new `Catch` type
@@ -84,6 +84,9 @@
   - `src/pages/Settings.tsx`: Preferences form
   - Theme switcher logic
   - Data export (CSV) - Implement using `Blob` download
+- [ ] **Global Filtering (Log & Map)**
+  - `src/components/FilterModal.tsx`: Shared filter UI
+  - Filter store or local state integration
 
 ## Phase 6: PWA & Polish (Day 4)
 
