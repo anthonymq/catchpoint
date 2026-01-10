@@ -65,10 +65,10 @@
   - `src/components/CatchCard.tsx`: Display component
   - `src/data/testCatches.ts`: Test data generator added
   - Swipe-to-delete deferred (using buttons)
-- [ ] **Catch Detail / Edit**
+- [x] **Catch Detail / Edit**
   - `src/pages/CatchDetail.tsx`: Form for editing
-  - Photo upload handling (Blob storage / `indexedDB`)
-  - Species autocomplete (using rescued `species.ts`)
+  - Photo upload handling (Base64 storage)
+  - Species autocomplete (Created `src/data/species.ts`)
 
 ## Phase 5: Secondary Features (Day 3-4)
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { MapPin, Calendar, Scale, Trash2, Camera } from "lucide-react";
 import { type Catch } from "../db";
+import { useSettingsStore } from "../stores/settingsStore";
 import {
   formatCatchDate,
   formatCoordinates,
@@ -19,6 +20,8 @@ export const CatchCard: React.FC<CatchCardProps> = ({
   onDelete,
   onClick,
 }) => {
+  const { weightUnit } = useSettingsStore();
+
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDelete && confirm("Are you sure you want to delete this catch?")) {
@@ -49,7 +52,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
 
         <div className="catch-card-detail">
           <Scale size={14} />
-          <span>{formatWeight(catchData.weight)}</span>
+          <span>{formatWeight(catchData.weight, weightUnit)}</span>
         </div>
 
         <div className="catch-card-detail">

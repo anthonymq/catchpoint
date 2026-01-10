@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Fish } from "lucide-react";
 import { useCatchStore } from "../stores/catchStore";
 import { CatchCard } from "../components/CatchCard";
@@ -9,6 +9,7 @@ import "../styles/pages/Log.css";
 
 export default function Log() {
   const { catches, fetchCatches, deleteCatch } = useCatchStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCatches();
@@ -59,6 +60,7 @@ export default function Log() {
             key={catchItem.id}
             catchData={catchItem}
             onDelete={deleteCatch}
+            onClick={(id) => navigate(`/catch/${id}`)}
           />
         ))}
       </div>
