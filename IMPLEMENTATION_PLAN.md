@@ -60,10 +60,11 @@
   - `src/services/location.ts`: Implement using Geolocation API
   - `src/hooks/useQuickCapture.ts`: Optimistic capture logic
   - Animation & Haptics integration (via `navigator.vibrate`)
-- [ ] **Catch Log (List)**
-  - `src/pages/Log.tsx`: Virtualized list of catches
+- [x] **Catch Log (List)**
+  - `src/pages/Log.tsx`: List of catches (Standard list implemented)
   - `src/components/CatchCard.tsx`: Display component
-  - Swipe-to-delete/edit interactions
+  - `src/data/testCatches.ts`: Test data generator added
+  - Swipe-to-delete deferred (using buttons)
 - [ ] **Catch Detail / Edit**
   - `src/pages/CatchDetail.tsx`: Form for editing
   - Photo upload handling (Blob storage / `indexedDB`)

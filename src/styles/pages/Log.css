@@ -1,0 +1,100 @@
+.log-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--color-surface); /* Light gray background */
+}
+
+.log-header {
+  padding: var(--spacing-md);
+  background-color: var(--color-background);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.log-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.log-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+}
+
+.log-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  /* Ensure content isn't hidden behind bottom nav if it's fixed */
+  padding-bottom: calc(var(--spacing-xl) * 4);
+}
+
+.log-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.log-empty-icon {
+  background-color: var(--color-surface-active);
+  padding: var(--spacing-xl);
+  border-radius: 50%;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.log-empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text);
+}
+
+.log-empty-text {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xl);
+  max-width: 300px;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--spacing-sm);
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s;
+  border: none;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  margin-top: var(--spacing-xl);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
