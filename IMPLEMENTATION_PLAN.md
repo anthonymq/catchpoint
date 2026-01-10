@@ -90,12 +90,12 @@
 
 ## Phase 6: PWA & Polish (Day 4)
 
-- [ ] **Service Worker**
-  - Background sync for weather (Workbox BackgroundSync)
-  - Offline caching (App shell, Map tiles)
-- [ ] **Weather Service**
-  - `src/services/weather.ts`: Integration with new logic
-  - Sync queue processing
+- [x] **Service Worker**
+  - [x] Background sync for weather (Workbox BackgroundSync / Custom Queue)
+  - [x] Offline caching (App shell, Map tiles)
+- [x] **Weather Service**
+  - [x] `src/services/weather.ts`: Integration with new logic
+  - [x] Sync queue processing (`src/services/sync.ts`)
 - [ ] **Manifest & Icons**
   - Generate and configure `manifest.json`
   - Add icons to `public/icons/`

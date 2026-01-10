@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -7,9 +8,19 @@ import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import CatchDetail from "./pages/CatchDetail";
 import { useTheme } from "./hooks/useTheme";
+import { useNetworkStatus } from "./hooks/useNetworkStatus";
+import { syncService } from "./services/sync";
 
 function App() {
   useTheme();
+  const isOnline = useNetworkStatus();
+
+  // Trigger weather sync when coming back online
+  useEffect(() => {
+    if (isOnline) {
+      syncService.processWeatherQueue();
+    }
+  }, [isOnline]);
 
   return (
     <BrowserRouter>

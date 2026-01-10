@@ -24,9 +24,8 @@ const db = new Dexie("CatchpointDatabase") as Dexie & {
 };
 
 // Schema declaration:
-// We only index fields we intend to query by
 db.version(1).stores({
-  catches: "id, timestamp, species",
+  catches: "id, timestamp, species, pendingWeatherFetch",
 });
 
 export { db };
