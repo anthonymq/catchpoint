@@ -30,6 +30,8 @@ export interface WeatherData {
   temperature: number;
   temperatureUnit: "C";
   weatherCondition: string | null;
+  weatherDescription?: string;
+  weatherIcon?: string;
   pressure: number;
   pressureUnit: "hPa";
   humidity: number;
@@ -91,6 +93,8 @@ export async function fetchCurrentWeather(
     temperature: data.main.temp,
     temperatureUnit: "C",
     weatherCondition: data.weather[0]?.main ?? null,
+    weatherDescription: data.weather[0]?.description,
+    weatherIcon: data.weather[0]?.icon,
     pressure: data.main.pressure,
     pressureUnit: "hPa",
     humidity: data.main.humidity,
@@ -181,6 +185,8 @@ export async function fetchHistoricalWeather(
     temperature: weatherPoint.temp,
     temperatureUnit: "C",
     weatherCondition: weatherPoint.weather[0]?.main ?? null,
+    weatherDescription: weatherPoint.weather[0]?.description,
+    weatherIcon: weatherPoint.weather[0]?.icon,
     pressure: weatherPoint.pressure,
     pressureUnit: "hPa",
     humidity: weatherPoint.humidity,

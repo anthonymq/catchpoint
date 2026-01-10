@@ -269,9 +269,9 @@ export default function CatchDetail() {
           </div>
           {weather && (
             <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-              {weather.weather?.[0]?.icon ? (
+              {weather.weatherIcon ? (
                 <img
-                  src={`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`}
+                  src={`https://openweathermap.org/img/wn/${weather.weatherIcon}.png`}
                   alt="Weather icon"
                   className="w-5 h-5 -ml-1"
                 />
@@ -279,8 +279,13 @@ export default function CatchDetail() {
                 <Cloud size={18} className="text-gray-400" />
               )}
               <span className="capitalize">
-                {weather.weather?.[0]?.description || "No weather data"},{" "}
-                {weather.main?.temp ? `${Math.round(weather.main.temp)}°` : ""}
+                {weather.weatherDescription ||
+                  weather.weatherCondition ||
+                  "No weather data"}
+                ,{" "}
+                {weather.temperature
+                  ? `${Math.round(weather.temperature)}°`
+                  : ""}
               </span>
             </div>
           )}

@@ -104,7 +104,7 @@
 
 - [ ] **E2E Tests**
   - [x] `e2e/capture.spec.ts`: Full capture flow
-  - [ ] `e2e/offline.spec.ts`: Offline functionality
+  - [x] `e2e/offline.spec.ts`: Offline functionality
 - [ ] **Unit Tests**
   - Utilities and Hooks
 - [ ] **Lint & Build Check**
