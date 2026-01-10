@@ -50,7 +50,7 @@
   - `src/components/BottomNav.tsx`: Navigation (Home, Log, Map, Stats)
 - [x] **Global Styles**
   - `src/styles/index.css`: CSS Variables (Theming), Reset, Typography
-- [ ] **Hooks**
+- [x] **Hooks**
   - `src/hooks/useNetworkStatus.ts`: Implement using `window.navigator.onLine` and events
 
 ## Phase 4: Primary Features (Day 2-3)

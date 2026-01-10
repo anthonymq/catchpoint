@@ -6,7 +6,7 @@
 
 ## OVERVIEW
 
-Offline-first Progressive Web App fishing log. One-tap catch capture with auto GPS + weather. 
+Offline-first Progressive Web App fishing log. One-tap catch capture with auto GPS + weather.
 Stack: Vite + React 18, React Router, Dexie.js (IndexedDB), Zustand, Mapbox GL JS, Workbox (Service Worker).
 
 ## STRUCTURE
@@ -62,23 +62,25 @@ catchpoint/
 
 ## WHERE TO LOOK
 
-| Task | Location | Notes |
-|------|----------|-------|
-| Add new page | `src/pages/` + update `App.tsx` router | React Router v6 |
-| Add catch field | `src/db/index.ts` | Update Dexie schema version |
-| Modify quick capture | `src/components/QuickCaptureButton.tsx` | Optimistic UI pattern |
-| Weather fetching | `src/services/weather.ts` + `sync.ts` | Background sync on network change |
-| Theme changes | `src/hooks/useTheme.ts` + CSS vars | Synced with settingsStore |
-| State management | `src/stores/` | Zustand with localStorage persist |
-| E2E tests | `e2e/*.spec.ts` | Playwright |
-| Map integration | `src/pages/Map.tsx` | react-map-gl or mapbox-gl |
-| Statistics/charts | `src/pages/Stats.tsx` | Recharts or Chart.js |
-| CSV export | `src/services/export.ts` | Web Share API + download fallback |
-| Service Worker | `public/sw.js` or Vite plugin | Workbox for caching |
+| Task                 | Location                                | Notes                             |
+| -------------------- | --------------------------------------- | --------------------------------- |
+| Add new page         | `src/pages/` + update `App.tsx` router  | React Router v6                   |
+| Add catch field      | `src/db/index.ts`                       | Update Dexie schema version       |
+| Modify quick capture | `src/components/QuickCaptureButton.tsx` | Optimistic UI pattern             |
+| Weather fetching     | `src/services/weather.ts` + `sync.ts`   | Background sync on network change |
+| Theme changes        | `src/hooks/useTheme.ts` + CSS vars      | Synced with settingsStore         |
+| State management     | `src/stores/`                           | Zustand with localStorage persist |
+| E2E tests            | `e2e/*.spec.ts`                         | Playwright                        |
+| Map integration      | `src/pages/Map.tsx`                     | react-map-gl or mapbox-gl         |
+| Statistics/charts    | `src/pages/Stats.tsx`                   | Recharts or Chart.js              |
+| CSV export           | `src/services/export.ts`                | Web Share API + download fallback |
+| Service Worker       | `public/sw.js` or Vite plugin           | Workbox for caching               |
+| Test data            | `src/data/testCatches.ts`               | Generator for dev/demo data       |
 
 ## CONVENTIONS
 
 ### CSS Custom Properties (Theming)
+
 ```css
 :root {
   --color-primary: #0f3460;
@@ -95,49 +97,56 @@ catchpoint/
 ```
 
 ### Responsive Design
+
 - Mobile-first approach
 - Breakpoints: 480px (sm), 768px (md), 1024px (lg)
 - Bottom navigation on mobile, sidebar on desktop (optional)
 
 ### Optimistic UI (Quick Capture)
+
 - Show success immediately (~0.3s), background the work
 - Location: try fresh (8s timeout) → fallback cached → refresh async
 - Weather: never block UI, queue for background sync
 
 ### Database (IndexedDB via Dexie.js)
+
 - Schema defined in `src/db/index.ts`
 - Types exported: `Catch`, `InsertCatch`
 - Version migrations handled by Dexie
 - All operations are async
 
 ### State
+
 - Zustand stores in `src/stores/`
 - `catchStore`: CRUD for catches, syncs with IndexedDB
 - `settingsStore`: user prefs (units, theme), persisted to localStorage
 
 ## ANTI-PATTERNS
 
-| Pattern | Why Forbidden |
-|---------|---------------|
-| Blocking location/weather on capture | Breaks optimistic UI; must be async |
-| Synchronous localStorage in render | Causes hydration issues |
-| Direct DOM manipulation | Use React state/refs |
-| `any` types | Type properly |
-| Inline styles (excessive) | Use CSS classes or CSS-in-JS consistently |
-| Ignoring offline state | App must work fully offline |
+| Pattern                              | Why Forbidden                             |
+| ------------------------------------ | ----------------------------------------- |
+| Blocking location/weather on capture | Breaks optimistic UI; must be async       |
+| Synchronous localStorage in render   | Causes hydration issues                   |
+| Direct DOM manipulation              | Use React state/refs                      |
+| `any` types                          | Type properly                             |
+| Inline styles (excessive)            | Use CSS classes or CSS-in-JS consistently |
+| Ignoring offline state               | App must work fully offline               |
 
 ## UNIQUE STYLES
 
 ### Logging
+
 - Prefix: `[App]`, `[Weather]`, `[Sync]`, `[DB]`, etc.
 - Use `console.log` for debugging (consider structured logger for prod)
 
 ### Weather
+
 - OpenWeatherMap 2.5 (free tier)
 - Historical data requires paid One Call 3.0 - app falls back gracefully
 - `pendingWeatherFetch` flag on catches, synced when online
 
 ### Icons
+
 - Use Lucide React, Heroicons, or similar icon library
 - SVG icons for PWA icons
 
@@ -161,6 +170,7 @@ npm run typecheck        # TypeScript check
 ## ENVIRONMENT
 
 Required in `.env`:
+
 ```
 VITE_OPENWEATHERMAP_API_KEY=xxx    # Weather API (BLOCKER)
 VITE_MAPBOX_ACCESS_TOKEN=pk.xxx    # Mapbox public token
@@ -168,22 +178,23 @@ VITE_MAPBOX_ACCESS_TOKEN=pk.xxx    # Mapbox public token
 
 ## TECH STACK
 
-| Category | Technology | Notes |
-|----------|------------|-------|
-| Framework | React 18 | With hooks, no class components |
-| Build | Vite | Fast HMR, ESM-first |
-| Router | React Router v6 | File-based not required |
-| State | Zustand | Lightweight, no boilerplate |
-| Database | Dexie.js | IndexedDB wrapper |
-| Maps | Mapbox GL JS | Via react-map-gl or direct |
-| Charts | Recharts | Or Chart.js / D3 |
-| Service Worker | Workbox | Via vite-plugin-pwa |
-| Styling | Vanilla CSS | CSS variables for theming |
-| Testing | Vitest + Playwright | Unit + E2E |
+| Category       | Technology          | Notes                           |
+| -------------- | ------------------- | ------------------------------- |
+| Framework      | React 18            | With hooks, no class components |
+| Build          | Vite                | Fast HMR, ESM-first             |
+| Router         | React Router v6     | File-based not required         |
+| State          | Zustand             | Lightweight, no boilerplate     |
+| Database       | Dexie.js            | IndexedDB wrapper               |
+| Maps           | Mapbox GL JS        | Via react-map-gl or direct      |
+| Charts         | Recharts            | Or Chart.js / D3                |
+| Service Worker | Workbox             | Via vite-plugin-pwa             |
+| Styling        | Vanilla CSS         | CSS variables for theming       |
+| Testing        | Vitest + Playwright | Unit + E2E                      |
 
 ## PWA REQUIREMENTS
 
 ### Manifest (`public/manifest.json`)
+
 - Name, short_name, description
 - Icons: 192x192, 512x512, maskable
 - display: standalone
@@ -191,12 +202,14 @@ VITE_MAPBOX_ACCESS_TOKEN=pk.xxx    # Mapbox public token
 - start_url: "/"
 
 ### Service Worker
+
 - Precache app shell (HTML, CSS, JS)
 - Cache API responses (weather, map tiles)
 - Background sync for weather queue
 - Offline fallback page
 
 ### Install Prompt
+
 - Capture `beforeinstallprompt` event
 - Show install button in Settings
 - Track installation state
@@ -213,7 +226,9 @@ VITE_MAPBOX_ACCESS_TOKEN=pk.xxx    # Mapbox public token
 Autonomous AI development loop based on the [Ralph Wiggum Technique](https://github.com/ghuntley/how-to-ralph-wiggum).
 
 ### What is RALPH?
+
 A bash loop that continuously feeds prompts to an AI agent for autonomous development:
+
 - **PLANNING mode**: Analyzes specs vs code, creates `IMPLEMENTATION_PLAN.md`
 - **BUILDING mode**: Implements from plan, runs tests, commits changes
 
@@ -233,29 +248,31 @@ A bash loop that continuously feeds prompts to an AI agent for autonomous develo
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `ralph/loop.sh` | Main bash loop script |
-| `ralph/PROMPT_plan.md` | Planning mode instructions |
-| `ralph/PROMPT_build.md` | Building mode instructions |
-| `specs/*.md` | Feature specifications (source of truth) |
-| `IMPLEMENTATION_PLAN.md` | Generated task list (created by RALPH) |
+| File                     | Purpose                                  |
+| ------------------------ | ---------------------------------------- |
+| `ralph/loop.sh`          | Main bash loop script                    |
+| `ralph/PROMPT_plan.md`   | Planning mode instructions               |
+| `ralph/PROMPT_build.md`  | Building mode instructions               |
+| `specs/*.md`             | Feature specifications (source of truth) |
+| `IMPLEMENTATION_PLAN.md` | Generated task list (created by RALPH)   |
 
 ### When to Use Which Mode
 
-| Use PLANNING when... | Use BUILDING when... |
-|---------------------|---------------------|
-| No plan exists | Plan exists and is current |
-| Plan feels stale or wrong | Ready to implement |
-| Made significant spec changes | Tasks are clearly defined |
-| Confused about what's done | Tests are passing |
+| Use PLANNING when...          | Use BUILDING when...       |
+| ----------------------------- | -------------------------- |
+| No plan exists                | Plan exists and is current |
+| Plan feels stale or wrong     | Ready to implement         |
+| Made significant spec changes | Tasks are clearly defined  |
+| Confused about what's done    | Tests are passing          |
 
 ### Stopping RALPH
+
 - `Ctrl+C` stops the loop immediately
 - `git reset --hard HEAD~N` undoes N commits if needed
 - Delete `IMPLEMENTATION_PLAN.md` to force fresh planning
 
 ### Safety Notes
+
 - Each iteration commits changes (easy to revert)
 - Brief pause between iterations allows Ctrl+C
 - Max iterations flag prevents runaway loops
