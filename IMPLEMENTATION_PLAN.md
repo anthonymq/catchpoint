@@ -38,7 +38,7 @@
 
 ## Phase 3: Core Infrastructure (Day 1-2)
 
-- [ ] **Database Layer (Dexie)**
+- [x] **Database Layer (Dexie)**
   - `src/db/index.ts`: Schema definition (Catches table)
   - `src/db/repository.ts`: Typed CRUD operations
 - [ ] **State Management (Zustand)**
