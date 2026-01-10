@@ -1,15 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Fish } from "lucide-react";
+import { Fish, Filter } from "lucide-react";
 import { useCatchStore } from "../stores/catchStore";
+import { useFilterStore } from "../stores/filterStore";
+import { useFilteredCatches } from "../hooks/useFilteredCatches";
 import { CatchCard } from "../components/CatchCard";
+import { FilterModal } from "../components/FilterModal";
 import { db } from "../db";
 import { generateTestCatches } from "../data/testCatches";
 import "../styles/pages/Log.css";
 
 export default function Log() {
-  const { catches, fetchCatches, deleteCatch } = useCatchStore();
+  const { fetchCatches, deleteCatch } = useCatchStore();
+  const { activeFilterCount } = useFilterStore();
+  const filteredCatches = useFilteredCatches();
   const navigate = useNavigate();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     fetchCatches();
@@ -24,7 +30,12 @@ export default function Log() {
     }
   };
 
-  if (catches.length === 0) {
+  // Only show empty state if there are NO catches at all (not just filtered ones)
+  // But wait, if I filter and see nothing, I should see "No matches found", not "Go fish".
+  // So I need access to the raw catches count too.
+  const { catches: allCatches } = useCatchStore();
+
+  if (allCatches.length === 0) {
     return (
       <div className="log-empty-state">
         <div className="log-empty-icon">
@@ -47,23 +58,58 @@ export default function Log() {
     );
   }
 
+  const activeFilters = activeFilterCount();
+
   return (
     <div className="log-page">
       <div className="log-header">
-        <h1 className="log-title">Catch Log</h1>
-        <p className="log-subtitle">{catches.length} catches recorded</p>
+        <div>
+          <h1 className="log-title">Catch Log</h1>
+          <p className="log-subtitle">
+            {filteredCatches.length} catches
+            {allCatches.length !== filteredCatches.length &&
+              ` (of ${allCatches.length})`}
+          </p>
+        </div>
+        <button
+          className="btn-icon"
+          onClick={() => setIsFilterOpen(true)}
+          aria-label="Filter"
+        >
+          <Filter size={24} />
+          {activeFilters > 0 && (
+            <span className="badge-count">{activeFilters}</span>
+          )}
+        </button>
       </div>
 
       <div className="log-list">
-        {catches.map((catchItem) => (
-          <CatchCard
-            key={catchItem.id}
-            catchData={catchItem}
-            onDelete={deleteCatch}
-            onClick={(id) => navigate(`/catch/${id}`)}
-          />
-        ))}
+        {filteredCatches.length === 0 ? (
+          <div className="text-center p-8 text-muted">
+            <p>No catches match your filters.</p>
+            <button
+              className="btn-link mt-2"
+              onClick={() => useFilterStore.getState().resetFilters()}
+            >
+              Clear Filters
+            </button>
+          </div>
+        ) : (
+          filteredCatches.map((catchItem) => (
+            <CatchCard
+              key={catchItem.id}
+              catchData={catchItem}
+              onDelete={deleteCatch}
+              onClick={(id) => navigate(`/catch/${id}`)}
+            />
+          ))
+        )}
       </div>
+
+      <FilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+      />
     </div>
   );
 }

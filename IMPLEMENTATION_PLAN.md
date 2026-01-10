@@ -84,7 +84,7 @@
   - `src/pages/Settings.tsx`: Preferences form
   - Theme switcher logic
   - Data export (CSV) - Implement using `Blob` download
-- [ ] **Global Filtering (Log & Map)**
+- [x] **Global Filtering (Log & Map)**
   - `src/components/FilterModal.tsx`: Shared filter UI
   - Filter store or local state integration
 

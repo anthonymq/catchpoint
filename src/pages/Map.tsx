@@ -8,8 +8,13 @@ import Map, {
 } from "react-map-gl/mapbox";
 import type { MapLayerMouseEvent, GeoJSONSource } from "mapbox-gl";
 import { useCatchStore } from "../stores/catchStore";
+import { useFilterStore } from "../stores/filterStore";
+import { useFilteredCatches } from "../hooks/useFilteredCatches";
+import { FilterModal } from "../components/FilterModal";
+import { Filter } from "lucide-react";
 import { format } from "date-fns";
 import "mapbox-gl/dist/mapbox-gl.css";
+import "../styles/pages/Map.css";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -23,8 +28,11 @@ interface PopupInfo {
 }
 
 export default function MapPage() {
-  const { catches, fetchCatches } = useCatchStore();
+  const { fetchCatches } = useCatchStore();
+  const { activeFilterCount } = useFilterStore();
+  const filteredCatches = useFilteredCatches();
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
     fetchCatches();
@@ -33,7 +41,7 @@ export default function MapPage() {
   const geojson = useMemo(() => {
     return {
       type: "FeatureCollection",
-      features: catches.map((c) => ({
+      features: filteredCatches.map((c) => ({
         type: "Feature",
         geometry: {
           type: "Point",
@@ -48,7 +56,7 @@ export default function MapPage() {
         },
       })),
     };
-  }, [catches]);
+  }, [filteredCatches]);
 
   const onClick = (event: MapLayerMouseEvent) => {
     if (!event.features || event.features.length === 0) return;
@@ -87,11 +95,13 @@ export default function MapPage() {
     });
   };
 
+  const activeFilters = activeFilterCount();
+
   if (!MAPBOX_TOKEN) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-        <h2 className="text-xl font-bold mb-4">Map Unavailable</h2>
-        <p className="text-muted">
+      <div className="map-unavailable">
+        <h2>Map Unavailable</h2>
+        <p>
           Mapbox access token is missing. Please add{" "}
           <code>VITE_MAPBOX_ACCESS_TOKEN</code> to your <code>.env</code> file.
         </p>
@@ -100,7 +110,7 @@ export default function MapPage() {
   }
 
   return (
-    <div className="flex flex-col h-full w-full relative">
+    <div className="map-page">
       <Map
         initialViewState={{
           latitude: 40,
@@ -203,6 +213,25 @@ export default function MapPage() {
           </Popup>
         )}
       </Map>
+
+      {/* Filter Button */}
+      <div className="map-controls-overlay">
+        <button
+          className="btn-map-control"
+          onClick={() => setIsFilterOpen(true)}
+          title="Filter Catches"
+        >
+          <Filter size={20} />
+          {activeFilters > 0 && (
+            <span className="map-badge-count">{activeFilters}</span>
+          )}
+        </button>
+      </div>
+
+      <FilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+      />
     </div>
   );
 }
