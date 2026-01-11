@@ -7,24 +7,28 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 ## Core Principles
 
 ### 1. Offline-First
+
 - **All features work without internet**
 - IndexedDB is the source of truth
 - Weather data syncs in background when online
 - No "loading" spinners blocking the UI
 
 ### 2. Speed Over Features
+
 - Quick Capture completes in <300ms (perceived)
 - Optimistic UI everywhere
 - Background processing for heavy operations
 - Virtual scrolling for large lists
 
 ### 3. Mobile-First, Desktop-Enhanced
+
 - Designed for one-handed phone use
 - Touch-optimized interactions
 - Responsive layout adapts to larger screens
 - PWA installable on any device
 
 ### 4. Privacy-Respecting
+
 - All data stays on device
 - No account required
 - No analytics tracking
@@ -32,22 +36,23 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 
 ## Technology Stack
 
-| Layer | Technology | Why |
-|-------|------------|-----|
-| **Runtime** | Browser (PWA) | Cross-platform, no app store, instant updates |
-| **Framework** | React 18 + Vite | Fast dev experience, modern React patterns |
-| **Routing** | React Router v6 | Standard, well-documented |
-| **State** | Zustand | Minimal boilerplate, great DevTools |
-| **Database** | Dexie.js (IndexedDB) | Offline storage, good DX, reactive |
-| **Maps** | Mapbox GL JS | Beautiful tiles, clustering, offline capable |
-| **Charts** | Recharts | React-native charting, SSR-safe |
-| **PWA** | Workbox | Industry standard, Vite plugin available |
-| **Styling** | Vanilla CSS | No build complexity, CSS variables for theming |
-| **Testing** | Vitest + Playwright | Fast unit tests, reliable E2E |
+| Layer         | Technology           | Why                                            |
+| ------------- | -------------------- | ---------------------------------------------- |
+| **Runtime**   | Browser (PWA)        | Cross-platform, no app store, instant updates  |
+| **Framework** | React 18 + Vite      | Fast dev experience, modern React patterns     |
+| **Routing**   | React Router v6      | Standard, well-documented                      |
+| **State**     | Zustand              | Minimal boilerplate, great DevTools            |
+| **Database**  | Dexie.js (IndexedDB) | Offline storage, good DX, reactive             |
+| **Maps**      | Mapbox GL JS         | Beautiful tiles, clustering, offline capable   |
+| **Charts**    | Recharts             | React-native charting, SSR-safe                |
+| **PWA**       | Workbox              | Industry standard, Vite plugin available       |
+| **Styling**   | Vanilla CSS          | No build complexity, CSS variables for theming |
+| **Testing**   | Vitest + Playwright  | Fast unit tests, reliable E2E                  |
 
 ## Features
 
 ### Quick Capture (Home Screen)
+
 - Large "FISH ON!" button
 - Auto-captures: timestamp, GPS, weather
 - Haptic feedback (if supported)
@@ -55,6 +60,7 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 - Queues weather fetch if offline
 
 ### Catch Log
+
 - Scrollable list of all catches
 - Filter by date, species, weather
 - Sort by date, weight, species
@@ -62,6 +68,7 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 - Virtual scrolling for performance
 
 ### Map View
+
 - All catches plotted on Mapbox map
 - Clustering at low zoom levels
 - Click marker to see catch details
@@ -69,6 +76,7 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 - Filter affects visible markers
 
 ### Statistics Dashboard
+
 - Time range filter (7D, 30D, 1Y, All)
 - Overview cards (total, avg weight, biggest, best day)
 - Line chart: catches over time
@@ -76,6 +84,8 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 - Bar chart: best fishing hours
 
 ### Settings
+
+- Language: English / French / System
 - Theme: Light / Dark / System
 - Units: lbs/kg, in/cm
 - Export to CSV
@@ -85,6 +95,7 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 - Storage usage display
 
 ### Catch Detail / Edit
+
 - View all catch properties
 - Edit species, weight, length, notes
 - Add/change photo
@@ -94,6 +105,7 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 ## User Flows
 
 ### Primary Flow: Quick Capture
+
 ```
 1. Open app (instant, cached)
 2. Tap "FISH ON!" button
@@ -103,6 +115,7 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 ```
 
 ### Secondary Flow: Review & Edit
+
 ```
 1. Navigate to Log tab
 2. Scroll to find catch
@@ -112,6 +125,7 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 ```
 
 ### Tertiary Flow: Analyze
+
 ```
 1. Navigate to Stats tab
 2. Select time range
@@ -123,40 +137,44 @@ Catchpoint is an **offline-first Progressive Web App** for fishers to log their 
 
 ```typescript
 interface Catch {
-  id: string;              // UUID
-  timestamp: Date;         // When caught
-  latitude: number;        // GPS lat
-  longitude: number;       // GPS lon
-  species?: string;        // Fish species
-  weight?: number;         // In user's preferred unit (stored as lbs)
-  length?: number;         // In user's preferred unit (stored as inches)
-  photoUri?: string;       // Base64 or blob URL
-  notes?: string;          // Free text
-  weatherData?: {          // From OpenWeatherMap
+  id: string; // UUID
+  timestamp: Date; // When caught
+  latitude: number; // GPS lat
+  longitude: number; // GPS lon
+  species?: string; // Fish species
+  weight?: number; // In user's preferred unit (stored as lbs)
+  length?: number; // In user's preferred unit (stored as inches)
+  photoUri?: string; // Base64 or blob URL
+  notes?: string; // Free text
+  weatherData?: {
+    // From OpenWeatherMap
     temp: number;
     description: string;
     icon: string;
     // ... more fields
   };
-  pendingWeatherFetch: boolean;  // True if weather needs sync
+  pendingWeatherFetch: boolean; // True if weather needs sync
   createdAt: Date;
   updatedAt: Date;
 }
 
 interface Settings {
-  theme: 'light' | 'dark' | 'system';
-  weightUnit: 'lbs' | 'kg';
-  lengthUnit: 'in' | 'cm';
+  language: "en" | "fr" | "system";
+  theme: "light" | "dark" | "system";
+  weightUnit: "lbs" | "kg";
+  lengthUnit: "in" | "cm";
 }
 ```
 
 ## External Dependencies
 
 ### APIs
+
 - **OpenWeatherMap** (Current Weather 2.5) - Free tier, 60 calls/min
 - **Mapbox** - Free tier generous for personal use
 
 ### Environment Variables
+
 ```
 VITE_OPENWEATHERMAP_API_KEY=xxx
 VITE_MAPBOX_ACCESS_TOKEN=pk.xxx
@@ -188,3 +206,4 @@ VITE_MAPBOX_ACCESS_TOKEN=pk.xxx
 - `specs/statistics.md` - Charts and analytics
 - `specs/settings.md` - Preferences and data management
 - `specs/offline-sync.md` - PWA and sync architecture
+- `specs/i18n.md` - Internationalization (EN/FR)

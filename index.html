@@ -2,6 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Theme & Language Flash Prevention - MUST be first to prevent FOUC -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("catchpoint-settings");
+          var settings = stored ? JSON.parse(stored) : {};
+          var state = settings.state || {};
+
+          // Theme resolution - only set attribute for dark mode (matches useTheme.ts)
+          var themePref = state.theme || "system";
+          var isDark =
+            themePref === "dark" ||
+            (themePref === "system" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (isDark) {
+            document.documentElement.setAttribute("data-theme", "dark");
+          }
+
+          // Language resolution (for future i18n)
+          var lang = state.language || "system";
+          if (lang === "system") {
+            lang = (navigator.language || "en").split("-")[0];
+            if (lang !== "fr") lang = "en";
+          }
+          document.documentElement.lang = lang;
+        } catch (e) {}
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
     <!-- Viewport with iOS safe area support -->
     <meta

@@ -46,6 +46,10 @@ catchpoint/
 │   ├── stores/                # Zustand stores
 │   │   ├── catchStore.ts
 │   │   └── settingsStore.ts
+│   ├── i18n/                  # Internationalization
+│   │   ├── index.ts           # i18n setup and provider
+│   │   ├── en.json            # English translations
+│   │   └── fr.json            # French translations
 │   ├── utils/                 # Utility functions
 │   │   ├── statistics.ts
 │   │   └── format.ts
@@ -69,6 +73,7 @@ catchpoint/
 | Modify quick capture | `src/components/QuickCaptureButton.tsx`        | Optimistic UI pattern                            |
 | Weather fetching     | `src/services/weather.ts` + `sync.ts`          | Background sync on network change                |
 | Theme changes        | `src/hooks/useTheme.ts` + CSS vars             | Synced with settingsStore                        |
+| i18n / translations  | `src/i18n/`                                    | EN/FR, system language detection                 |
 | State management     | `src/stores/`                                  | Zustand with localStorage persist                |
 | E2E tests            | `e2e/*.spec.ts`                                | Playwright                                       |
 | Map integration      | `src/pages/Map.tsx`                            | react-map-gl (import from 'react-map-gl/mapbox') |

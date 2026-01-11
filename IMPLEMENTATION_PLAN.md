@@ -1,257 +1,570 @@
-# Implementation Plan - Catchpoint PWA Rewrite
+# Implementation Plan - Catchpoint PWA
 
-> **Status**: ✅ COMPLETE
-> **Goal**: Replace existing React Native app with an offline-first PWA.
+> **Last Updated**: 2026-01-11 (RALPH Build Mode - Phase 11 Complete)
+> **Status**: Phases 1-11 Complete, Phases 12-18 Pending
+> **Goal**: Offline-first PWA fishing log with one-tap capture
 
-## Phase 1: Demolition & Rescue (Day 1)
+---
 
-- [x] **Rescue Assets**: Back up reusable logic to `_rescue/` directory
-  - `src/data/species.ts` (Species database)
-  - `src/data/testCatches.ts` (Test data)
-  - `src/utils/moonPhase.ts` (Moon phase logic)
-  - `src/utils/statistics.ts` (Statistics logic - **Update**: Adapt to new `Catch` interface)
-  - `src/services/weather.ts` (Weather API logic - **Update**: Remove `expo-network`, use `fetch`)
-  - `src/services/export.ts` (CSV formatting only - **Update**: Remove `expo-sharing`)
-  - `src/theme/colors.ts` (Color palette)
-- [x] **Nuke Old Codebase**: Remove all Expo/React Native files
-  - Directories: `src/`, `e2e/`, `android/`, `ios/`, `app/`, `assets/`, `drizzle/`
-  - Configs: `package.json`, `package-lock.json`, `tsconfig.json`, `babel.config.js`, `app.json`, `metro.config.js`, `expo-env.d.ts`
-- [x] **Clean Git**: Ensure working directory is clean before starting fresh
+## Executive Summary
 
-## Phase 2: Foundation (Day 1)
+The core PWA is functional with Quick Capture, Log, Map, Stats, and Settings pages. Comprehensive gap analysis (6 parallel background agents) confirmed the following priorities:
 
-- [x] **Initialize Vite Project**: React + TypeScript + SWC
-  - Command: `npm create vite@latest catchpoint -- --template react-swc-ts`
-  - Move files to root (careful with `_rescue/`)
-- [x] **Install Core Dependencies**
-  - Production: `react-router-dom`, `zustand`, `dexie`, `mapbox-gl`, `react-map-gl`, `date-fns`, `lucide-react`, `recharts`, `clsx`, `suncalc`
-  - PWA: `vite-plugin-pwa`, `workbox-window`, `workbox-precaching`, `workbox-routing`, `workbox-strategies`, `workbox-background-sync`
-- [x] **Install Dev Dependencies**
-  - Testing: `vitest`, `jsdom`, `@testing-library/react`, `@playwright/test`
-  - Linting: `eslint`, `prettier`
-  - Types: `@types/mapbox-gl`, `@types/node`, `@types/suncalc`
-- [x] **Project Configuration**
-  - `vite.config.ts` (Paths, PWA plugin, Environment variables)
-  - `tsconfig.json` (Strict mode, path aliases `@/*`)
-  - `playwright.config.ts` (Mobile viewports)
-  - `.env` template (VITE_OPENWEATHERMAP_API_KEY, VITE_MAPBOX_ACCESS_TOKEN)
+| Priority   | Feature                   | Status      | Effort | Spec Reference           |
+| ---------- | ------------------------- | ----------- | ------ | ------------------------ |
+| **HIGH**   | Theme Flash Prevention    | **Missing** | S      | `specs/settings.md`      |
+| **HIGH**   | i18n (EN/FR)              | **Missing** | L      | `specs/i18n.md`          |
+| **HIGH**   | PWA Install Prompt        | **Missing** | S      | `specs/settings.md`      |
+| **HIGH**   | Storage Quota Display     | **Missing** | S      | `specs/offline-sync.md`  |
+| **MEDIUM** | Quick Capture Truly Async | Partial     | S      | `specs/quick-capture.md` |
+| **MEDIUM** | Virtual Scrolling (Log)   | **Missing** | M      | `specs/catch-log.md`     |
+| **LOW**    | E2E Test Coverage Gaps    | Partial     | M      | `specs/*.md`             |
 
-## Phase 3: Core Infrastructure (Day 1-2)
+---
 
-- [x] **Database Layer (Dexie)**
-  - `src/db/index.ts`: Schema definition (Catches table)
-  - `src/db/repository.ts`: Typed CRUD operations
-- [x] **State Management (Zustand)**
-  - `src/stores/catchStore.ts`: Store for catches (synced with DB)
-  - `src/stores/settingsStore.ts`: User preferences (persisted)
-- [x] **Routing & Layout**
-  - `src/App.tsx`: React Router setup
-  - `src/components/Layout.tsx`: Shell with BottomNav
-  - `src/components/BottomNav.tsx`: Navigation (Home, Log, Map, Stats)
-- [x] **Global Styles**
-  - `src/styles/index.css`: CSS Variables (Theming), Reset, Typography
-- [x] **Hooks**
-  - `src/hooks/useNetworkStatus.ts`: Implement using `window.navigator.onLine` and events
+## Phase 11: Theme & Language Flash Prevention
 
-## Phase 4: Primary Features (Day 2-3)
+> **Status**: COMPLETE
+> **Priority**: HIGH - Critical UX issue (users see white flash in dark mode)
+> **Effort**: S (Small)
+> **Completed**: 2026-01-11
 
-- [x] **Quick Capture (Home)**
-  - `src/pages/Home.tsx`: Hero button
-  - `src/services/location.ts`: Implement using Geolocation API
-  - `src/hooks/useQuickCapture.ts`: Optimistic capture logic
-  - Animation & Haptics integration (via `navigator.vibrate`)
-- [x] **Catch Log (List)**
-  - `src/pages/Log.tsx`: List of catches (Standard list implemented)
-  - `src/components/CatchCard.tsx`: Display component
-  - `src/data/testCatches.ts`: Test data generator added
-  - Swipe-to-delete deferred (using buttons)
-- [x] **Catch Detail / Edit**
-  - `src/pages/CatchDetail.tsx`: Form for editing
-  - Photo upload handling (Base64 storage)
-  - Species autocomplete (Created `src/data/species.ts`)
+### 11.1 Add Blocking Script to index.html
 
-## Phase 5: Secondary Features (Day 3-4)
+- [x] **Add Theme + Language Blocking Script** - S
+  - Inserted inline `<script>` in `<head>` BEFORE any other scripts/styles
+  - Reads `catchpoint-settings` from localStorage
+  - Sets `data-theme="dark"` only for dark mode (matches useTheme.ts behavior)
+  - Sets `document.documentElement.lang` for future i18n support
+  - Handles "system" preference using `window.matchMedia`
 
-- [x] **Map View**
-  - `src/pages/Map.tsx`: Mapbox GL integration
-  - Clustering & Marker rendering
-  - Filter integration (Deferred to separate task)
-- [x] **Statistics**
-  - `src/pages/Stats.tsx`: Dashboard layout
-  - `src/utils/statistics.ts`: Update to match new `Catch` type
-  - Charts (Line, Pie, Bar) integration
-- [x] **Settings**
-  - `src/pages/Settings.tsx`: Preferences form
-  - Theme switcher logic
-  - Data export (CSV) - Implement using `Blob` download
-- [x] **Global Filtering (Log & Map)**
-  - `src/components/FilterModal.tsx`: Shared filter UI
-  - Filter store or local state integration
+### Acceptance Criteria
 
-## Phase 6: PWA & Polish (Day 4)
+- [x] No flash of wrong theme on page load (test with slow 3G throttling)
+- [x] Works with cleared localStorage (defaults correctly)
+- [x] Dark mode users see dark immediately, no white flash
 
-- [x] **Service Worker**
-  - [x] Background sync for weather (Workbox BackgroundSync / Custom Queue)
-  - [x] Offline caching (App shell, Map tiles)
-- [x] **Weather Service**
-  - [x] `src/services/weather.ts`: Integration with new logic
-  - [x] Sync queue processing (`src/services/sync.ts`)
-- [x] **Manifest & Icons**
-  - [x] Generate and configure `manifest.json` (Using `vite-plugin-pwa` with SVG icons)
-  - [x] Add icons to `public/icons/` (Created `icon.svg`)
+---
 
-## Phase 7: Verification (Day 5)
+## Phase 12: PWA Install & Storage
 
-- [x] **E2E Tests** (5/6 pass - Mobile Safari skipped, needs WebKit)
-  - [x] `e2e/capture.spec.ts`: Full capture flow
-  - [x] `e2e/offline.spec.ts`: Offline functionality
-- [x] **Unit Tests**
-  - [x] Utilities (`moonPhase.ts`, `statistics.ts`)
-  - [x] Hooks (`useNetworkStatus.ts`)
-- [x] **Lint & Build Check**
-  - Ensure clean build (verified: build passes, lint clean, 21/21 unit tests pass)
+> **Status**: NOT STARTED
+> **Priority**: HIGH - Spec requirement, missing from codebase
+> **Effort**: S-M
+> **Verified**: No `useInstallPrompt` hook exists, Settings page missing PWA section
 
-## Phase 8: QA & Enhancements
+### 12.1 PWA Install Prompt Hook
 
-- [x] **Stats Page Charts Not Displaying**: Full review and fix of the Stats page - charts are now rendering properly
-  - Verified chart components in `src/pages/Stats.tsx` and `src/components/stats/`
-  - Confirmed Recharts receives data correctly
-  - Added E2E tests (`e2e/stats.spec.ts`) that verify:
-    - Empty state shows correctly when no catches
-    - Charts render with SVG elements when catches exist
-    - Chart containers have proper height (220px+)
-    - Weather conditions section displays correctly
-  - All 9 Stats page E2E tests pass
-- [x] **Full QA of the App**: Comprehensive quality assurance pass (completed)
-  - Created `e2e/qa.spec.ts` with 10 comprehensive test scenarios
-  - Tested all user flows: capture, edit, delete, filter, export
-  - Verified responsive design on Mobile Chrome, Mobile Safari, Desktop Chrome
-  - Fixed: Added Settings link to BottomNav (was missing)
-  - Tested theme switching (light/dark/system) - works correctly
-  - Tested unit switching (lbs/kg, in/cm) - works correctly
-  - Verified all navigation works correctly
-  - All 44 E2E tests pass (1 skipped: Mobile Safari offline)
-- [x] **Offline Map Support**: Implement proper offline map tile caching (completed)
-  - Updated Service Worker to cache all Mapbox domains:
-    - `api.mapbox.com` (styles, sprites, fonts/glyphs)
-    - `tiles.mapbox.com` and `*.tiles.mapbox.com` (vector/raster tiles)
-  - Added offline indicator banner in Map.tsx when offline
-  - Added error handling for map when offline with no cached tiles
-  - Implemented retry button for users to reload map when back online
-  - Configured tile cache limit to 2000 entries (~50-100MB)
-  - 30-day expiration for tiles (they rarely change)
+- [ ] **Create `src/hooks/useInstallPrompt.ts`** - S
+  - Capture `beforeinstallprompt` event
+  - Store deferred prompt in state
+  - Provide `canInstall`, `promptInstall()`, and `isInstalled` states
+  - Track installation via `appinstalled` event
 
-## Phase 9: Mobile Polish & iOS Compatibility
+  ```typescript
+  interface UseInstallPromptReturn {
+    canInstall: boolean;
+    isInstalled: boolean;
+    promptInstall: () => Promise<void>;
+  }
+  ```
 
-> **Status**: ✅ COMPLETE
-> **Priority**: HIGH - Critical UX issues on mobile devices
+- [ ] **Detect iOS for special handling** - S
+  - iOS Safari doesn't fire `beforeinstallprompt`
+  - Detect via userAgent: `/iPad|iPhone|iPod/` + not standalone
+  - Show "Add to Home Screen" instructions for iOS users
 
-### 9.1 Stats Screen Mobile Fix (Pixel 7) - COMPLETED
+### 12.2 Storage Quota Display
 
-**Problem**: Charts are not fully visible on mobile (Pixel 7 - 1080x2400, 412x915 CSS pixels). User cannot see all charts without issues.
+- [ ] **Create `src/utils/storage.ts`** - S
+  - Implement `getStorageQuota()` using `navigator.storage.estimate()`
+  - Return `{ used: number, quota: number, percentUsed: number }`
+  - Format as human-readable: "12.5 MB of 100 MB"
 
-- [x] **Audit Stats Page Layout** (completed)
-  - Identified nested scrolling issue (`.stats-page` had `height: 100%` + `overflow-y: auto`)
-  - Fixed by removing height constraint, letting Layout handle scrolling
-  - Verified scroll behavior works correctly
+- [ ] **Create `src/hooks/useStorageQuota.ts`** - S
+  - React hook that fetches and caches storage info
+  - Refresh on mount and after data operations
 
-- [x] **Fix Chart Container Heights** (completed)
-  - Responsive chart heights: 180px on mobile, 200px on tablet, 220px on desktop
-  - Pie charts: 240px on mobile, 260px on tablet, 280px on desktop
-  - Added proper padding-bottom with `env(safe-area-inset-bottom)` for iOS
+### 12.3 Update Settings Page with PWA Section
 
-- [x] **Fix Chart Responsiveness** (completed)
-  - Chart containers scale properly with responsive breakpoints
-  - Recharts ResponsiveContainer works correctly
-  - Charts resize on orientation change
+- [ ] **Add PWA Section to `src/pages/Settings.tsx`** - S
+  - Section header: "App"
+  - "Install App" button (uses `useInstallPrompt`)
+    - Show only when `canInstall === true`
+    - Show "App Installed" badge when `isInstalled === true`
+    - Show iOS instructions when on iOS and not installed
+  - "Storage Used" row with quota display
 
-- [x] **Fix Stats Page Scroll** (completed)
-  - Page scrolls smoothly within Layout's main container
-  - No content hidden behind BottomNav
-  - Added safe area padding for iOS
+  ```
+  APP
+  +-----------------------------------+
+  | Install App           [Install]   |  <- or "Installed"
+  | Storage Used      12.5 / 100 MB   |
+  +-----------------------------------+
+  ```
 
-- [x] **E2E Test on Mobile Viewport** (completed)
-  - Added 2 new E2E tests to `e2e/stats.spec.ts`:
-    - `should scroll to show all content on mobile viewport`
-    - `should have proper chart dimensions on mobile`
-  - All 5 Stats E2E tests pass on Mobile Chrome
+### Acceptance Criteria
 
-### 9.2 iOS Full Compatibility - COMPLETED
+- [ ] Install button appears on supported browsers (Chrome, Edge)
+- [ ] Install button triggers native prompt
+- [ ] Button changes to "Installed" after installation
+- [ ] iOS shows manual instructions
+- [ ] Storage displays correct usage
 
-**Problem**: PWA needs to work flawlessly on iOS Safari, including standalone mode (Add to Home Screen).
+---
 
-- [x] **Safe Area Handling** (completed)
-  - Added `viewport-fit=cover` to meta viewport tag in `index.html`
-  - CSS already uses `env(safe-area-inset-*)` for BottomNav and Layout
+## Phase 13: Internationalization (i18n)
 
-- [x] **iOS PWA Meta Tags** (completed)
-  - Added `apple-mobile-web-app-capable` meta tag
-  - Added `apple-mobile-web-app-status-bar-style` (black-translucent)
-  - Added `apple-mobile-web-app-title`
-  - Generated Apple touch icons (180x180) using sharp
-  - Added PNG icons (192x192, 512x512) for manifest
+> **Status**: NOT STARTED - **Entirely missing from codebase**
+> **Priority**: HIGH - Spec exists (`specs/i18n.md`), implementation missing
+> **Effort**: L (Large)
+> **Verified**: No `src/i18n/` directory, no translation files, no language in settingsStore
 
-- [x] **iOS-Specific Touch Behaviors** (completed)
-  - Added `touch-action: manipulation` to body (disables double-tap zoom)
-  - Added `overscroll-behavior: none` to body (prevents pull-to-refresh interference)
-  - Smooth momentum scrolling via `-webkit-overflow-scrolling: touch` (implicit)
+### 13.1 i18n Infrastructure
 
-- [x] **iOS Safari Quirks** (completed)
-  - Fixed 100vh issue using `100dvh` with `100%` fallback
-  - Body uses modern viewport units
+- [ ] **Create `src/i18n/` directory** - S
+  - `src/i18n/index.ts` - Provider, context, `useTranslation` hook
+  - `src/i18n/types.ts` - TypeScript types for translation keys
 
-- [x] **Updated PWA Manifest** (completed)
-  - Added PNG icons (192x192, 512x512) for better Android/iOS compatibility
-  - Kept SVG icon for browsers that support it
+- [ ] **Create translation files** - M
+  - `src/i18n/en.json` - English translations (all keys)
+  - `src/i18n/fr.json` - French translations (all keys)
+  - Follow namespace structure from `specs/i18n.md`
 
-### 9.3 Verification - COMPLETED
+- [ ] **Implement `useTranslation` hook** - S
+  - `t(key: string, params?: Record<string, string | number>) => string`
+  - Support dot notation: `t('nav.home')` -> "Home"
+  - Support interpolation: `t('log.catches', { count: 5 })` -> "5 catches"
+  - Fallback to key if translation missing
 
-- [x] **Build & Test**
-  - TypeScript: No errors
-  - Build: Passes
-  - E2E Tests: 14/17 pass on Mobile Chrome (3 pre-existing failures in qa.spec.ts unrelated to Phase 9)
-  - Stats page E2E tests: 5/5 pass
+- [ ] **Create `I18nProvider` component** - S
+  - Wrap app in `src/main.tsx`
+  - Provide translation context
+  - Listen to language changes from `settingsStore`
 
-## Phase 10: Enhanced Stats & Map Features
+### 13.2 Settings Store Update
 
-> **Status**: ✅ COMPLETE
-> **Priority**: MEDIUM - User-requested enhancements
+- [ ] **Add language to `src/stores/settingsStore.ts`** - S
+  - Add `language: 'en' | 'fr' | 'system'` state (default: `'system'`)
+  - Add `setLanguage(lang)` action
+  - Persist with existing Zustand middleware
 
-### 10.1 Advanced Statistics Charts
+### 13.3 Language Selector UI
 
-- [x] **Moon Phase Impact Chart**
-  - Add chart showing catch success rate by moon phase
-  - Correlate catches with moon phase data (already have `moonPhase` in Catch model)
-  - Display: New Moon, Waxing Crescent, First Quarter, Waxing Gibbous, Full Moon, etc.
-  - Visualization: Bar chart or radial chart showing catches per phase
+- [ ] **Add Language section to Settings** - S
+  - Three options: System, English, Francais
+  - Same toggle UI pattern as theme selector
+  - Position: First item in Preferences section (before Appearance)
 
-- [x] **Barometric Pressure Impact Chart**
-  - Add chart showing catch success rate by pressure conditions
-  - Categories: Rising, Falling, Stable, High, Low
-  - Requires pressure data from weather API (already captured in `weather.pressure`)
-  - Visualization: Bar chart with pressure ranges
+### 13.4 Translate All Hardcoded Strings
 
-- [ ] **Additional Stats Enhancements**
-  - Consider: Best pressure + moon phase combinations
-  - Consider: Time of day analysis with weather overlay
+- [ ] **Pages** - L
+  - `src/pages/Home.tsx` - greeting, capture button text
+  - `src/pages/Log.tsx` - "Catch Log", empty state, filter labels
+  - `src/pages/Map.tsx` - offline indicator, controls
+  - `src/pages/Stats.tsx` - chart titles, stat labels, time ranges
+  - `src/pages/Settings.tsx` - all sections and labels
+  - `src/pages/CatchDetail.tsx` - form labels, buttons
 
-### 10.2 Map Heatmap Layer
+- [ ] **Components** - M
+  - `src/components/QuickCaptureButton.tsx` - "FISH ON!", "CAUGHT!"
+  - `src/components/FilterModal.tsx` - filter options, buttons
+  - `src/components/ConfirmModal.tsx` - button labels
+  - `src/components/BottomNav.tsx` - nav labels
+  - `src/components/CatchCard.tsx` - labels, date text
 
-- [x] **Catch Density Heatmap**
-  - Added toggle to switch between markers and heatmap view
-  - Implemented Mapbox GL JS heatmap layer with:
-    - Color gradient from blue (low) to red (high density)
-    - Zoom-responsive radius (5px at z0, 20px at z6, 40px at z12)
-    - Intensity scaling with zoom level
-  - Premium glassmorphism toggle button centered at bottom
-  - Dark mode support for toggle button
-  - Responsive design (icons only on very small screens)
+- [ ] **Utilities** - S
+  - `src/utils/format.ts` - "Today at", "Yesterday at"
+  - `src/services/export.ts` - CSV column headers
 
-## Discovered Issues / Notes
+### 13.5 Species Translations
 
-- [x] **Mapbox Offline**: Tile caching implemented with 2000-tile limit. Users should browse areas while online to cache tiles.
-- [x] **iOS 100vh Bug**: Fixed using `100dvh` with `100%` fallback.
-- [ ] **Safari Support**: Background Sync API not supported; ensure fallback to foreground sync on network restore works reliably.
-- [ ] **Storage Quota**: Monitor usage as photos are stored in IndexedDB.
-- [ ] **iOS PWA Limitations**: No Background Sync, no Push notifications without workarounds, limited Service Worker support.
-- [ ] **QA Test Flakiness**: 3 tests in `e2e/qa.spec.ts` have timing issues (unit switching, filter modal, delete flow). Not related to Phase 9 work.
+- [ ] **Update `src/data/species.ts`** - M
+  - Convert to language-aware structure
+  - Provide both EN and FR species names
+  - Autocomplete should use current language
+
+### Acceptance Criteria
+
+- [ ] App detects system language on first launch
+- [ ] Language persists when explicitly set
+- [ ] "System" option follows device preference
+- [ ] All UI text is translated (no hardcoded strings visible)
+- [ ] Date/time formats respect locale (Intl.DateTimeFormat)
+- [ ] Language switch applies immediately (no reload)
+- [ ] No flash of wrong language on startup
+
+---
+
+## Phase 14: Quick Capture Optimization
+
+> **Status**: PARTIAL
+> **Priority**: MEDIUM
+> **Effort**: S
+> **Spec**: `specs/quick-capture.md`
+> **Verified**: `useQuickCapture.ts` line 28 awaits `getCurrentLocation()` blocking up to 8s
+
+### Current Issue
+
+In `src/hooks/useQuickCapture.ts`:
+
+- Line 28: `const location = await getCurrentLocation();` **blocks** before showing success
+- User sees "Capturing..." for up to 8 seconds (GPS timeout)
+- Spec requires: success feedback in <300ms
+- UI appears fire-and-forget (button doesn't await), but catch NOT saved until GPS completes
+
+### 14.1 Make Capture Truly Fire-and-Forget
+
+- [ ] **Refactor `useQuickCapture.ts`** - S
+  - Show success animation IMMEDIATELY on tap
+  - Use cached location first (from localStorage)
+  - Fire GPS request in background, update catch later if better coords
+  - Don't block on `await getCurrentLocation()`
+
+  ```typescript
+  const capture = async () => {
+    // 1. INSTANT feedback
+    setIsCapturing(true);
+    triggerHaptic();
+
+    // 2. Get cached location (instant)
+    const cachedLocation = getCachedLocation();
+
+    // 3. Create catch with cached/default coords
+    const newCatch = {
+      id: crypto.randomUUID(),
+      timestamp: new Date(),
+      latitude: cachedLocation?.latitude ?? 0,
+      longitude: cachedLocation?.longitude ?? 0,
+      pendingWeatherFetch: true,
+      pendingLocationRefresh: !cachedLocation, // Flag if needs GPS refresh
+    };
+
+    // 4. Save immediately
+    await addCatch(newCatch);
+    setIsCapturing(false); // SUCCESS within 300ms!
+
+    // 5. Background: refresh GPS and update if better
+    refreshLocationAsync(newCatch.id);
+
+    // 6. Background: fetch weather
+    if (navigator.onLine) {
+      syncService.processWeatherQueue();
+    }
+  };
+  ```
+
+### 14.2 Location Service Enhancement
+
+- [ ] **Update `src/services/location.ts`** - S
+  - Export `getCachedLocation()` function (already exists, make public)
+  - Add `refreshLocationAsync(catchId)` to update catch with fresh GPS
+  - Cache successful GPS reads for 5 minutes
+
+- [ ] **Update `src/db/index.ts`** - S
+  - Add `pendingLocationRefresh?: boolean` to Catch interface
+
+### Acceptance Criteria
+
+- [ ] Success animation shows within 300ms of tap
+- [ ] GPS fetch happens in background
+- [ ] Catch is saved immediately with cached/default location
+- [ ] Location updates asynchronously if GPS returns
+
+---
+
+## Phase 15: Virtual Scrolling for Catch Log
+
+> **Status**: NOT STARTED
+> **Priority**: MEDIUM
+> **Effort**: M
+> **Spec**: `specs/catch-log.md`
+> **Verified**: No `@tanstack/react-virtual` in package.json, `Log.tsx` uses direct `.map()`
+
+### 15.1 Install Virtualization Library
+
+- [ ] **Add @tanstack/react-virtual** - S
+  ```bash
+  npm install @tanstack/react-virtual
+  ```
+
+### 15.2 Implement Virtual List in Log.tsx
+
+- [ ] **Refactor `src/pages/Log.tsx`** - M
+  - Replace direct `.map()` (lines 164-171) with `useVirtualizer`
+  - Maintain scroll position on filter changes
+  - Support variable height items (catches with photos)
+  - Add proper sizing estimates
+
+  ```typescript
+  const parentRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: filteredCatches.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 100, // Estimated card height
+    overscan: 5,
+  });
+  ```
+
+### Acceptance Criteria
+
+- [ ] Smooth 60fps scrolling with 1000+ catches
+- [ ] Memory usage stays low with large lists
+- [ ] Cards render correctly at all scroll positions
+- [ ] Filter changes don't cause scroll jump
+
+---
+
+## Phase 16: Settings Page Completion
+
+> **Status**: PARTIAL
+> **Priority**: MEDIUM
+> **Effort**: S
+> **Spec**: `specs/settings.md`
+> **Verified**: Version is hardcoded "v0.1.0 (Alpha)", no About section links
+
+### 16.1 Missing Settings Features
+
+- [ ] **Dynamic Version Display** - S
+  - Read from `import.meta.env.VITE_APP_VERSION` or package.json
+  - Add build script to inject version
+  - Display: "Catchpoint v1.0.0" (not hardcoded)
+
+- [ ] **About Section Links** - S
+  - Licenses: Link to `/licenses` or modal with OSS attributions
+  - Privacy Policy: External link (can be placeholder URL for now)
+  - Version: Dynamic from above
+
+### 16.2 Already Implemented
+
+- [x] Theme switching (Light/Dark/System)
+- [x] Unit preferences (lbs/kg, in/cm)
+- [x] Export CSV
+- [x] Load Test Data
+- [x] Clear All Data with confirmation
+
+---
+
+## Phase 17: Code Quality & Tech Debt
+
+> **Status**: ONGOING
+> **Priority**: LOW
+> **Effort**: M
+
+### 17.1 Inline Styles Cleanup
+
+Files with inline styles to migrate to CSS:
+
+- [ ] `src/components/QuickCaptureButton.tsx` (line 67) - opacity, marginTop
+- [ ] `src/pages/CatchDetail.tsx` (lines 169, 299) - width spacer, textTransform
+- [ ] `src/pages/Stats.tsx` (lines 17, 21) - skeleton dimensions
+- [ ] `src/components/stats/SpeciesChart.tsx` (lines 93, 106) - font styling
+
+Note: Dynamic styles for chart colors and animation transforms are acceptable.
+
+### 17.2 Skeleton Utility Classes
+
+- [ ] **Create skeleton utilities in `src/styles/index.css`** - S
+  - `.skeleton-sm`, `.skeleton-md`, `.skeleton-lg` for common sizes
+  - Replace inline width/height on skeleton elements
+
+---
+
+## Phase 18: E2E Test Coverage Expansion
+
+> **Status**: PARTIAL
+> **Priority**: LOW
+> **Effort**: M
+> **Verified**: No map tests, no photo tests, WebKit offline skipped
+
+### 18.1 Current Coverage (Good)
+
+- [x] Quick Capture flow (`capture.spec.ts`)
+- [x] Offline sync (`offline.spec.ts`)
+- [x] Statistics display (`stats.spec.ts`)
+- [x] Settings (theme, units, data management) (`qa.spec.ts`)
+- [x] Basic navigation (`qa.spec.ts`)
+- [x] Delete catch flow (`qa.spec.ts`)
+- [x] Filter modal basic usage (`qa.spec.ts`)
+
+### 18.2 Coverage Gaps
+
+- [ ] **Map View Tests** (`e2e/map.spec.ts`) - M
+  - Marker rendering
+  - Cluster behavior at low zoom
+  - Popup/info interactions
+  - Heatmap toggle
+  - Offline map indicator
+
+- [ ] **Photo Upload Flow** - M
+  - Test photo capture/upload in CatchDetail
+  - Verify photo persists and displays
+
+- [ ] **Log Sorting** - S
+  - Verify sort order changes (newest/oldest)
+  - Test weight-based sorting
+
+- [ ] **i18n Tests** (after Phase 13) - M
+  - Language switching
+  - System language detection
+  - Verify no hardcoded English leaks
+
+### 18.3 Known Flaky/Skipped Tests
+
+- `e2e/offline.spec.ts` - WebKit is skipped (unreliable offline emulation)
+- `e2e/qa.spec.ts` has timing issues in:
+  - Unit switching test (lines 65-94) - class assertion may be flaky
+  - Filter modal test (lines 119-154)
+  - Delete flow test (lines 156-183)
+
+---
+
+## Completed Phases (Archive)
+
+<details>
+<summary>Phase 1-10: Core Implementation (COMPLETE)</summary>
+
+### Phase 1: Demolition & Rescue (COMPLETE)
+
+- [x] Rescue reusable logic to `_rescue/`
+- [x] Nuke old Expo/React Native codebase
+- [x] Clean Git
+
+### Phase 2: Foundation (COMPLETE)
+
+- [x] Initialize Vite project (React + TypeScript + SWC)
+- [x] Install dependencies (Dexie, Zustand, Mapbox, Recharts, Workbox)
+- [x] Project configuration (vite.config.ts, tsconfig.json, playwright.config.ts)
+
+### Phase 3: Core Infrastructure (COMPLETE)
+
+- [x] Database Layer (Dexie) - `src/db/index.ts`, `src/db/repository.ts`
+- [x] State Management (Zustand) - `src/stores/catchStore.ts`, `src/stores/settingsStore.ts`
+- [x] Routing & Layout - React Router, Layout component, BottomNav
+- [x] Global Styles - CSS Variables, theming
+- [x] Hooks - `useNetworkStatus`, `useTheme`
+
+### Phase 4: Primary Features (COMPLETE)
+
+- [x] Quick Capture (Home) - optimistic UI, haptic feedback
+- [x] Catch Log (List) - filtering, sorting, skeleton loading
+- [x] Catch Detail / Edit - species autocomplete, photo upload, weather display
+
+### Phase 5: Secondary Features (COMPLETE)
+
+- [x] Map View - Mapbox GL JS, clustering, heatmap toggle
+- [x] Statistics - Recharts, time range filter, stat cards
+- [x] Settings - theme, units, export, clear data
+- [x] Global Filtering - FilterModal, filterStore
+
+### Phase 6: PWA & Polish (COMPLETE)
+
+- [x] Service Worker (Workbox) - app shell caching, map tile caching
+- [x] Weather Service - OpenWeatherMap integration, sync queue
+- [x] Manifest & Icons - vite-plugin-pwa, SVG + PNG icons
+
+### Phase 7: Verification (COMPLETE)
+
+- [x] E2E Tests - capture.spec.ts, offline.spec.ts, stats.spec.ts, qa.spec.ts
+- [x] Unit Tests - moonPhase.ts, statistics.ts, useNetworkStatus.ts
+- [x] Build verification - TypeScript clean, ESLint clean
+
+### Phase 8: QA & Enhancements (COMPLETE)
+
+- [x] Stats page charts rendering fix
+- [x] Full QA pass (44 E2E tests)
+- [x] Offline map support with tile caching
+
+### Phase 9: Mobile Polish & iOS (COMPLETE)
+
+- [x] Stats screen mobile fix (nested scrolling issue)
+- [x] iOS safe area handling (viewport-fit, env() insets)
+- [x] iOS PWA meta tags (apple-mobile-web-app-capable, etc.)
+- [x] Touch behaviors (touch-action, overscroll-behavior)
+- [x] 100vh bug fix (using 100dvh)
+
+### Phase 10: Enhanced Stats & Map (COMPLETE)
+
+- [x] Moon Phase Impact Chart
+- [x] Barometric Pressure Impact Chart
+- [x] Map Heatmap Layer with toggle
+
+</details>
+
+---
+
+## Discovered Technical Debt
+
+From comprehensive codebase analysis (no explicit TODO/FIXME comments found - codebase is clean):
+
+| Item                        | Location                      | Status          | Notes                                   |
+| --------------------------- | ----------------------------- | --------------- | --------------------------------------- |
+| BackgroundSyncPlugin        | `src/sw.ts`                   | Commented out   | Foreground sync used instead            |
+| Web Share API for export    | `src/services/export.ts`      | Not implemented | Only CSV download, no share             |
+| Map auto-retry on reconnect | `src/pages/Map.tsx:52`        | Manual only     | Comment notes user must reload          |
+| Location (0,0) fallback     | `src/services/location.ts:77` | Hardcoded       | Used when GPS + cache both fail         |
+| Default map center          | `src/pages/Map.tsx:192`       | Hardcoded       | `[40, -100]` - should use user location |
+
+---
+
+## Known Issues / Limitations
+
+| Issue                   | Status         | Notes                                              |
+| ----------------------- | -------------- | -------------------------------------------------- |
+| Safari Background Sync  | Limitation     | Not supported; fallback to foreground sync works   |
+| WebKit offline E2E test | Skipped        | Unreliable offline emulation in WebKit             |
+| QA test flakiness       | 3 tests        | Timing issues in unit switch, filter, delete flows |
+| Photo storage quota     | Monitor        | Large photos in IndexedDB could hit limits         |
+| iOS PWA limitations     | Known          | No push notifications, limited SW support          |
+| Historical weather      | API limitation | OpenWeatherMap free tier lacks historical data     |
+| No TODO/FIXME markers   | Clean          | Codebase has no explicit incomplete markers        |
+
+---
+
+## Quick Reference
+
+### Commands
+
+```bash
+npm run dev          # Development server
+npm run build        # Production build
+npm run preview      # Preview production build
+npm run test         # Unit tests (Vitest)
+npm run test:e2e     # E2E tests (Playwright)
+npm run lint         # ESLint
+npm run typecheck    # TypeScript check
+```
+
+### Environment Variables
+
+```
+VITE_OPENWEATHERMAP_API_KEY=xxx  # Required for weather
+VITE_MAPBOX_ACCESS_TOKEN=pk.xxx  # Required for map
+```
+
+### Key Files
+
+| Category       | Files                                                     |
+| -------------- | --------------------------------------------------------- |
+| Entry          | `src/main.tsx`, `src/App.tsx`                             |
+| Database       | `src/db/index.ts`, `src/db/repository.ts`                 |
+| State          | `src/stores/catchStore.ts`, `src/stores/settingsStore.ts` |
+| Service Worker | `src/sw.ts`                                               |
+| PWA Config     | `vite.config.ts` (VitePWA plugin)                         |
+| Specs          | `specs/*.md`                                              |
+
+---
+
+## Implementation Order (Recommended)
+
+1. **Phase 11**: Theme Flash Prevention (blocker for good UX, small effort)
+2. **Phase 12**: PWA Install + Storage (quick wins, high visibility)
+3. **Phase 14**: Quick Capture Async (spec compliance, small effort)
+4. **Phase 13**: i18n (largest scope, defer if time constrained)
+5. **Phase 15**: Virtual Scrolling (performance, defer until needed)
+6. **Phase 16-18**: Polish and tests (as time permits)
+
+---
+
+_Generated by RALPH Planning Mode - 2026-01-11_
+_Gap analysis completed with 6 parallel background agents_
