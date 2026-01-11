@@ -1,6 +1,6 @@
 # Implementation Plan - Catchpoint PWA Rewrite
 
-> **Status**: ✅ COMPLETE (All phases verified)
+> **Status**: 🚧 IN PROGRESS
 > **Goal**: Replace existing React Native app with an offline-first PWA.
 
 ## Phase 1: Demolition & Rescue (Day 1)
@@ -110,6 +110,27 @@
   - [x] Hooks (`useNetworkStatus.ts`)
 - [x] **Lint & Build Check**
   - Ensure clean build (verified: build passes, lint clean, 21/21 unit tests pass)
+
+## Phase 8: QA & Enhancements
+
+- [ ] **Stats Page Charts Not Displaying**: Full review and fix of the Stats page - charts are not rendering properly
+  - Debug chart components in `src/pages/Stats.tsx` and `src/components/stats/`
+  - Verify data is being passed correctly to Recharts
+  - Ensure statistics utilities return correct format
+  - Add test data if needed to verify chart rendering
+- [ ] **Full QA of the App**: Comprehensive quality assurance pass
+  - Test all user flows end-to-end (capture, edit, delete, filter, export)
+  - Verify responsive design on mobile and desktop
+  - Check theme switching (light/dark/system)
+  - Test PWA installation flow
+  - Verify all navigation works correctly
+  - Check form validations and error states
+  - Test edge cases (empty states, large datasets)
+- [ ] **Offline Map Support**: Implement proper offline map tile caching
+  - Configure Mapbox for offline tile storage
+  - Implement tile caching strategy in Service Worker
+  - Add UI indicator for offline map availability
+  - Handle map gracefully when offline with no cached tiles
 
 ## Discovered Issues / Notes
 
