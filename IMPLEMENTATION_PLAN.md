@@ -1,7 +1,7 @@
 # Implementation Plan - Catchpoint PWA
 
-> **Last Updated**: 2026-01-11 (RALPH Build Mode - Phase 11 Complete)
-> **Status**: Phases 1-11 Complete, Phases 12-18 Pending
+> **Last Updated**: 2026-01-11 (RALPH Build Mode - Phase 12 Complete)
+> **Status**: Phases 1-12 Complete, Phases 13-18 Pending
 > **Goal**: Offline-first PWA fishing log with one-tap capture
 
 ---
@@ -14,8 +14,8 @@ The core PWA is functional with Quick Capture, Log, Map, Stats, and Settings pag
 | ---------- | ------------------------- | ----------- | ------ | ------------------------ |
 | **HIGH**   | Theme Flash Prevention    | **Missing** | S      | `specs/settings.md`      |
 | **HIGH**   | i18n (EN/FR)              | **Missing** | L      | `specs/i18n.md`          |
-| **HIGH**   | PWA Install Prompt        | **Missing** | S      | `specs/settings.md`      |
-| **HIGH**   | Storage Quota Display     | **Missing** | S      | `specs/offline-sync.md`  |
+| **HIGH**   | PWA Install Prompt        | **Done**    | S      | `specs/settings.md`      |
+| **HIGH**   | Storage Quota Display     | **Done**    | S      | `specs/offline-sync.md`  |
 | **MEDIUM** | Quick Capture Truly Async | Partial     | S      | `specs/quick-capture.md` |
 | **MEDIUM** | Virtual Scrolling (Log)   | **Missing** | M      | `specs/catch-log.md`     |
 | **LOW**    | E2E Test Coverage Gaps    | Partial     | M      | `specs/*.md`             |
@@ -48,46 +48,38 @@ The core PWA is functional with Quick Capture, Log, Map, Stats, and Settings pag
 
 ## Phase 12: PWA Install & Storage
 
-> **Status**: NOT STARTED
+> **Status**: COMPLETE
 > **Priority**: HIGH - Spec requirement, missing from codebase
 > **Effort**: S-M
-> **Verified**: No `useInstallPrompt` hook exists, Settings page missing PWA section
+> **Completed**: 2026-01-11
 
 ### 12.1 PWA Install Prompt Hook
 
-- [ ] **Create `src/hooks/useInstallPrompt.ts`** - S
+- [x] **Create `src/hooks/useInstallPrompt.ts`** - S
   - Capture `beforeinstallprompt` event
   - Store deferred prompt in state
   - Provide `canInstall`, `promptInstall()`, and `isInstalled` states
   - Track installation via `appinstalled` event
 
-  ```typescript
-  interface UseInstallPromptReturn {
-    canInstall: boolean;
-    isInstalled: boolean;
-    promptInstall: () => Promise<void>;
-  }
-  ```
-
-- [ ] **Detect iOS for special handling** - S
+- [x] **Detect iOS for special handling** - S
   - iOS Safari doesn't fire `beforeinstallprompt`
   - Detect via userAgent: `/iPad|iPhone|iPod/` + not standalone
   - Show "Add to Home Screen" instructions for iOS users
 
 ### 12.2 Storage Quota Display
 
-- [ ] **Create `src/utils/storage.ts`** - S
+- [x] **Create `src/utils/storage.ts`** - S
   - Implement `getStorageQuota()` using `navigator.storage.estimate()`
   - Return `{ used: number, quota: number, percentUsed: number }`
   - Format as human-readable: "12.5 MB of 100 MB"
 
-- [ ] **Create `src/hooks/useStorageQuota.ts`** - S
+- [x] **Create `src/hooks/useStorageQuota.ts`** - S
   - React hook that fetches and caches storage info
   - Refresh on mount and after data operations
 
 ### 12.3 Update Settings Page with PWA Section
 
-- [ ] **Add PWA Section to `src/pages/Settings.tsx`** - S
+- [x] **Add PWA Section to `src/pages/Settings.tsx`** - S
   - Section header: "App"
   - "Install App" button (uses `useInstallPrompt`)
     - Show only when `canInstall === true`
@@ -95,21 +87,13 @@ The core PWA is functional with Quick Capture, Log, Map, Stats, and Settings pag
     - Show iOS instructions when on iOS and not installed
   - "Storage Used" row with quota display
 
-  ```
-  APP
-  +-----------------------------------+
-  | Install App           [Install]   |  <- or "Installed"
-  | Storage Used      12.5 / 100 MB   |
-  +-----------------------------------+
-  ```
-
 ### Acceptance Criteria
 
-- [ ] Install button appears on supported browsers (Chrome, Edge)
-- [ ] Install button triggers native prompt
-- [ ] Button changes to "Installed" after installation
-- [ ] iOS shows manual instructions
-- [ ] Storage displays correct usage
+- [x] Install button appears on supported browsers (Chrome, Edge)
+- [x] Install button triggers native prompt
+- [x] Button changes to "Installed" after installation
+- [x] iOS shows manual instructions
+- [x] Storage displays correct usage
 
 ---
 

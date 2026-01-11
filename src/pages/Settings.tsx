@@ -8,12 +8,16 @@ import {
   Database,
   Ruler,
   Scale,
+  HardDrive,
+  Share,
 } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useCatchStore } from "@/stores/catchStore";
 import { downloadCatchesCSV } from "@/services/export";
 import { generateTestCatches } from "@/data/testCatches";
 import { ConfirmModal } from "@/components/ConfirmModal";
+import { useInstallPrompt } from "@/hooks/useInstallPrompt";
+import { useStorageQuota } from "@/hooks/useStorageQuota";
 import "@/styles/pages/Settings.css";
 
 export default function Settings() {
@@ -28,6 +32,12 @@ export default function Settings() {
 
   const { catches, addCatch, deleteCatch } = useCatchStore();
   const [showClearModal, setShowClearModal] = useState(false);
+
+  // PWA Install
+  const { canInstall, isInstalled, isIOS, promptInstall } = useInstallPrompt();
+
+  // Storage quota
+  const { quota } = useStorageQuota();
 
   const handleExport = () => {
     downloadCatchesCSV(catches);
@@ -59,6 +69,15 @@ export default function Settings() {
     }
   };
 
+  const handleInstall = async () => {
+    await promptInstall();
+  };
+
+  // Determine what to show in the App section
+  const showInstallButton = canInstall;
+  const showInstalledBadge = isInstalled;
+  const showIOSInstructions = isIOS;
+
   return (
     <div className="settings-page">
       <header className="settings-header">
@@ -66,6 +85,56 @@ export default function Settings() {
       </header>
 
       <div className="settings-content">
+        {/* App Section - PWA Install & Storage */}
+        <section className="settings-section">
+          <h2 className="settings-section-title">App</h2>
+          <div className="settings-card">
+            {/* Install Button / Status */}
+            <div className="app-row">
+              <div className="app-row-label">
+                <Share size={20} />
+                <span>Install App</span>
+              </div>
+              <div className="app-row-value">
+                {showInstalledBadge && (
+                  <span className="installed-badge">Installed</span>
+                )}
+                {showInstallButton && (
+                  <button onClick={handleInstall} className="install-button">
+                    Install
+                  </button>
+                )}
+                {showIOSInstructions && (
+                  <span className="ios-hint">
+                    Tap <Share size={14} className="ios-share-icon" /> then "Add
+                    to Home Screen"
+                  </span>
+                )}
+                {!showInstalledBadge &&
+                  !showInstallButton &&
+                  !showIOSInstructions && (
+                    <span className="install-unavailable">Not available</span>
+                  )}
+              </div>
+            </div>
+
+            {/* Storage Used */}
+            <div className="app-row">
+              <div className="app-row-label">
+                <HardDrive size={20} />
+                <span>Storage Used</span>
+              </div>
+              <div className="app-row-value">
+                {quota ? (
+                  <span className="storage-value">{quota.formatted}</span>
+                ) : (
+                  <span className="storage-value">--</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Appearance */}
         <section className="settings-section">
           <h2 className="settings-section-title">Appearance</h2>
