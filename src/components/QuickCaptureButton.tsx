@@ -21,8 +21,20 @@ export const QuickCaptureButton = () => {
     // Prevent double taps if already showing success or capturing (debouncing)
     if (showSuccess || isCapturing) return;
 
+    // Haptic feedback for premium feel
+    if ("vibrate" in navigator) {
+      navigator.vibrate(50); // Short tap feedback
+    }
+
     // Trigger optimistic success immediately
     setShowSuccess(true);
+
+    // Success haptic after a brief delay
+    setTimeout(() => {
+      if ("vibrate" in navigator) {
+        navigator.vibrate([30, 50, 30]); // Double-pulse success pattern
+      }
+    }, 200);
 
     // Start background capture
     // We don't await this because we want the UI to be responsive immediately

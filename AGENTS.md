@@ -232,6 +232,7 @@ A bash loop that continuously feeds prompts to an AI agent for autonomous develo
 
 - **PLANNING mode**: Analyzes specs vs code, creates `IMPLEMENTATION_PLAN.md`
 - **BUILDING mode**: Implements from plan, runs tests, commits changes
+- **POLISH mode**: Uses frontend-ui-ux-engineer agent to make UI/UX awesome
 
 ### Running RALPH
 
@@ -242,9 +243,13 @@ A bash loop that continuously feeds prompts to an AI agent for autonomous develo
 # BUILDING mode - implement from plan (default)
 ./ralph/loop.sh
 
+# POLISH mode - make UI/UX awesome (don't stop til it's fire!)
+./ralph/loop.sh polish
+
 # With max iterations
 ./ralph/loop.sh 10          # Build mode, max 10 iterations
 ./ralph/loop.sh plan 5      # Plan mode, max 5 iterations
+./ralph/loop.sh polish 20   # Polish mode, max 20 iterations
 ```
 
 ### Key Files
@@ -254,17 +259,18 @@ A bash loop that continuously feeds prompts to an AI agent for autonomous develo
 | `ralph/loop.sh`          | Main bash loop script                    |
 | `ralph/PROMPT_plan.md`   | Planning mode instructions               |
 | `ralph/PROMPT_build.md`  | Building mode instructions               |
+| `ralph/PROMPT_polish.md` | Polish mode instructions (UI/UX)         |
 | `specs/*.md`             | Feature specifications (source of truth) |
 | `IMPLEMENTATION_PLAN.md` | Generated task list (created by RALPH)   |
 
 ### When to Use Which Mode
 
-| Use PLANNING when...          | Use BUILDING when...       |
-| ----------------------------- | -------------------------- |
-| No plan exists                | Plan exists and is current |
-| Plan feels stale or wrong     | Ready to implement         |
-| Made significant spec changes | Tasks are clearly defined  |
-| Confused about what's done    | Tests are passing          |
+| Use PLANNING when...          | Use BUILDING when...       | Use POLISH when...           |
+| ----------------------------- | -------------------------- | ---------------------------- |
+| No plan exists                | Plan exists and is current | Features work but look basic |
+| Plan feels stale or wrong     | Ready to implement         | Dark mode needs love         |
+| Made significant spec changes | Tasks are clearly defined  | UI lacks animations          |
+| Confused about what's done    | Tests are passing          | App doesn't feel "premium"   |
 
 ### Stopping RALPH
 
@@ -278,3 +284,24 @@ A bash loop that continuously feeds prompts to an AI agent for autonomous develo
 - Brief pause between iterations allows Ctrl+C
 - Max iterations flag prevents runaway loops
 - All changes are local until pushed
+
+## DEPLOYMENT
+
+### GitHub Pages
+
+The app auto-deploys to GitHub Pages on push to `main`.
+
+**Workflow**: `.github/workflows/deploy.yml`
+
+**Setup**:
+
+1. Go to repo Settings > Pages > Source: "GitHub Actions"
+2. Add secrets (Settings > Secrets and variables > Actions):
+   - `VITE_OPENWEATHERMAP_API_KEY` - OpenWeatherMap API key
+   - `VITE_MAPBOX_ACCESS_TOKEN` - Mapbox public token
+
+**URL**: `https://<username>.github.io/catchpoint/`
+
+**Base Path**: Automatically set to `/catchpoint/` for GitHub Pages via `GITHUB_PAGES` env variable in vite.config.ts.
+
+**Manual Deploy**: Actions tab > "Deploy to GitHub Pages" > "Run workflow"

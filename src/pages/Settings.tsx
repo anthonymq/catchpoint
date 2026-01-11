@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Moon,
   Sun,
@@ -12,7 +13,8 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { useCatchStore } from "@/stores/catchStore";
 import { downloadCatchesCSV } from "@/services/export";
 import { generateTestCatches } from "@/data/testCatches";
-import { clsx } from "clsx";
+import { ConfirmModal } from "@/components/ConfirmModal";
+import "@/styles/pages/Settings.css";
 
 export default function Settings() {
   const {
@@ -25,22 +27,19 @@ export default function Settings() {
   } = useSettingsStore();
 
   const { catches, addCatch, deleteCatch } = useCatchStore();
+  const [showClearModal, setShowClearModal] = useState(false);
 
   const handleExport = () => {
     downloadCatchesCSV(catches);
   };
 
-  const handleClearData = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete all catches? This cannot be undone.",
-      )
-    ) {
-      // Delete one by one for now as store doesn't have clearAll
-      // Ideally we should add clearAll to store/repo, but this works
-      for (const c of catches) {
-        await deleteCatch(c.id);
-      }
+  const handleClearDataClick = () => {
+    setShowClearModal(true);
+  };
+
+  const handleConfirmClear = async () => {
+    for (const c of catches) {
+      await deleteCatch(c.id);
     }
   };
 
@@ -48,7 +47,6 @@ export default function Settings() {
     const testData = generateTestCatches();
     let addedCount = 0;
     for (const c of testData) {
-      // Avoid duplicates if run multiple times
       if (!catches.some((existing) => existing.id === c.id)) {
         await addCatch(c);
         addedCount++;
@@ -62,121 +60,82 @@ export default function Settings() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-surface">
-      <header className="p-4 bg-background border-b border-border sticky top-0 z-10">
-        <h1 className="text-xl font-bold">Settings</h1>
+    <div className="settings-page">
+      <header className="settings-header">
+        <h1 className="settings-title">Settings</h1>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-24">
+      <div className="settings-content">
         {/* Appearance */}
-        <section>
-          <h2 className="text-sm font-semibold text-text-muted mb-2 uppercase tracking-wider">
-            Appearance
-          </h2>
-          <div className="bg-background rounded-lg shadow-sm border border-border overflow-hidden">
-            <div className="flex divide-x divide-border">
+        <section className="settings-section">
+          <h2 className="settings-section-title">Appearance</h2>
+          <div className="settings-card">
+            <div className="theme-selector">
               <button
                 onClick={() => setTheme("light")}
-                className={clsx(
-                  "flex-1 p-3 flex flex-col items-center gap-2 transition-colors",
-                  theme === "light"
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-surface",
-                )}
+                className={`theme-option ${theme === "light" ? "active" : ""}`}
               >
                 <Sun size={20} />
-                <span className="text-sm">Light</span>
+                <span className="theme-option-label">Light</span>
               </button>
               <button
                 onClick={() => setTheme("dark")}
-                className={clsx(
-                  "flex-1 p-3 flex flex-col items-center gap-2 transition-colors",
-                  theme === "dark"
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-surface",
-                )}
+                className={`theme-option ${theme === "dark" ? "active" : ""}`}
               >
                 <Moon size={20} />
-                <span className="text-sm">Dark</span>
+                <span className="theme-option-label">Dark</span>
               </button>
               <button
                 onClick={() => setTheme("system")}
-                className={clsx(
-                  "flex-1 p-3 flex flex-col items-center gap-2 transition-colors",
-                  theme === "system"
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-surface",
-                )}
+                className={`theme-option ${theme === "system" ? "active" : ""}`}
               >
                 <Smartphone size={20} />
-                <span className="text-sm">System</span>
+                <span className="theme-option-label">System</span>
               </button>
             </div>
           </div>
         </section>
 
         {/* Units */}
-        <section>
-          <h2 className="text-sm font-semibold text-text-muted mb-2 uppercase tracking-wider">
-            Units
-          </h2>
-          <div className="bg-background rounded-lg shadow-sm border border-border overflow-hidden">
-            <div className="flex items-center justify-between p-3 border-b border-border last:border-0">
-              <div className="flex items-center gap-3">
-                <Scale size={20} className="text-text-muted" />
+        <section className="settings-section">
+          <h2 className="settings-section-title">Units</h2>
+          <div className="settings-card">
+            <div className="unit-row">
+              <div className="unit-label">
+                <Scale size={20} />
                 <span>Weight</span>
               </div>
-              <div className="flex bg-surface rounded p-1">
+              <div className="unit-toggle">
                 <button
                   onClick={() => setWeightUnit("lbs")}
-                  className={clsx(
-                    "px-3 py-1 rounded text-sm transition-colors",
-                    weightUnit === "lbs"
-                      ? "bg-white shadow text-primary font-medium"
-                      : "text-text-muted hover:text-text",
-                  )}
+                  className={`unit-option ${weightUnit === "lbs" ? "active" : ""}`}
                 >
                   lbs
                 </button>
                 <button
                   onClick={() => setWeightUnit("kg")}
-                  className={clsx(
-                    "px-3 py-1 rounded text-sm transition-colors",
-                    weightUnit === "kg"
-                      ? "bg-white shadow text-primary font-medium"
-                      : "text-text-muted hover:text-text",
-                  )}
+                  className={`unit-option ${weightUnit === "kg" ? "active" : ""}`}
                 >
                   kg
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-3 border-b border-border last:border-0">
-              <div className="flex items-center gap-3">
-                <Ruler size={20} className="text-text-muted" />
+            <div className="unit-row">
+              <div className="unit-label">
+                <Ruler size={20} />
                 <span>Length</span>
               </div>
-              <div className="flex bg-surface rounded p-1">
+              <div className="unit-toggle">
                 <button
                   onClick={() => setLengthUnit("in")}
-                  className={clsx(
-                    "px-3 py-1 rounded text-sm transition-colors",
-                    lengthUnit === "in"
-                      ? "bg-white shadow text-primary font-medium"
-                      : "text-text-muted hover:text-text",
-                  )}
+                  className={`unit-option ${lengthUnit === "in" ? "active" : ""}`}
                 >
                   in
                 </button>
                 <button
                   onClick={() => setLengthUnit("cm")}
-                  className={clsx(
-                    "px-3 py-1 rounded text-sm transition-colors",
-                    lengthUnit === "cm"
-                      ? "bg-white shadow text-primary font-medium"
-                      : "text-text-muted hover:text-text",
-                  )}
+                  className={`unit-option ${lengthUnit === "cm" ? "active" : ""}`}
                 >
                   cm
                 </button>
@@ -186,62 +145,61 @@ export default function Settings() {
         </section>
 
         {/* Data Management */}
-        <section>
-          <h2 className="text-sm font-semibold text-text-muted mb-2 uppercase tracking-wider">
-            Data
-          </h2>
-          <div className="bg-background rounded-lg shadow-sm border border-border overflow-hidden flex flex-col">
-            <button
-              onClick={handleExport}
-              className="flex items-center gap-3 p-4 text-left hover:bg-surface transition-colors border-b border-border last:border-0"
-            >
-              <div className="p-2 bg-blue-100 text-blue-600 rounded-full">
-                <Download size={20} />
+        <section className="settings-section">
+          <h2 className="settings-section-title">Data</h2>
+          <div className="settings-card">
+            <button onClick={handleExport} className="action-button">
+              <div className="action-icon action-icon--blue">
+                <Download size={18} />
               </div>
-              <div className="flex-1">
-                <div className="font-medium">Export CSV</div>
-                <div className="text-xs text-text-muted">
-                  Download all your catches
-                </div>
+              <div className="action-content">
+                <p className="action-title">Export CSV</p>
+                <p className="action-subtitle">Download all your catches</p>
+              </div>
+            </button>
+
+            <button onClick={handleLoadTestData} className="action-button">
+              <div className="action-icon action-icon--green">
+                <Database size={18} />
+              </div>
+              <div className="action-content">
+                <p className="action-title">Load Test Data</p>
+                <p className="action-subtitle">Add 20 sample catches</p>
               </div>
             </button>
 
             <button
-              onClick={handleLoadTestData}
-              className="flex items-center gap-3 p-4 text-left hover:bg-surface transition-colors border-b border-border last:border-0"
+              onClick={handleClearDataClick}
+              className="action-button action-button--danger"
             >
-              <div className="p-2 bg-green-100 text-green-600 rounded-full">
-                <Database size={20} />
+              <div className="action-icon action-icon--red">
+                <Trash2 size={18} />
               </div>
-              <div className="flex-1">
-                <div className="font-medium">Load Test Data</div>
-                <div className="text-xs text-text-muted">
-                  Add 20 sample catches
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={handleClearData}
-              className="flex items-center gap-3 p-4 text-left hover:bg-red-50 transition-colors border-b border-border last:border-0"
-            >
-              <div className="p-2 bg-red-100 text-red-600 rounded-full">
-                <Trash2 size={20} />
-              </div>
-              <div className="flex-1">
-                <div className="font-medium text-red-600">Clear All Data</div>
-                <div className="text-xs text-red-400">
+              <div className="action-content">
+                <p className="action-title action-title--danger">
+                  Clear All Data
+                </p>
+                <p className="action-subtitle action-subtitle--danger">
                   Permanently delete everything
-                </div>
+                </p>
               </div>
             </button>
           </div>
         </section>
 
-        <div className="text-center text-xs text-text-muted pt-4">
-          Catchpoint v0.1.0 (Alpha)
-        </div>
+        <div className="settings-version">Catchpoint v0.1.0 (Alpha)</div>
       </div>
+
+      <ConfirmModal
+        isOpen={showClearModal}
+        onClose={() => setShowClearModal(false)}
+        onConfirm={handleConfirmClear}
+        title="Clear All Data?"
+        message={`Are you sure you want to delete all ${catches.length} catches? This action cannot be undone.`}
+        confirmText="Delete All"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

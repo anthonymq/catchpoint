@@ -22,6 +22,24 @@ import {
   Cloud,
   Calendar,
 } from "lucide-react";
+import { ConfirmModal } from "../components/ConfirmModal";
+import "../styles/pages/CatchDetail.css";
+
+/** Haptic feedback for actions */
+const triggerHaptic = (type: "success" | "error" | "tap" = "tap") => {
+  if ("vibrate" in navigator) {
+    switch (type) {
+      case "success":
+        navigator.vibrate([30, 50, 30]); // Double-tap pattern
+        break;
+      case "error":
+        navigator.vibrate([100, 50, 100]); // Warning pattern
+        break;
+      default:
+        navigator.vibrate(15); // Subtle tap
+    }
+  }
+};
 
 export default function CatchDetail() {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +51,7 @@ export default function CatchDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Form State
   const [species, setSpecies] = useState("");
@@ -52,7 +71,6 @@ export default function CatchDetail() {
           setCatchData(data);
           setSpecies(data.species || "");
 
-          // Convert stored base units to display units for editing
           if (data.weight) {
             setWeight(toDisplayWeight(data.weight, weightUnit).toFixed(2));
           }
@@ -90,6 +108,7 @@ export default function CatchDetail() {
   const handleSave = async () => {
     if (!id || !catchData) return;
     setSaving(true);
+    triggerHaptic("tap");
 
     try {
       const updates: Partial<Catch> = {
@@ -98,106 +117,112 @@ export default function CatchDetail() {
         photoUri,
       };
 
-      // Convert display units back to base units for storage
       if (weight) {
         updates.weight = toBaseWeight(parseFloat(weight), weightUnit);
       } else {
-        updates.weight = undefined; // Clear if empty
+        updates.weight = undefined;
       }
 
       if (length) {
         updates.length = toBaseLength(parseFloat(length), lengthUnit);
       } else {
-        updates.length = undefined; // Clear if empty
+        updates.length = undefined;
       }
 
       await updateCatch(id, updates);
+      triggerHaptic("success");
       navigate(-1);
     } catch (err) {
       console.error("Failed to save:", err);
+      triggerHaptic("error");
       setError("Failed to save changes");
       setSaving(false);
     }
   };
 
-  const handleDelete = async () => {
+  const handleDeleteClick = () => {
+    triggerHaptic("tap");
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
     if (!id) return;
-    if (
-      window.confirm(
-        "Are you sure you want to delete this catch? This action cannot be undone.",
-      )
-    ) {
-      try {
-        await deleteCatch(id);
-        navigate(-1);
-      } catch (err) {
-        console.error("Failed to delete:", err);
-        setError("Failed to delete catch");
-      }
+    try {
+      triggerHaptic("success");
+      await deleteCatch(id);
+      navigate(-1);
+    } catch (err) {
+      console.error("Failed to delete:", err);
+      triggerHaptic("error");
+      setError("Failed to delete catch");
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="p-8 text-center text-gray-500">
-        Loading catch details...
+      <div className="catch-detail-page">
+        <div className="catch-detail-header">
+          <button className="catch-detail-back" onClick={() => navigate(-1)}>
+            <ChevronLeft size={24} />
+          </button>
+          <h1 className="catch-detail-title">Catch Details</h1>
+          <div style={{ width: 80 }} />
+        </div>
+        <div className="catch-detail-content">
+          <div className="skeleton skeleton-photo" />
+          <div className="skeleton skeleton-text wide" />
+          <div className="skeleton skeleton-text medium" />
+          <div className="skeleton skeleton-text short" />
+        </div>
       </div>
     );
-  if (error || !catchData)
+  }
+
+  if (error || !catchData) {
     return (
-      <div className="p-8 text-center text-red-500">
-        {error || "Catch not found"}
-      </div>
+      <div className="catch-detail-error">{error || "Catch not found"}</div>
     );
+  }
 
   const weather = catchData.weatherData;
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-900 pb-20 overflow-y-auto">
+    <div className="catch-detail-page">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-white dark:bg-gray-800 shadow-sm">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 -ml-2 text-gray-600 dark:text-gray-300 active:bg-gray-100 dark:active:bg-gray-700 rounded-full"
-        >
+      <div className="catch-detail-header">
+        <button className="catch-detail-back" onClick={() => navigate(-1)}>
           <ChevronLeft size={24} />
         </button>
-        <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Catch Details
-        </h1>
+        <h1 className="catch-detail-title">Catch Details</h1>
         <button
+          className="catch-detail-save"
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium active:bg-blue-700 disabled:opacity-50"
         >
           <Save size={16} />
           {saving ? "Saving..." : "Save"}
         </button>
       </div>
 
-      <div className="p-4 space-y-6">
+      <div className="catch-detail-content">
         {/* Photo Area */}
         <div
-          className="relative w-full aspect-video bg-gray-200 dark:bg-gray-800 rounded-xl overflow-hidden shadow-inner flex items-center justify-center cursor-pointer group"
+          className={`catch-detail-photo ${photoUri ? "has-photo" : ""}`}
           onClick={() => fileInputRef.current?.click()}
         >
           {photoUri ? (
-            <img
-              src={photoUri}
-              alt="Catch"
-              className="w-full h-full object-cover"
-            />
+            <img src={photoUri} alt="Catch" />
           ) : (
-            <div className="flex flex-col items-center text-gray-500 dark:text-gray-400">
-              <Camera size={48} className="mb-2 opacity-50" />
-              <span className="text-sm font-medium">Tap to add photo</span>
+            <div className="catch-detail-photo-placeholder">
+              <Camera size={48} />
+              <span>Tap to add photo</span>
             </div>
           )}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+          <div className="catch-detail-photo-overlay" />
           <input
             type="file"
             ref={fileInputRef}
-            className="hidden"
+            style={{ display: "none" }}
             accept="image/*"
             capture="environment"
             onChange={handlePhotoSelect}
@@ -205,16 +230,14 @@ export default function CatchDetail() {
         </div>
 
         {/* Species */}
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Species
-          </label>
+        <div className="catch-detail-field">
+          <label className="catch-detail-label">Species</label>
           <input
             list="species-list"
             value={species}
             onChange={(e) => setSpecies(e.target.value)}
             placeholder="Select or type species..."
-            className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+            className="catch-detail-input"
           />
           <datalist id="species-list">
             {SPECIES_LIST.map((s) => (
@@ -224,11 +247,9 @@ export default function CatchDetail() {
         </div>
 
         {/* Measurements */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Weight ({weightUnit})
-            </label>
+        <div className="catch-detail-measurements">
+          <div className="catch-detail-field">
+            <label className="catch-detail-label">Weight ({weightUnit})</label>
             <input
               type="number"
               inputMode="decimal"
@@ -236,13 +257,11 @@ export default function CatchDetail() {
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
               placeholder="0.00"
-              className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+              className="catch-detail-input"
             />
           </div>
-          <div className="space-y-1">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Length ({lengthUnit})
-            </label>
+          <div className="catch-detail-field">
+            <label className="catch-detail-label">Length ({lengthUnit})</label>
             <input
               type="number"
               inputMode="decimal"
@@ -250,70 +269,72 @@ export default function CatchDetail() {
               value={length}
               onChange={(e) => setLength(e.target.value)}
               placeholder="0.0"
-              className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+              className="catch-detail-input"
             />
           </div>
         </div>
 
         {/* Read-only Details */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 space-y-3 border border-gray-100 dark:border-gray-700">
-          <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-            <Calendar size={18} className="text-gray-400" />
+        <div className="catch-detail-info">
+          <div className="catch-detail-info-row">
+            <Calendar size={18} />
             <span>{formatCatchDate(catchData.timestamp)}</span>
           </div>
-          <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-            <MapPin size={18} className="text-gray-400" />
+          <div className="catch-detail-info-row">
+            <MapPin size={18} />
             <span>
               {formatCoordinates(catchData.latitude, catchData.longitude)}
             </span>
           </div>
           {weather && (
-            <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+            <div className="catch-detail-info-row">
               {weather.weatherIcon ? (
                 <img
                   src={`https://openweathermap.org/img/wn/${weather.weatherIcon}.png`}
                   alt="Weather icon"
-                  className="w-5 h-5 -ml-1"
                 />
               ) : (
-                <Cloud size={18} className="text-gray-400" />
+                <Cloud size={18} />
               )}
-              <span className="capitalize">
+              <span style={{ textTransform: "capitalize" }}>
                 {weather.weatherDescription ||
                   weather.weatherCondition ||
                   "No weather data"}
-                ,{" "}
-                {weather.temperature
-                  ? `${Math.round(weather.temperature)}°`
-                  : ""}
+                {weather.temperature && `, ${Math.round(weather.temperature)}°`}
               </span>
             </div>
           )}
         </div>
 
         {/* Notes */}
-        <div className="space-y-1">
-          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Notes
-          </label>
+        <div className="catch-detail-field">
+          <label className="catch-detail-label">Notes</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add details about bait, gear, or conditions..."
             rows={4}
-            className="w-full p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-base text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+            className="catch-detail-textarea"
           />
         </div>
 
         {/* Delete Button */}
-        <button
-          onClick={handleDelete}
-          className="w-full py-3 flex items-center justify-center gap-2 text-red-600 active:bg-red-50 dark:active:bg-red-900/20 rounded-lg transition-colors font-medium"
-        >
+        <button className="catch-detail-delete" onClick={handleDeleteClick}>
           <Trash2 size={18} />
           Delete Catch
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Catch?"
+        message="Are you sure you want to delete this catch? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Keep"
+        variant="danger"
+      />
     </div>
   );
 }

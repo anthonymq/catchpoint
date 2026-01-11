@@ -216,21 +216,24 @@ export default function MapPage() {
               "circle-color": [
                 "step",
                 ["get", "point_count"],
-                "#51bbd6",
+                "#3b82f6", // Blue for small clusters
                 10,
-                "#f1f075",
+                "#10b981", // Emerald for medium
                 50,
-                "#f28cb1",
+                "#f59e0b", // Amber for large
               ],
               "circle-radius": [
                 "step",
                 ["get", "point_count"],
-                20,
+                22,
                 100,
-                30,
+                32,
                 750,
-                40,
+                42,
               ],
+              "circle-stroke-width": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-opacity": 0.9,
             }}
           />
 
@@ -250,10 +253,11 @@ export default function MapPage() {
             type="circle"
             filter={["!", ["has", "point_count"]]}
             paint={{
-              "circle-color": "#11b4da",
-              "circle-radius": 8,
-              "circle-stroke-width": 1,
-              "circle-stroke-color": "#fff",
+              "circle-color": "#3b82f6",
+              "circle-radius": 10,
+              "circle-stroke-width": 3,
+              "circle-stroke-color": "#ffffff",
+              "circle-opacity": 0.95,
             }}
           />
         </Source>
@@ -264,23 +268,21 @@ export default function MapPage() {
             longitude={popupInfo.longitude}
             latitude={popupInfo.latitude}
             onClose={() => setPopupInfo(null)}
-            maxWidth="300px"
+            maxWidth="280px"
           >
-            <div className="p-1">
-              <h3 className="font-bold text-sm mb-1">{popupInfo.species}</h3>
-              <p className="text-xs text-muted mb-1">
+            <div className="map-popup-content">
+              <h3 className="map-popup-title">{popupInfo.species}</h3>
+              <p className="map-popup-detail">
                 {format(new Date(popupInfo.timestamp), "MMM d, yyyy h:mm a")}
               </p>
               {popupInfo.weight && (
-                <p className="text-xs">Weight: {popupInfo.weight} lbs</p>
+                <p className="map-popup-detail">
+                  Weight: {popupInfo.weight} lbs
+                </p>
               )}
               {popupInfo.photoUri && (
-                <div className="mt-2 rounded overflow-hidden aspect-video relative">
-                  <img
-                    src={popupInfo.photoUri}
-                    alt={popupInfo.species}
-                    className="object-cover w-full h-full"
-                  />
+                <div className="map-popup-photo">
+                  <img src={popupInfo.photoUri} alt={popupInfo.species} />
                 </div>
               )}
             </div>

@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useFilterStore } from "../stores/filterStore";
+import { useFilteredCatches } from "../hooks/useFilteredCatches";
 import { SPECIES_LIST } from "../data/species";
 import "../styles/components/FilterModal.css";
 
@@ -18,6 +19,10 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
     setHasPhoto,
     resetFilters,
   } = useFilterStore();
+
+  // Get live count of filtered catches
+  const filteredCatches = useFilteredCatches();
+  const resultCount = filteredCatches.length;
 
   if (!isOpen) return null;
 
@@ -111,7 +116,7 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
             Reset All
           </button>
           <button className="btn-apply" onClick={onClose}>
-            Show Results
+            Show {resultCount} {resultCount === 1 ? "Catch" : "Catches"}
           </button>
         </div>
       </div>

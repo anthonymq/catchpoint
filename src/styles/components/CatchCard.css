@@ -1,43 +1,165 @@
+/* ============================================================================
+   Premium Catch Card Component
+   ============================================================================ */
+
 .catch-card {
   display: flex;
-  background-color: var(--color-surface);
-  border-radius: var(--spacing-md);
+  background-color: var(--color-background);
+  border-radius: 20px;
   padding: var(--spacing-md);
   margin-bottom: var(--spacing-md);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  /* Premium layered shadows */
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.03),
+    0 4px 8px rgba(0, 0, 0, 0.04),
+    0 8px 16px rgba(0, 0, 0, 0.03);
+
+  /* Smooth transitions for interactions */
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    opacity 0.3s ease,
+    max-height 0.3s ease;
+
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+
+  /* Subtle border for definition */
+  border: 1px solid rgba(0, 0, 0, 0.04);
+
+  /* For exit animation */
+  max-height: 200px;
 }
 
+/* Deletion exit animation */
+.catch-card.deleting {
+  opacity: 0;
+  transform: scale(0.9) translateX(-20px);
+  max-height: 0;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Subtle gradient overlay on hover */
+.catch-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(50, 130, 184, 0.02) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  border-radius: 20px;
+}
+
+[data-theme="dark"] .catch-card {
+  background-color: var(--color-surface);
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Hover lift effect - desktop only */
+@media (hover: hover) {
+  .catch-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.06),
+      0 16px 32px rgba(0, 0, 0, 0.05),
+      0 24px 48px rgba(0, 0, 0, 0.04);
+  }
+
+  .catch-card:hover::before {
+    opacity: 1;
+  }
+
+  [data-theme="dark"] .catch-card:hover {
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.25),
+      0 16px 32px rgba(0, 0, 0, 0.3),
+      0 24px 48px rgba(50, 130, 184, 0.1);
+  }
+}
+
+/* Active press state */
 .catch-card:active {
   transform: scale(0.98);
+  transition-duration: 0.1s;
 }
+
+/* ============================================================================
+   Image Container with Premium Styling
+   ============================================================================ */
 
 .catch-card-image-container {
   flex-shrink: 0;
   width: 80px;
   height: 80px;
-  background-color: var(--color-surface-active);
-  border-radius: var(--spacing-sm);
+  background: linear-gradient(
+    145deg,
+    var(--color-surface) 0%,
+    var(--color-surface-active) 100%
+  );
+  border-radius: 16px;
   margin-right: var(--spacing-md);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
+}
+
+/* Subtle inner shadow for depth */
+.catch-card-image-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.06),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .catch-card-image-container::after {
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .catch-card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.catch-card:hover .catch-card-image {
+  transform: scale(1.05);
 }
 
 .catch-card-placeholder {
   color: var(--color-text-muted);
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
 }
+
+.catch-card:hover .catch-card-placeholder {
+  opacity: 0.6;
+}
+
+/* ============================================================================
+   Content Section
+   ============================================================================ */
 
 .catch-card-content {
   flex: 1;
@@ -45,50 +167,85 @@
   flex-direction: column;
   justify-content: center;
   min-width: 0; /* Text truncation fix */
+  padding-right: var(--spacing-sm);
 }
 
 .catch-card-species {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--color-text);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: -0.02em;
 }
 
 .catch-card-detail {
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: var(--color-text-muted);
-  margin-bottom: 2px;
+  margin-bottom: 3px;
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: 8px;
 }
+
+.catch-card-detail:last-child {
+  margin-bottom: 0;
+}
+
+.catch-card-detail svg {
+  opacity: 0.5;
+  flex-shrink: 0;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease;
+}
+
+.catch-card:hover .catch-card-detail svg {
+  opacity: 0.7;
+  color: var(--color-primary);
+}
+
+/* ============================================================================
+   Delete Action
+   ============================================================================ */
 
 .catch-card-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: var(--spacing-xs);
+  align-items: center;
+  justify-content: center;
 }
 
 .catch-card-delete-btn {
   background: none;
   border: none;
   color: var(--color-text-muted);
-  padding: var(--spacing-xs);
+  padding: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  border-radius: 12px;
+  opacity: 0.6;
   transition:
-    background-color 0.2s,
-    color 0.2s;
+    background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.25s ease,
+    opacity 0.25s ease,
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.catch-card:hover .catch-card-delete-btn {
+  opacity: 1;
 }
 
 .catch-card-delete-btn:hover,
 .catch-card-delete-btn:active {
-  background-color: rgba(233, 69, 96, 0.1); /* --color-secondary with opacity */
-  color: var(--color-secondary);
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-error, #ef4444);
+  transform: scale(1.1);
+}
+
+.catch-card-delete-btn:active {
+  transform: scale(0.95);
 }

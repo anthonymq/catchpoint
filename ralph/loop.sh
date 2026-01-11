@@ -2,18 +2,21 @@
 # RALPH Loop for Catchpoint (OpenCode Edition)
 # The Ralph Wiggum Technique - autonomous AI development loop
 #
-# Usage: ./loop.sh [plan] [max_iterations] [--verbose|-v]
+# Usage: ./loop.sh [mode] [max_iterations] [--verbose|-v]
 # Examples:
 #   ./loop.sh              # Build mode, unlimited iterations
 #   ./loop.sh 20           # Build mode, max 20 iterations
 #   ./loop.sh plan         # Plan mode, unlimited iterations
 #   ./loop.sh plan 5       # Plan mode, max 5 iterations
+#   ./loop.sh polish       # Polish mode - make UI/UX awesome
+#   ./loop.sh polish 10    # Polish mode, max 10 iterations
 #   ./loop.sh --verbose    # Build mode with full debug logging
 #   ./loop.sh plan -v      # Plan mode with full debug logging
 #
 # Modes:
-#   PLAN  - Gap analysis only, creates/updates IMPLEMENTATION_PLAN.md
-#   BUILD - Implements from plan, runs tests, commits changes
+#   PLAN   - Gap analysis only, creates/updates IMPLEMENTATION_PLAN.md
+#   BUILD  - Implements from plan, runs tests, commits changes
+#   POLISH - UI/UX enhancement via frontend-ui-ux-engineer agent
 #
 # Flags:
 #   --verbose, -v  Enable full debug logging (saved to ralph/logs/)
@@ -44,6 +47,10 @@ for arg in "$@"; do
         plan)
             MODE="plan"
             PROMPT_FILE="ralph/PROMPT_plan.md"
+            ;;
+        polish)
+            MODE="polish"
+            PROMPT_FILE="ralph/PROMPT_polish.md"
             ;;
         --verbose|-v)
             VERBOSE=true

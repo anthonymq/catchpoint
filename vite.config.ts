@@ -5,6 +5,9 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages deployment: set base to repo name if GITHUB_PAGES env is set
+  // For custom domain or root deployment, leave as '/'
+  base: process.env.GITHUB_PAGES ? "/catchpoint/" : "/",
   plugins: [
     react(),
     VitePWA({

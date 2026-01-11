@@ -31,29 +31,72 @@ export function CatchesByMonthChart({ data }: CatchesByMonthChartProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={formattedData}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <defs>
+          <linearGradient id="colorMonthly" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+            <stop offset="50%" stopColor="#2563eb" stopOpacity={0.9} />
+            <stop offset="100%" stopColor="#1d4ed8" stopOpacity={0.75} />
+          </linearGradient>
+          {/* Shadow for bars */}
+          <filter id="barShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow
+              dx="0"
+              dy="2"
+              stdDeviation="2"
+              floodColor="#3b82f6"
+              floodOpacity="0.3"
+            />
+          </filter>
+        </defs>
+        <CartesianGrid
+          strokeDasharray="3 3"
+          vertical={false}
+          stroke="var(--color-border)"
+          strokeOpacity={0.5}
+        />
         <XAxis
           dataKey="label"
-          fontSize={12}
+          fontSize={11}
           tickLine={false}
           axisLine={false}
+          tick={{ fill: "var(--color-text-muted)" }}
         />
-        <YAxis fontSize={12} tickLine={false} axisLine={false} />
+        <YAxis
+          fontSize={11}
+          tickLine={false}
+          axisLine={false}
+          tick={{ fill: "var(--color-text-muted)" }}
+          width={30}
+        />
         <Tooltip
-          cursor={{ fill: "rgba(0,0,0,0.05)" }}
+          cursor={{ fill: "var(--color-primary-light)", radius: 8 }}
           content={({ active, payload }) => {
             if (active && payload && payload.length) {
               return (
-                <div className="bg-white p-2 border border-gray-200 shadow-sm rounded text-sm">
-                  <p className="font-medium">{payload[0].payload.fullLabel}</p>
-                  <p className="text-blue-600">{payload[0].value} catches</p>
+                <div className="chart-tooltip">
+                  <p className="chart-tooltip-title">
+                    {payload[0].payload.fullLabel}
+                  </p>
+                  <p
+                    className="chart-tooltip-value"
+                    style={{ color: "#3b82f6" }}
+                  >
+                    📅 {payload[0].value} catches
+                  </p>
                 </div>
               );
             }
             return null;
           }}
         />
-        <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        <Bar
+          dataKey="count"
+          fill="url(#colorMonthly)"
+          radius={[8, 8, 0, 0]}
+          animationDuration={800}
+          animationEasing="ease-out"
+          style={{ filter: "url(#barShadow)" }}
+        />
       </BarChart>
     </ResponsiveContainer>
   );

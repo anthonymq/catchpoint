@@ -1,8 +1,25 @@
+/* Premium Typography - Inter from Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
 :root {
+  /* Typography */
+  --font-family:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: -0.01em;
+
   /* Brand Colors */
   --color-primary: #0f3460;
+  --color-primary-light: rgba(15, 52, 96, 0.1);
   --color-secondary: #e94560;
   --color-accent: #16213e;
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
 
   /* Backgrounds */
   --color-background: #ffffff;
@@ -31,6 +48,7 @@
 
 [data-theme="dark"] {
   --color-primary: #3282b8;
+  --color-primary-light: rgba(50, 130, 184, 0.15);
   --color-secondary: #ff2e63;
   --color-accent: #0f3460;
 
@@ -51,6 +69,23 @@
   box-sizing: border-box;
 }
 
+/* ============================================================================
+   Theme Transition - Smooth dark/light mode switching
+   ============================================================================ */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 0.3s ease-out,
+    color 0.3s ease-out,
+    border-color 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    fill 0.3s ease-out,
+    stroke 0.3s ease-out !important;
+  transition-delay: 0s !important;
+}
+
 html,
 body {
   margin: 0;
@@ -58,12 +93,14 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden; /* App-like feel, scroll inside containers */
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-    sans-serif;
+  font-family: var(--font-family);
+  font-feature-settings: "cv11" 1; /* Inter alternate forms */
+  letter-spacing: var(--letter-spacing-normal);
   background-color: var(--color-background);
   color: var(--color-text);
   -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   user-select: none; /* App-like feel */
 }
 
@@ -82,6 +119,8 @@ h5,
 h6 {
   margin: 0;
   font-weight: 600;
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: 1.2;
 }
 
 p {
@@ -312,14 +351,55 @@ textarea {
   }
 }
 
+/* ============================================================================
+   Page Transition Animations
+   ============================================================================ */
+
+/* Base page entrance animation - apply to all page containers */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle fade for less disruptive transitions */
+@keyframes pageFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Apply to main page containers */
+.log-page,
+.stats-page,
+.settings-page,
+.catch-detail-page,
+.map-page {
+  animation: pageEnter 0.35s ease-out;
+}
+
+/* Home page has its own more elaborate animations */
+
 /* Chart Components */
 .chart-card {
-  background-color: #ffffff;
+  background-color: var(--color-background);
   border-radius: 0.75rem;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   padding: 1rem;
   display: flex;
   flex-direction: column;
+}
+
+[data-theme="dark"] .chart-card {
+  background-color: var(--color-surface);
 }
 
 .chart-container {
