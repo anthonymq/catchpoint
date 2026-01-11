@@ -13,6 +13,7 @@ export interface Catch {
   notes?: string; // Free text
   weatherData?: WeatherData; // Weather data from OpenWeatherMap API
   pendingWeatherFetch: boolean; // True if weather needs sync
+  pendingLocationRefresh?: boolean; // True if location needs async GPS refresh
   createdAt: Date;
   updatedAt: Date;
 }

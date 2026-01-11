@@ -1,8 +1,17 @@
 import { useState, useCallback } from "react";
 import { useCatchStore } from "../stores/catchStore";
-import { getCurrentLocation } from "../services/location";
+import {
+  getCachedLocation,
+  refreshLocationForCatch,
+} from "../services/location";
 import { syncService } from "../services/sync";
 
+/**
+ * Quick Capture Hook - Implements truly fire-and-forget capture.
+ *
+ * Spec requirement: Success animation must show within 300ms of tap.
+ * Solution: Use cached location (instant), fire GPS refresh in background.
+ */
 export const useQuickCapture = () => {
   const [isCapturing, setIsCapturing] = useState(false);
   const addCatch = useCatchStore((state) => state.addCatch);
@@ -14,26 +23,26 @@ export const useQuickCapture = () => {
   };
 
   const capture = useCallback(async () => {
-    // 1. Immediate UI feedback handled by caller (animations) or here if we expose state
-    // We expose isCapturing for some UI states, but the button should animate on click instantly.
+    // 1. INSTANT UI feedback
     setIsCapturing(true);
     triggerHaptic();
 
     try {
-      // 2. Get location (this might take a few seconds, but UI shows success)
-      // Note: In a real "fire and forget" scenario, we might want to not await this
-      // before returning control, but we need the location for the catch object.
-      // Ideally, we'd fire this off and let it run.
-      // For now, following spec: await location.
-      const location = await getCurrentLocation();
+      // 2. Get cached location (instant, synchronous read from localStorage)
+      // This never blocks - returns null if no cache or cache expired
+      const cachedLocation = getCachedLocation();
 
-      // 3. Create Catch Object
+      // 3. Determine if we need a background GPS refresh
+      const needsLocationRefresh = !cachedLocation;
+
+      // 4. Create Catch Object with cached/default coords
       const newCatch = {
         id: crypto.randomUUID(),
         timestamp: new Date(),
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: cachedLocation?.latitude ?? 0,
+        longitude: cachedLocation?.longitude ?? 0,
         pendingWeatherFetch: true,
+        pendingLocationRefresh: needsLocationRefresh,
         // Optional fields defaults
         species: undefined,
         weight: undefined,
@@ -43,19 +52,27 @@ export const useQuickCapture = () => {
         weatherData: undefined,
       };
 
-      // 4. Optimistic Save (Store updates immediately, DB in background)
+      // 5. Save immediately (optimistic UI in store)
       await addCatch(newCatch);
 
-      // 5. Trigger weather sync if online (don't await - let it run in background)
+      // 6. SUCCESS! User sees success within ~50-100ms
+      setIsCapturing(false);
+
+      // 7. Background: Refresh GPS and update catch if better coords obtained
+      // This is fire-and-forget - don't await
+      if (needsLocationRefresh) {
+        refreshLocationForCatch(newCatch.id);
+      }
+
+      // 8. Background: Fetch weather (fire-and-forget)
       if (navigator.onLine) {
         syncService.processWeatherQueue();
       }
     } catch (error) {
-      console.error("Capture failed:", error);
-      // In a real app, we might want to surface this error to the user if it was a critical failure
-      // but "Quick Capture" implies resilience.
-    } finally {
+      console.error("[QuickCapture] Capture failed:", error);
       setIsCapturing(false);
+      // In a production app, we might surface this error to the user
+      // For Quick Capture, we prioritize resilience over error reporting
     }
   }, [addCatch]);
 

@@ -1,3 +1,5 @@
+import { catchRepository } from "../db/repository";
+
 export interface LocationCoords {
   latitude: number;
   longitude: number;
@@ -6,6 +8,7 @@ export interface LocationCoords {
 }
 
 const STORAGE_KEY = "catchpoint_last_location";
+const CACHE_MAX_AGE_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Persist location to localStorage for offline fallback
@@ -20,11 +23,21 @@ const cacheLocation = (coords: LocationCoords) => {
 
 /**
  * Retrieve cached location from localStorage
+ * Returns null if no cache or cache is older than 5 minutes
  */
-const getCachedLocation = (): LocationCoords | null => {
+export const getCachedLocation = (): LocationCoords | null => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : null;
+    if (!stored) return null;
+
+    const coords: LocationCoords = JSON.parse(stored);
+
+    // Check if cache is still fresh (within 5 minutes)
+    if (Date.now() - coords.timestamp > CACHE_MAX_AGE_MS) {
+      return null;
+    }
+
+    return coords;
   } catch {
     return null;
   }
@@ -80,5 +93,61 @@ export const getCurrentLocation = async (): Promise<LocationCoords> => {
       accuracy: 0,
       timestamp: Date.now(),
     };
+  }
+};
+
+/**
+ * Background function to refresh GPS and update an existing catch.
+ * Fire-and-forget: call this after quick capture to improve location accuracy.
+ * Updates the catch in the database if a better location is obtained.
+ */
+export const refreshLocationForCatch = async (
+  catchId: string,
+): Promise<void> => {
+  try {
+    // Only fetch fresh GPS, don't use cache
+    const position = await new Promise<GeolocationPosition>(
+      (resolve, reject) => {
+        if (!("geolocation" in navigator)) {
+          reject(new Error("Geolocation not supported"));
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 8000,
+          maximumAge: 0, // Force fresh position
+        });
+      },
+    );
+
+    const coords: LocationCoords = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+      accuracy: position.coords.accuracy,
+      timestamp: position.timestamp,
+    };
+
+    // Cache the fresh location for future quick captures
+    cacheLocation(coords);
+
+    // Update the catch with fresh location
+    await catchRepository.update(catchId, {
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      pendingLocationRefresh: false,
+    });
+
+    console.log("[Location] Refreshed location for catch", catchId);
+  } catch (error) {
+    console.warn("[Location] Background GPS refresh failed:", error);
+    // Mark as no longer pending even if refresh failed (we tried)
+    try {
+      await catchRepository.update(catchId, {
+        pendingLocationRefresh: false,
+      });
+    } catch {
+      // Ignore update errors - catch may have been deleted
+    }
   }
 };
