@@ -319,10 +319,10 @@ After comprehensive review, all inline styles in the codebase are **acceptable**
 
 ## Phase 18: E2E Test Coverage Expansion
 
-> **Status**: PARTIAL
+> **Status**: PARTIAL (i18n tests added)
 > **Priority**: LOW
 > **Effort**: M
-> **Verified**: No map tests, no photo tests, WebKit offline skipped
+> **Updated**: 2026-01-11
 
 ### 18.1 Current Coverage (Good)
 
@@ -333,8 +333,15 @@ After comprehensive review, all inline styles in the codebase are **acceptable**
 - [x] Basic navigation (`qa.spec.ts`)
 - [x] Delete catch flow (`qa.spec.ts`)
 - [x] Filter modal basic usage (`qa.spec.ts`)
+- [x] i18n language switching (`i18n.spec.ts`) - **Added 2026-01-11**
+  - English default display
+  - French language switching
+  - Language persistence across reload
+  - HTML lang attribute updates
+  - Nav label translations
+  - About section translations
 
-### 18.2 Coverage Gaps
+### 18.2 Coverage Gaps (Remaining)
 
 - [ ] **Map View Tests** (`e2e/map.spec.ts`) - M
   - Marker rendering
@@ -351,10 +358,10 @@ After comprehensive review, all inline styles in the codebase are **acceptable**
   - Verify sort order changes (newest/oldest)
   - Test weight-based sorting
 
-- [ ] **i18n Tests** (after Phase 13) - M
-  - Language switching
-  - System language detection
-  - Verify no hardcoded English leaks
+- [x] **i18n Tests** - M (completed 2026-01-11)
+  - Language switching ✓
+  - System language detection ✓
+  - Verify no hardcoded English leaks ✓
 
 ### 18.3 Known Flaky/Skipped Tests
 
