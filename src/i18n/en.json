@@ -133,8 +133,7 @@
       "clearDataTitle": "Clear All Data?",
       "clearDataMessage": "Are you sure you want to delete all {{count}} catches? This action cannot be undone.",
       "clearDataConfirm": "Delete All"
-    },
-    "version": "Catchpoint v0.1.0 (Alpha)"
+    }
   },
   "catch": {
     "details": "Catch Details",

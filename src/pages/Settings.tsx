@@ -321,7 +321,7 @@ export default function Settings() {
           </div>
         </section>
 
-        <div className="settings-version">{t("settings.version")}</div>
+        <div className="settings-version">Catchpoint v{__APP_VERSION__}</div>
       </div>
 
       <ConfirmModal

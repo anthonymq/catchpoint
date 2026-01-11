@@ -133,8 +133,7 @@
       "clearDataTitle": "Effacer toutes les données ?",
       "clearDataMessage": "Êtes-vous sûr de vouloir supprimer les {{count}} prises ? Cette action est irréversible.",
       "clearDataConfirm": "Tout supprimer"
-    },
-    "version": "Catchpoint v0.1.0 (Alpha)"
+    }
   },
   "catch": {
     "details": "Détails de la prise",

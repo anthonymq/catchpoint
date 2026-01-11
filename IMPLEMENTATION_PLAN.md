@@ -257,19 +257,20 @@ Fixed the blocking GPS issue where `useQuickCapture.ts` awaited `getCurrentLocat
 > **Priority**: MEDIUM
 > **Effort**: S
 > **Spec**: `specs/settings.md`
-> **Verified**: Version is hardcoded "v0.1.0 (Alpha)", no About section links
 
 ### 16.1 Missing Settings Features
 
-- [ ] **Dynamic Version Display** - S
-  - Read from `import.meta.env.VITE_APP_VERSION` or package.json
-  - Add build script to inject version
-  - Display: "Catchpoint v1.0.0" (not hardcoded)
+- [x] **Dynamic Version Display** - S (completed 2026-01-11)
+  - Added `__APP_VERSION__` constant via Vite's `define` config
+  - Reads version from package.json at build time
+  - Created `src/vite-env.d.ts` for TypeScript declaration
+  - Updated Settings.tsx to display "Catchpoint v{version}"
+  - Removed hardcoded version from translation files
+  - package.json version set to "1.0.0"
 
 - [ ] **About Section Links** - S
   - Licenses: Link to `/licenses` or modal with OSS attributions
   - Privacy Policy: External link (can be placeholder URL for now)
-  - Version: Dynamic from above
 
 ### 16.2 Already Implemented
 
