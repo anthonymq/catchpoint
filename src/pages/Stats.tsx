@@ -8,6 +8,7 @@ import { MoonPhaseChart } from "../components/stats/MoonPhaseChart";
 import { PressureChart } from "../components/stats/PressureChart";
 import { TemperatureChart } from "../components/stats/TemperatureChart";
 import { useTranslation } from "@/i18n";
+import { Info } from "lucide-react";
 import "../styles/pages/Stats.css";
 
 // Skeleton loading components
@@ -94,11 +95,13 @@ export default function Stats() {
           label={t("stats.cards.totalCatches")}
           value={stats.totalCatches}
           icon="🎣"
+          tooltip={t("stats.tooltips.totalCatches")}
         />
         <StatCard
           label={t("stats.cards.topSpecies")}
           value={stats.topSpecies[0]?.species || "-"}
           icon="🐟"
+          tooltip={t("stats.tooltips.topSpecies")}
         />
         <StatCard
           label={t("stats.cards.avgWeight")}
@@ -106,6 +109,7 @@ export default function Stats() {
             stats.averageWeight ? `${stats.averageWeight.toFixed(1)} lb` : "-"
           }
           icon="⚖️"
+          tooltip={t("stats.tooltips.avgWeight")}
         />
         <StatCard
           label={t("stats.cards.bestDay")}
@@ -117,6 +121,7 @@ export default function Stats() {
               : "-"
           }
           icon="📅"
+          tooltip={t("stats.tooltips.bestDay")}
         />
       </div>
 
@@ -126,9 +131,21 @@ export default function Stats() {
           <div className="golden-hour-content">
             <span className="golden-hour-icon">🌅</span>
             <div>
-              <h3 className="golden-hour-title">
-                {t("stats.goldenHour.title")}
-              </h3>
+              <div className="golden-hour-title-wrapper has-tooltip">
+                <h3 className="golden-hour-title">
+                  {t("stats.goldenHour.title")}
+                </h3>
+                <button
+                  className="info-tooltip-trigger"
+                  aria-label={`Info about ${t("stats.goldenHour.title")}`}
+                  tabIndex={0}
+                >
+                  <Info size={10} />
+                </button>
+                <div className="info-tooltip-content" role="tooltip">
+                  {t("stats.tooltips.goldenHour")}
+                </div>
+              </div>
               <p className="golden-hour-text">
                 {stats.goldenHourInsight.insightText}
               </p>
@@ -138,40 +155,71 @@ export default function Stats() {
       )}
 
       {/* Charts */}
-      <ChartCard title={t("stats.charts.catchesByTime")}>
+      <ChartCard
+        title={t("stats.charts.catchesByTime")}
+        tooltip={t("stats.tooltips.catchesByTime")}
+      >
         <CatchesByTimeChart data={stats.catchesByHour} />
       </ChartCard>
 
       <div className="charts-grid">
-        <ChartCard title={t("stats.charts.speciesDistribution")} variant="pie">
+        <ChartCard
+          title={t("stats.charts.speciesDistribution")}
+          variant="pie"
+          tooltip={t("stats.tooltips.speciesDistribution")}
+        >
           <SpeciesChart data={stats.topSpecies} />
         </ChartCard>
 
-        <ChartCard title={t("stats.charts.monthlyActivity")}>
+        <ChartCard
+          title={t("stats.charts.monthlyActivity")}
+          tooltip={t("stats.tooltips.monthlyActivity")}
+        >
           <CatchesByMonthChart data={stats.catchesByMonth} />
         </ChartCard>
       </div>
 
       {/* Moon Phase Impact Chart */}
-      <ChartCard title={t("stats.charts.moonPhase")}>
+      <ChartCard
+        title={t("stats.charts.moonPhase")}
+        tooltip={t("stats.tooltips.moonPhase")}
+      >
         <MoonPhaseChart data={stats.catchesByMoonPhase} />
       </ChartCard>
 
       {/* Barometric Pressure Impact Chart */}
-      <ChartCard title={t("stats.charts.pressure")}>
+      <ChartCard
+        title={t("stats.charts.pressure")}
+        tooltip={t("stats.tooltips.pressure")}
+      >
         <PressureChart data={stats.catchesByPressureTrend} />
       </ChartCard>
 
       {/* Temperature Impact Chart */}
-      <ChartCard title={t("stats.charts.temperature")}>
+      <ChartCard
+        title={t("stats.charts.temperature")}
+        tooltip={t("stats.tooltips.temperature")}
+      >
         <TemperatureChart data={stats.catchesByTemperature} />
       </ChartCard>
 
       {/* Weather Stats */}
       <div className="weather-stats-card">
-        <h3 className="weather-stats-title">
-          {t("stats.charts.weatherConditions")}
-        </h3>
+        <div className="weather-stats-header has-tooltip">
+          <h3 className="weather-stats-title">
+            {t("stats.charts.weatherConditions")}
+          </h3>
+          <button
+            className="info-tooltip-trigger"
+            aria-label={`Info about ${t("stats.charts.weatherConditions")}`}
+            tabIndex={0}
+          >
+            <Info size={10} />
+          </button>
+          <div className="info-tooltip-content" role="tooltip">
+            {t("stats.tooltips.weatherConditions")}
+          </div>
+        </div>
         <div className="weather-stats-grid">
           {stats.catchesBySkyCondition.map((item) => (
             <div key={item.condition} className="weather-stat-item">
@@ -190,14 +238,32 @@ function StatCard({
   label,
   value,
   icon,
+  tooltip,
 }: {
   label: string;
   value: string | number;
   icon: string;
+  tooltip?: string;
 }) {
   return (
-    <div className="stat-card">
-      <div className="stat-card-label">{label}</div>
+    <div className="stat-card has-tooltip">
+      <div className="stat-card-label-wrapper">
+        <span className="stat-card-label">{label}</span>
+        {tooltip && (
+          <>
+            <button
+              className="info-tooltip-trigger"
+              aria-label={`Info about ${label}`}
+              tabIndex={0}
+            >
+              <Info size={10} />
+            </button>
+            <div className="info-tooltip-content" role="tooltip">
+              {tooltip}
+            </div>
+          </>
+        )}
+      </div>
       <div className="stat-card-value">
         <span className="stat-card-icon">{icon}</span>
         {value}
@@ -210,10 +276,12 @@ function ChartCard({
   title,
   children,
   variant = "default",
+  tooltip,
 }: {
   title: string;
   children: React.ReactNode;
   variant?: "default" | "pie";
+  tooltip?: string;
 }) {
   const containerClass =
     variant === "pie"
@@ -221,7 +289,23 @@ function ChartCard({
       : "chart-container";
   return (
     <div className="chart-card">
-      <h3 className="chart-card-title">{title}</h3>
+      <div className="chart-card-header has-tooltip">
+        <h3 className="chart-card-title">{title}</h3>
+        {tooltip && (
+          <>
+            <button
+              className="info-tooltip-trigger"
+              aria-label={`Info about ${title}`}
+              tabIndex={0}
+            >
+              <Info size={10} />
+            </button>
+            <div className="info-tooltip-content" role="tooltip">
+              {tooltip}
+            </div>
+          </>
+        )}
+      </div>
       <div className={containerClass}>{children}</div>
     </div>
   );

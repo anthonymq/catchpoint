@@ -78,6 +78,20 @@
       "avgWeight": "Poids moyen",
       "bestDay": "Meilleur jour"
     },
+    "tooltips": {
+      "totalCatches": "Le nombre total de prises enregistrées",
+      "topSpecies": "L'espèce que vous avez le plus souvent capturée",
+      "avgWeight": "Poids moyen de toutes les prises avec un poids enregistré",
+      "bestDay": "Le jour de la semaine où vous attrapez le plus de poissons",
+      "catchesByTime": "Montre à quelles heures vous attrapez le plus de poissons. Aide à identifier vos heures de pêche optimales.",
+      "speciesDistribution": "Répartition de vos prises par espèce. Voyez quels poissons vous attrapez le plus souvent.",
+      "monthlyActivity": "Votre activité de pêche au fil du temps. Suivez les tendances saisonnières.",
+      "moonPhase": "Comment la phase lunaire affecte votre succès de pêche. Beaucoup de pêcheurs croient que les poissons sont plus actifs lors de certaines phases.",
+      "pressure": "Impact de la pression barométrique sur vos prises. Les poissons se nourrissent souvent plus activement quand la pression change.",
+      "temperature": "Comment la température de l'air corrèle avec vos prises. Aide à identifier vos conditions de pêche idéales.",
+      "weatherConditions": "Nombre de prises par condition météo. Voyez si vous pêchez mieux au soleil, nuages ou pluie.",
+      "goldenHour": "Votre fenêtre de pêche la plus productive basée sur vos données historiques."
+    },
     "charts": {
       "catchesByTime": "Prises par heure",
       "speciesDistribution": "Répartition des espèces",

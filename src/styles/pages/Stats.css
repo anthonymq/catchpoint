@@ -951,3 +951,223 @@
   filter: brightness(1.1);
   transition: filter 0.2s ease;
 }
+
+/* ============================================================================
+   Info Tooltip - Hover-based explanation tooltips
+   ============================================================================ */
+.has-tooltip {
+  position: relative;
+}
+
+.info-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(50, 130, 184, 0.1);
+  color: var(--color-primary, #3282b8);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: help;
+  margin-left: 6px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(50, 130, 184, 0.2);
+}
+
+.info-tooltip-trigger:hover {
+  background: rgba(50, 130, 184, 0.2);
+  transform: scale(1.1);
+}
+
+.info-tooltip-trigger:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.info-tooltip-content {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+
+  /* Sizing */
+  width: max-content;
+  max-width: 280px;
+  padding: 10px 14px;
+
+  /* Typography */
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+  color: var(--color-text);
+
+  /* Appearance */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(255, 255, 255, 0.95) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: 12px;
+  border: 1px solid rgba(50, 130, 184, 0.15);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 0 40px rgba(50, 130, 184, 0.06);
+
+  /* Hidden by default */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%) translateY(4px);
+}
+
+/* Arrow pointing down */
+.info-tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(255, 255, 255, 0.98);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+/* Show on hover/focus */
+.has-tooltip:hover .info-tooltip-content,
+.info-tooltip-trigger:focus + .info-tooltip-content,
+.info-tooltip-trigger:focus-within + .info-tooltip-content {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Position adjustment for cards near edges */
+.stat-card .info-tooltip-content {
+  left: auto;
+  right: -10px;
+  transform: translateY(4px);
+}
+
+.stat-card:hover .info-tooltip-content,
+.stat-card .info-tooltip-trigger:focus + .info-tooltip-content {
+  transform: translateY(0);
+}
+
+.stat-card .info-tooltip-content::after {
+  left: auto;
+  right: 20px;
+  transform: none;
+}
+
+/* Chart card tooltip positioning */
+.chart-card-header .info-tooltip-content {
+  left: 0;
+  transform: translateY(4px);
+}
+
+.chart-card-header:hover .info-tooltip-content,
+.chart-card-header .info-tooltip-trigger:focus + .info-tooltip-content {
+  transform: translateY(0);
+}
+
+.chart-card-header .info-tooltip-content::after {
+  left: 20px;
+  transform: none;
+}
+
+/* Dark mode */
+[data-theme="dark"] .info-tooltip-trigger {
+  background: rgba(50, 130, 184, 0.15);
+  border-color: rgba(50, 130, 184, 0.25);
+}
+
+[data-theme="dark"] .info-tooltip-trigger:hover {
+  background: rgba(50, 130, 184, 0.25);
+}
+
+[data-theme="dark"] .info-tooltip-content {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 33, 62, 0.98) 0%,
+    rgba(22, 33, 62, 0.95) 100%
+  );
+  border-color: rgba(50, 130, 184, 0.2);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    0 0 40px rgba(50, 130, 184, 0.08);
+}
+
+[data-theme="dark"] .info-tooltip-content::after {
+  border-top-color: rgba(22, 33, 62, 0.98);
+}
+
+/* Mobile: Show on tap (via focus) */
+@media (hover: none) {
+  .info-tooltip-trigger {
+    /* Make tap target larger on touch devices */
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+
+  .info-tooltip-content {
+    max-width: 240px;
+  }
+}
+
+/* Stat card layout adjustment for tooltip */
+.stat-card-label-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+/* Chart card header layout for tooltip */
+.chart-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+/* Weather stats tooltip */
+.weather-stats-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+/* Golden hour title wrapper for tooltip */
+.golden-hour-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.golden-hour-title-wrapper .info-tooltip-content {
+  left: 0;
+  transform: translateY(4px);
+}
+
+.golden-hour-title-wrapper:hover .info-tooltip-content,
+.golden-hour-title-wrapper .info-tooltip-trigger:focus + .info-tooltip-content {
+  transform: translateY(0);
+}
+
+.golden-hour-title-wrapper .info-tooltip-content::after {
+  left: 20px;
+  transform: none;
+}

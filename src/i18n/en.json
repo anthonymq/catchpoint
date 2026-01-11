@@ -78,6 +78,20 @@
       "avgWeight": "Avg Weight",
       "bestDay": "Best Day"
     },
+    "tooltips": {
+      "totalCatches": "The total number of catches you've logged",
+      "topSpecies": "The species you've caught most frequently",
+      "avgWeight": "Average weight of all catches with recorded weight",
+      "bestDay": "The day of the week when you catch the most fish",
+      "catchesByTime": "Shows which hours of the day you catch the most fish. Helps identify your peak fishing times.",
+      "speciesDistribution": "Breakdown of your catches by species. See which fish you catch most often.",
+      "monthlyActivity": "Your fishing activity over time. Track seasonal patterns and trends.",
+      "moonPhase": "How the moon phase affects your fishing success. Many anglers believe fish are more active during certain lunar phases.",
+      "pressure": "Impact of barometric pressure on your catches. Fish often feed more actively when pressure is changing.",
+      "temperature": "How air temperature correlates with your catches. Helps identify your ideal fishing conditions.",
+      "weatherConditions": "Catch count by weather condition. See if you fish better in sun, clouds, or rain.",
+      "goldenHour": "Your most productive fishing window based on historical data."
+    },
     "charts": {
       "catchesByTime": "Catches by Time",
       "speciesDistribution": "Species Distribution",
