@@ -1,0 +1,198 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "nav": {
+    "home": "Home",
+    "log": "Log",
+    "map": "Map",
+    "stats": "Stats",
+    "settings": "Settings"
+  },
+  "home": {
+    "greeting": {
+      "night": "Night owl fishing?",
+      "morning": "Good morning!",
+      "afternoon": "Good afternoon!",
+      "evening": "Golden hour time!",
+      "lateEvening": "Evening fishing?"
+    },
+    "subtext": "Ready to catch something great?",
+    "tapToLog": "Tap to log catch",
+    "savingLocation": "Saving location..."
+  },
+  "capture": {
+    "button": "FISH ON!",
+    "success": "CAUGHT!",
+    "tapToLog": "Tap to log catch",
+    "savingLocation": "Saving location..."
+  },
+  "log": {
+    "title": "Catch Log",
+    "empty": {
+      "title": "No catches yet!",
+      "description": "Tap \"FISH ON!\" on the home screen to log your first catch.",
+      "cta": "Start Fishing"
+    },
+    "catches": "{{count}} catches",
+    "catchesSingular": "{{count}} catch",
+    "catchesOf": "{{filtered}} catches (of {{total}})",
+    "noMatches": "No catches match your filters.",
+    "clearFilters": "Clear Filters",
+    "loadTestData": "[DEV] Load Test Data",
+    "loadTestDataTitle": "Load Test Data?",
+    "loadTestDataMessage": "This will add 20 sample catches to your log for testing purposes.",
+    "loadTestDataConfirm": "Load Data"
+  },
+  "map": {
+    "title": "Map",
+    "yourLocation": "Your location",
+    "catchLocation": "Catch location",
+    "cluster": "{{count}} catches",
+    "offline": "Map unavailable offline",
+    "showHeatmap": "Heatmap",
+    "showMarkers": "Markers"
+  },
+  "stats": {
+    "title": "Statistics",
+    "empty": {
+      "title": "No statistics yet",
+      "description": "Log your first catch to see insights about your fishing habits."
+    },
+    "cards": {
+      "totalCatches": "Total Catches",
+      "topSpecies": "Top Species",
+      "avgWeight": "Avg Weight",
+      "bestDay": "Best Day"
+    },
+    "charts": {
+      "catchesByTime": "Catches by Time",
+      "speciesDistribution": "Species Distribution",
+      "monthlyActivity": "Monthly Activity",
+      "moonPhase": "Moon Phase Impact",
+      "pressure": "Pressure Impact",
+      "weatherConditions": "Weather Conditions"
+    },
+    "goldenHour": {
+      "title": "Golden Hour"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "app": "App",
+      "language": "Language",
+      "appearance": "Appearance",
+      "units": "Units",
+      "data": "Data",
+      "about": "About"
+    },
+    "language": {
+      "label": "Language",
+      "system": "System",
+      "en": "English",
+      "fr": "Français"
+    },
+    "theme": {
+      "label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "units": {
+      "weight": "Weight",
+      "length": "Length"
+    },
+    "pwa": {
+      "installApp": "Install App",
+      "installed": "Installed",
+      "notAvailable": "Not available",
+      "iosHint": "Tap {{icon}} then \"Add to Home Screen\"",
+      "storageUsed": "Storage Used"
+    },
+    "data": {
+      "exportCsv": "Export CSV",
+      "exportCsvSubtitle": "Download all your catches",
+      "loadTestData": "Load Test Data",
+      "loadTestDataSubtitle": "Add 20 sample catches",
+      "loadTestDataSuccess": "Loaded {{count}} test catches.",
+      "loadTestDataExists": "Test data already loaded.",
+      "clearData": "Clear All Data",
+      "clearDataSubtitle": "Permanently delete everything",
+      "clearDataTitle": "Clear All Data?",
+      "clearDataMessage": "Are you sure you want to delete all {{count}} catches? This action cannot be undone.",
+      "clearDataConfirm": "Delete All"
+    },
+    "version": "Catchpoint v0.1.0 (Alpha)"
+  },
+  "catch": {
+    "details": "Catch Details",
+    "species": "Species",
+    "speciesPlaceholder": "Select or type species...",
+    "weight": "Weight",
+    "length": "Length",
+    "notes": "Notes",
+    "notesPlaceholder": "Add details about bait, gear, or conditions...",
+    "photo": "Photo",
+    "tapToAddPhoto": "Tap to add photo",
+    "location": "Location",
+    "weather": "Weather",
+    "noWeatherData": "No weather data",
+    "timestamp": "Date & Time",
+    "unknownSpecies": "Unknown Species",
+    "deleteCatch": "Delete Catch",
+    "deleteTitle": "Delete Catch?",
+    "deleteMessage": "Are you sure you want to delete this catch? This action cannot be undone.",
+    "deleteConfirm": "Delete",
+    "deleteCancel": "Keep",
+    "saving": "Saving...",
+    "notFound": "Catch not found",
+    "loadFailed": "Failed to load catch",
+    "saveFailed": "Failed to save changes",
+    "deleteFailed": "Failed to delete catch"
+  },
+  "filter": {
+    "title": "Filters",
+    "species": "Species",
+    "allSpecies": "All Species",
+    "dateRange": "Date Range",
+    "allTime": "All Time",
+    "last7Days": "Last 7 Days",
+    "last30Days": "Last 30 Days",
+    "thisYear": "This Year",
+    "sortBy": "Sort By",
+    "newestFirst": "Newest First",
+    "oldestFirst": "Oldest First",
+    "heaviestFirst": "Heaviest First",
+    "lightestFirst": "Lightest First",
+    "apply": "Apply Filters",
+    "reset": "Reset"
+  },
+  "weather": {
+    "pending": "Fetching weather...",
+    "unavailable": "Weather unavailable"
+  },
+  "errors": {
+    "locationDenied": "Location access denied",
+    "locationUnavailable": "Location unavailable",
+    "weatherFailed": "Could not fetch weather",
+    "exportFailed": "Export failed",
+    "saveFailed": "Could not save",
+    "deleteFailed": "Could not delete"
+  },
+  "pwa": {
+    "offline": "You're offline",
+    "online": "Back online"
+  }
+}

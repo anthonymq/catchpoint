@@ -1,0 +1,198 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "close": "Fermer",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "nav": {
+    "home": "Accueil",
+    "log": "Journal",
+    "map": "Carte",
+    "stats": "Stats",
+    "settings": "Réglages"
+  },
+  "home": {
+    "greeting": {
+      "night": "Pêche nocturne ?",
+      "morning": "Bonjour !",
+      "afternoon": "Bon après-midi !",
+      "evening": "L'heure dorée !",
+      "lateEvening": "Pêche du soir ?"
+    },
+    "subtext": "Prêt à faire une belle prise ?",
+    "tapToLog": "Appuyez pour enregistrer",
+    "savingLocation": "Enregistrement..."
+  },
+  "capture": {
+    "button": "ÇA MORD !",
+    "success": "PRIS !",
+    "tapToLog": "Appuyez pour enregistrer",
+    "savingLocation": "Enregistrement..."
+  },
+  "log": {
+    "title": "Journal de pêche",
+    "empty": {
+      "title": "Aucune prise !",
+      "description": "Appuyez sur \"ÇA MORD !\" sur l'écran d'accueil pour enregistrer votre première prise.",
+      "cta": "Commencer"
+    },
+    "catches": "{{count}} prises",
+    "catchesSingular": "{{count}} prise",
+    "catchesOf": "{{filtered}} prises (sur {{total}})",
+    "noMatches": "Aucune prise ne correspond à vos filtres.",
+    "clearFilters": "Effacer les filtres",
+    "loadTestData": "[DEV] Charger données test",
+    "loadTestDataTitle": "Charger données test ?",
+    "loadTestDataMessage": "Cela ajoutera 20 prises de test à votre journal.",
+    "loadTestDataConfirm": "Charger"
+  },
+  "map": {
+    "title": "Carte",
+    "yourLocation": "Votre position",
+    "catchLocation": "Lieu de prise",
+    "cluster": "{{count}} prises",
+    "offline": "Carte non disponible hors ligne",
+    "showHeatmap": "Densité",
+    "showMarkers": "Marqueurs"
+  },
+  "stats": {
+    "title": "Statistiques",
+    "empty": {
+      "title": "Pas encore de statistiques",
+      "description": "Enregistrez votre première prise pour voir des informations sur vos habitudes de pêche."
+    },
+    "cards": {
+      "totalCatches": "Total prises",
+      "topSpecies": "Espèce top",
+      "avgWeight": "Poids moyen",
+      "bestDay": "Meilleur jour"
+    },
+    "charts": {
+      "catchesByTime": "Prises par heure",
+      "speciesDistribution": "Répartition des espèces",
+      "monthlyActivity": "Activité mensuelle",
+      "moonPhase": "Impact phase lunaire",
+      "pressure": "Impact pression",
+      "weatherConditions": "Conditions météo"
+    },
+    "goldenHour": {
+      "title": "Heure dorée"
+    }
+  },
+  "settings": {
+    "title": "Réglages",
+    "sections": {
+      "app": "Application",
+      "language": "Langue",
+      "appearance": "Apparence",
+      "units": "Unités",
+      "data": "Données",
+      "about": "À propos"
+    },
+    "language": {
+      "label": "Langue",
+      "system": "Système",
+      "en": "English",
+      "fr": "Français"
+    },
+    "theme": {
+      "label": "Thème",
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système"
+    },
+    "units": {
+      "weight": "Poids",
+      "length": "Longueur"
+    },
+    "pwa": {
+      "installApp": "Installer l'app",
+      "installed": "Installée",
+      "notAvailable": "Non disponible",
+      "iosHint": "Appuyez sur {{icon}} puis \"Sur l'écran d'accueil\"",
+      "storageUsed": "Stockage utilisé"
+    },
+    "data": {
+      "exportCsv": "Exporter CSV",
+      "exportCsvSubtitle": "Télécharger toutes vos prises",
+      "loadTestData": "Charger données test",
+      "loadTestDataSubtitle": "Ajouter 20 prises de test",
+      "loadTestDataSuccess": "{{count}} prises de test chargées.",
+      "loadTestDataExists": "Données de test déjà chargées.",
+      "clearData": "Effacer toutes les données",
+      "clearDataSubtitle": "Supprimer définitivement",
+      "clearDataTitle": "Effacer toutes les données ?",
+      "clearDataMessage": "Êtes-vous sûr de vouloir supprimer les {{count}} prises ? Cette action est irréversible.",
+      "clearDataConfirm": "Tout supprimer"
+    },
+    "version": "Catchpoint v0.1.0 (Alpha)"
+  },
+  "catch": {
+    "details": "Détails de la prise",
+    "species": "Espèce",
+    "speciesPlaceholder": "Sélectionner ou saisir l'espèce...",
+    "weight": "Poids",
+    "length": "Longueur",
+    "notes": "Notes",
+    "notesPlaceholder": "Détails sur l'appât, le matériel ou les conditions...",
+    "photo": "Photo",
+    "tapToAddPhoto": "Appuyez pour ajouter une photo",
+    "location": "Position",
+    "weather": "Météo",
+    "noWeatherData": "Pas de données météo",
+    "timestamp": "Date et heure",
+    "unknownSpecies": "Espèce inconnue",
+    "deleteCatch": "Supprimer la prise",
+    "deleteTitle": "Supprimer la prise ?",
+    "deleteMessage": "Êtes-vous sûr de vouloir supprimer cette prise ? Cette action est irréversible.",
+    "deleteConfirm": "Supprimer",
+    "deleteCancel": "Garder",
+    "saving": "Enregistrement...",
+    "notFound": "Prise non trouvée",
+    "loadFailed": "Échec du chargement",
+    "saveFailed": "Échec de l'enregistrement",
+    "deleteFailed": "Échec de la suppression"
+  },
+  "filter": {
+    "title": "Filtres",
+    "species": "Espèce",
+    "allSpecies": "Toutes les espèces",
+    "dateRange": "Période",
+    "allTime": "Tout",
+    "last7Days": "7 derniers jours",
+    "last30Days": "30 derniers jours",
+    "thisYear": "Cette année",
+    "sortBy": "Trier par",
+    "newestFirst": "Plus récent",
+    "oldestFirst": "Plus ancien",
+    "heaviestFirst": "Plus lourd",
+    "lightestFirst": "Plus léger",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser"
+  },
+  "weather": {
+    "pending": "Récupération météo...",
+    "unavailable": "Météo non disponible"
+  },
+  "errors": {
+    "locationDenied": "Accès à la position refusé",
+    "locationUnavailable": "Position non disponible",
+    "weatherFailed": "Impossible de récupérer la météo",
+    "exportFailed": "Échec de l'export",
+    "saveFailed": "Impossible d'enregistrer",
+    "deleteFailed": "Impossible de supprimer"
+  },
+  "pwa": {
+    "offline": "Vous êtes hors ligne",
+    "online": "Connexion rétablie"
+  }
+}

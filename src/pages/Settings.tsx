@@ -10,6 +10,7 @@ import {
   Scale,
   HardDrive,
   Share,
+  Globe,
 } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useCatchStore } from "@/stores/catchStore";
@@ -18,12 +19,16 @@ import { generateTestCatches } from "@/data/testCatches";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import { useStorageQuota } from "@/hooks/useStorageQuota";
+import { useTranslation } from "@/i18n";
 import "@/styles/pages/Settings.css";
 
 export default function Settings() {
+  const { t } = useTranslation();
   const {
     theme,
     setTheme,
+    language,
+    setLanguage,
     weightUnit,
     setWeightUnit,
     lengthUnit,
@@ -63,9 +68,9 @@ export default function Settings() {
       }
     }
     if (addedCount > 0) {
-      alert(`Loaded ${addedCount} test catches.`);
+      alert(t("settings.data.loadTestDataSuccess", { count: addedCount }));
     } else {
-      alert("Test data already loaded.");
+      alert(t("settings.data.loadTestDataExists"));
     }
   };
 
@@ -81,23 +86,27 @@ export default function Settings() {
   return (
     <div className="settings-page">
       <header className="settings-header">
-        <h1 className="settings-title">Settings</h1>
+        <h1 className="settings-title">{t("settings.title")}</h1>
       </header>
 
       <div className="settings-content">
         {/* App Section - PWA Install & Storage */}
         <section className="settings-section">
-          <h2 className="settings-section-title">App</h2>
+          <h2 className="settings-section-title">
+            {t("settings.sections.app")}
+          </h2>
           <div className="settings-card">
             {/* Install Button / Status */}
             <div className="app-row">
               <div className="app-row-label">
                 <Share size={20} />
-                <span>Install App</span>
+                <span>{t("settings.pwa.installApp")}</span>
               </div>
               <div className="app-row-value">
                 {showInstalledBadge && (
-                  <span className="installed-badge">Installed</span>
+                  <span className="installed-badge">
+                    {t("settings.pwa.installed")}
+                  </span>
                 )}
                 {showInstallButton && (
                   <button onClick={handleInstall} className="install-button">
@@ -113,7 +122,9 @@ export default function Settings() {
                 {!showInstalledBadge &&
                   !showInstallButton &&
                   !showIOSInstructions && (
-                    <span className="install-unavailable">Not available</span>
+                    <span className="install-unavailable">
+                      {t("settings.pwa.notAvailable")}
+                    </span>
                   )}
               </div>
             </div>
@@ -122,7 +133,7 @@ export default function Settings() {
             <div className="app-row">
               <div className="app-row-label">
                 <HardDrive size={20} />
-                <span>Storage Used</span>
+                <span>{t("settings.pwa.storageUsed")}</span>
               </div>
               <div className="app-row-value">
                 {quota ? (
@@ -135,9 +146,47 @@ export default function Settings() {
           </div>
         </section>
 
+        {/* Language */}
+        <section className="settings-section">
+          <h2 className="settings-section-title">
+            {t("settings.sections.language")}
+          </h2>
+          <div className="settings-card">
+            <div className="theme-selector">
+              <button
+                onClick={() => setLanguage("system")}
+                className={`theme-option ${language === "system" ? "active" : ""}`}
+              >
+                <Globe size={20} />
+                <span className="theme-option-label">
+                  {t("settings.language.system")}
+                </span>
+              </button>
+              <button
+                onClick={() => setLanguage("en")}
+                className={`theme-option ${language === "en" ? "active" : ""}`}
+              >
+                <span className="theme-option-label">
+                  {t("settings.language.en")}
+                </span>
+              </button>
+              <button
+                onClick={() => setLanguage("fr")}
+                className={`theme-option ${language === "fr" ? "active" : ""}`}
+              >
+                <span className="theme-option-label">
+                  {t("settings.language.fr")}
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
+
         {/* Appearance */}
         <section className="settings-section">
-          <h2 className="settings-section-title">Appearance</h2>
+          <h2 className="settings-section-title">
+            {t("settings.sections.appearance")}
+          </h2>
           <div className="settings-card">
             <div className="theme-selector">
               <button
@@ -145,21 +194,27 @@ export default function Settings() {
                 className={`theme-option ${theme === "light" ? "active" : ""}`}
               >
                 <Sun size={20} />
-                <span className="theme-option-label">Light</span>
+                <span className="theme-option-label">
+                  {t("settings.theme.light")}
+                </span>
               </button>
               <button
                 onClick={() => setTheme("dark")}
                 className={`theme-option ${theme === "dark" ? "active" : ""}`}
               >
                 <Moon size={20} />
-                <span className="theme-option-label">Dark</span>
+                <span className="theme-option-label">
+                  {t("settings.theme.dark")}
+                </span>
               </button>
               <button
                 onClick={() => setTheme("system")}
                 className={`theme-option ${theme === "system" ? "active" : ""}`}
               >
                 <Smartphone size={20} />
-                <span className="theme-option-label">System</span>
+                <span className="theme-option-label">
+                  {t("settings.theme.system")}
+                </span>
               </button>
             </div>
           </div>
@@ -167,12 +222,14 @@ export default function Settings() {
 
         {/* Units */}
         <section className="settings-section">
-          <h2 className="settings-section-title">Units</h2>
+          <h2 className="settings-section-title">
+            {t("settings.sections.units")}
+          </h2>
           <div className="settings-card">
             <div className="unit-row">
               <div className="unit-label">
                 <Scale size={20} />
-                <span>Weight</span>
+                <span>{t("settings.units.weight")}</span>
               </div>
               <div className="unit-toggle">
                 <button
@@ -193,7 +250,7 @@ export default function Settings() {
             <div className="unit-row">
               <div className="unit-label">
                 <Ruler size={20} />
-                <span>Length</span>
+                <span>{t("settings.units.length")}</span>
               </div>
               <div className="unit-toggle">
                 <button
@@ -215,15 +272,19 @@ export default function Settings() {
 
         {/* Data Management */}
         <section className="settings-section">
-          <h2 className="settings-section-title">Data</h2>
+          <h2 className="settings-section-title">
+            {t("settings.sections.data")}
+          </h2>
           <div className="settings-card">
             <button onClick={handleExport} className="action-button">
               <div className="action-icon action-icon--blue">
                 <Download size={18} />
               </div>
               <div className="action-content">
-                <p className="action-title">Export CSV</p>
-                <p className="action-subtitle">Download all your catches</p>
+                <p className="action-title">{t("settings.data.exportCsv")}</p>
+                <p className="action-subtitle">
+                  {t("settings.data.exportCsvSubtitle")}
+                </p>
               </div>
             </button>
 
@@ -232,8 +293,12 @@ export default function Settings() {
                 <Database size={18} />
               </div>
               <div className="action-content">
-                <p className="action-title">Load Test Data</p>
-                <p className="action-subtitle">Add 20 sample catches</p>
+                <p className="action-title">
+                  {t("settings.data.loadTestData")}
+                </p>
+                <p className="action-subtitle">
+                  {t("settings.data.loadTestDataSubtitle")}
+                </p>
               </div>
             </button>
 
@@ -246,27 +311,27 @@ export default function Settings() {
               </div>
               <div className="action-content">
                 <p className="action-title action-title--danger">
-                  Clear All Data
+                  {t("settings.data.clearData")}
                 </p>
                 <p className="action-subtitle action-subtitle--danger">
-                  Permanently delete everything
+                  {t("settings.data.clearDataSubtitle")}
                 </p>
               </div>
             </button>
           </div>
         </section>
 
-        <div className="settings-version">Catchpoint v0.1.0 (Alpha)</div>
+        <div className="settings-version">{t("settings.version")}</div>
       </div>
 
       <ConfirmModal
         isOpen={showClearModal}
         onClose={() => setShowClearModal(false)}
         onConfirm={handleConfirmClear}
-        title="Clear All Data?"
-        message={`Are you sure you want to delete all ${catches.length} catches? This action cannot be undone.`}
-        confirmText="Delete All"
-        cancelText="Cancel"
+        title={t("settings.data.clearDataTitle")}
+        message={t("settings.data.clearDataMessage", { count: catches.length })}
+        confirmText={t("settings.data.clearDataConfirm")}
+        cancelText={t("common.cancel")}
         variant="danger"
       />
     </div>

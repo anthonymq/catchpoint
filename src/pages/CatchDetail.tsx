@@ -23,6 +23,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { useTranslation } from "@/i18n";
 import "../styles/pages/CatchDetail.css";
 
 /** Haptic feedback for actions */
@@ -42,6 +43,7 @@ const triggerHaptic = (type: "success" | "error" | "tap" = "tap") => {
 };
 
 export default function CatchDetail() {
+  const { t, language } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { updateCatch, deleteCatch } = useCatchStore();
@@ -81,10 +83,10 @@ export default function CatchDetail() {
           setNotes(data.notes || "");
           setPhotoUri(data.photoUri);
         } else {
-          setError("Catch not found");
+          setError(t("catch.notFound"));
         }
       } catch (err) {
-        setError("Failed to load catch");
+        setError(t("catch.loadFailed"));
         console.error(err);
       } finally {
         setLoading(false);
@@ -92,7 +94,7 @@ export default function CatchDetail() {
     };
 
     loadCatch();
-  }, [id, weightUnit, lengthUnit]);
+  }, [id, weightUnit, lengthUnit, t]);
 
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -135,7 +137,7 @@ export default function CatchDetail() {
     } catch (err) {
       console.error("Failed to save:", err);
       triggerHaptic("error");
-      setError("Failed to save changes");
+      setError(t("catch.saveFailed"));
       setSaving(false);
     }
   };
@@ -154,7 +156,7 @@ export default function CatchDetail() {
     } catch (err) {
       console.error("Failed to delete:", err);
       triggerHaptic("error");
-      setError("Failed to delete catch");
+      setError(t("catch.deleteFailed"));
     }
   };
 
@@ -165,8 +167,8 @@ export default function CatchDetail() {
           <button className="catch-detail-back" onClick={() => navigate(-1)}>
             <ChevronLeft size={24} />
           </button>
-          <h1 className="catch-detail-title">Catch Details</h1>
-          <div style={{ width: 80 }} />
+          <h1 className="catch-detail-title">{t("catch.details")}</h1>
+          <div className="catch-detail-spacer" />
         </div>
         <div className="catch-detail-content">
           <div className="skeleton skeleton-photo" />
@@ -180,7 +182,7 @@ export default function CatchDetail() {
 
   if (error || !catchData) {
     return (
-      <div className="catch-detail-error">{error || "Catch not found"}</div>
+      <div className="catch-detail-error">{error || t("catch.notFound")}</div>
     );
   }
 
@@ -193,14 +195,14 @@ export default function CatchDetail() {
         <button className="catch-detail-back" onClick={() => navigate(-1)}>
           <ChevronLeft size={24} />
         </button>
-        <h1 className="catch-detail-title">Catch Details</h1>
+        <h1 className="catch-detail-title">{t("catch.details")}</h1>
         <button
           className="catch-detail-save"
           onClick={handleSave}
           disabled={saving}
         >
           <Save size={16} />
-          {saving ? "Saving..." : "Save"}
+          {saving ? t("catch.saving") : t("common.save")}
         </button>
       </div>
 
@@ -215,7 +217,7 @@ export default function CatchDetail() {
           ) : (
             <div className="catch-detail-photo-placeholder">
               <Camera size={48} />
-              <span>Tap to add photo</span>
+              <span>{t("catch.tapToAddPhoto")}</span>
             </div>
           )}
           <div className="catch-detail-photo-overlay" />
@@ -231,12 +233,12 @@ export default function CatchDetail() {
 
         {/* Species */}
         <div className="catch-detail-field">
-          <label className="catch-detail-label">Species</label>
+          <label className="catch-detail-label">{t("catch.species")}</label>
           <input
             list="species-list"
             value={species}
             onChange={(e) => setSpecies(e.target.value)}
-            placeholder="Select or type species..."
+            placeholder={t("catch.speciesPlaceholder")}
             className="catch-detail-input"
           />
           <datalist id="species-list">
@@ -249,7 +251,9 @@ export default function CatchDetail() {
         {/* Measurements */}
         <div className="catch-detail-measurements">
           <div className="catch-detail-field">
-            <label className="catch-detail-label">Weight ({weightUnit})</label>
+            <label className="catch-detail-label">
+              {t("catch.weight")} ({weightUnit})
+            </label>
             <input
               type="number"
               inputMode="decimal"
@@ -261,7 +265,9 @@ export default function CatchDetail() {
             />
           </div>
           <div className="catch-detail-field">
-            <label className="catch-detail-label">Length ({lengthUnit})</label>
+            <label className="catch-detail-label">
+              {t("catch.length")} ({lengthUnit})
+            </label>
             <input
               type="number"
               inputMode="decimal"
@@ -278,7 +284,7 @@ export default function CatchDetail() {
         <div className="catch-detail-info">
           <div className="catch-detail-info-row">
             <Calendar size={18} />
-            <span>{formatCatchDate(catchData.timestamp)}</span>
+            <span>{formatCatchDate(catchData.timestamp, language)}</span>
           </div>
           <div className="catch-detail-info-row">
             <MapPin size={18} />
@@ -296,10 +302,10 @@ export default function CatchDetail() {
               ) : (
                 <Cloud size={18} />
               )}
-              <span style={{ textTransform: "capitalize" }}>
+              <span className="catch-detail-weather-text">
                 {weather.weatherDescription ||
                   weather.weatherCondition ||
-                  "No weather data"}
+                  t("catch.noWeatherData")}
                 {weather.temperature && `, ${Math.round(weather.temperature)}°`}
               </span>
             </div>
@@ -308,11 +314,11 @@ export default function CatchDetail() {
 
         {/* Notes */}
         <div className="catch-detail-field">
-          <label className="catch-detail-label">Notes</label>
+          <label className="catch-detail-label">{t("catch.notes")}</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Add details about bait, gear, or conditions..."
+            placeholder={t("catch.notesPlaceholder")}
             rows={4}
             className="catch-detail-textarea"
           />
@@ -321,7 +327,7 @@ export default function CatchDetail() {
         {/* Delete Button */}
         <button className="catch-detail-delete" onClick={handleDeleteClick}>
           <Trash2 size={18} />
-          Delete Catch
+          {t("catch.deleteCatch")}
         </button>
       </div>
 
@@ -329,10 +335,10 @@ export default function CatchDetail() {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Catch?"
-        message="Are you sure you want to delete this catch? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Keep"
+        title={t("catch.deleteTitle")}
+        message={t("catch.deleteMessage")}
+        confirmText={t("catch.deleteConfirm")}
+        cancelText={t("catch.deleteCancel")}
         variant="danger"
       />
     </div>

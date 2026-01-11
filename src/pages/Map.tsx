@@ -13,6 +13,7 @@ import { useFilterStore } from "../stores/filterStore";
 import { useFilteredCatches } from "../hooks/useFilteredCatches";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { FilterModal } from "../components/FilterModal";
+import { useTranslation } from "@/i18n";
 import { Filter, WifiOff, AlertTriangle, MapPin, Flame } from "lucide-react";
 import { format } from "date-fns";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -32,6 +33,7 @@ interface PopupInfo {
 }
 
 export default function MapPage() {
+  const { t } = useTranslation();
   const { fetchCatches } = useCatchStore();
   const { activeFilterCount } = useFilterStore();
   const filteredCatches = useFilteredCatches();
@@ -65,14 +67,14 @@ export default function MapPage() {
         },
         properties: {
           id: c.id,
-          species: c.species || "Unknown",
+          species: c.species || t("catch.unknownSpecies"),
           weight: c.weight,
           timestamp: c.timestamp,
           photoUri: c.photoUri,
         },
       })),
     };
-  }, [filteredCatches]);
+  }, [filteredCatches, t]);
 
   const onClick = useCallback((event: MapLayerMouseEvent) => {
     if (!event.features || event.features.length === 0) return;
@@ -126,13 +128,11 @@ export default function MapPage() {
           e.error?.message?.includes("NetworkError")
         ) {
           setHasMapError(true);
-          setMapErrorMessage(
-            "Map tiles unavailable. Previously viewed areas may still be accessible.",
-          );
+          setMapErrorMessage(t("map.offline"));
         }
       }
     },
-    [isOnline],
+    [isOnline, t],
   );
 
   const handleRetry = useCallback(() => {
@@ -161,7 +161,7 @@ export default function MapPage() {
     return (
       <div className="map-unavailable">
         <AlertTriangle size={48} className="map-error-icon" />
-        <h2>Map Unavailable Offline</h2>
+        <h2>{t("map.offline")}</h2>
         <p>{mapErrorMessage}</p>
         <p className="map-hint">
           Browse the map while online to cache tiles for offline use.
@@ -183,7 +183,7 @@ export default function MapPage() {
       {!isOnline && (
         <div className="map-offline-banner" role="status" aria-live="polite">
           <WifiOff size={16} />
-          <span>Offline - Showing cached map tiles</span>
+          <span>{t("pwa.offline")}</span>
         </div>
       )}
 
@@ -340,7 +340,7 @@ export default function MapPage() {
               </p>
               {popupInfo.weight && (
                 <p className="map-popup-detail">
-                  Weight: {popupInfo.weight} lbs
+                  {t("catch.weight")}: {popupInfo.weight} lbs
                 </p>
               )}
               {popupInfo.photoUri && (
@@ -376,7 +376,7 @@ export default function MapPage() {
           aria-pressed={viewMode === "markers"}
         >
           <MapPin size={18} />
-          <span>Markers</span>
+          <span>{t("map.showMarkers")}</span>
         </button>
         <button
           className={`btn-view-mode ${viewMode === "heatmap" ? "active" : ""}`}
@@ -385,7 +385,7 @@ export default function MapPage() {
           aria-pressed={viewMode === "heatmap"}
         >
           <Flame size={18} />
-          <span>Heatmap</span>
+          <span>{t("map.showHeatmap")}</span>
         </button>
       </div>
 

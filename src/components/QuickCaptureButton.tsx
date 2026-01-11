@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { Fish, Check } from "lucide-react";
 import { useQuickCapture } from "../hooks/useQuickCapture";
+import { useTranslation } from "@/i18n";
 import "../styles/components/QuickCaptureButton.css";
 
 export const QuickCaptureButton = () => {
+  const { t } = useTranslation();
   const { capture, isCapturing } = useQuickCapture();
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -54,7 +56,7 @@ export const QuickCaptureButton = () => {
             <div className="icon">
               <Fish size={64} />
             </div>
-            <span className="label">FISH ON!</span>
+            <span className="label">{t("capture.button")}</span>
           </>
         )}
 
@@ -64,10 +66,10 @@ export const QuickCaptureButton = () => {
       </button>
 
       {/* Helper text */}
-      <p className="text-center" style={{ opacity: 0.7, marginTop: "1rem" }}>
+      <p className="text-center quick-capture-helper-text">
         {isCapturing && !showSuccess
-          ? "Saving location..."
-          : "Tap to log catch"}
+          ? t("capture.savingLocation")
+          : t("capture.tapToLog")}
       </p>
     </div>
   );

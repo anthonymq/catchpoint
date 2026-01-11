@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
 import { Home, Fish, Map as MapIcon, BarChart2, Settings } from "lucide-react";
 import clsx from "clsx";
+import { useTranslation } from "@/i18n";
 import "../styles/components/BottomNav.css";
 
 /** Light haptic tap for navigation */
@@ -10,16 +11,17 @@ const triggerHaptic = () => {
   }
 };
 
-const navItems = [
-  { to: "/", icon: Home, label: "Home" },
-  { to: "/log", icon: Fish, label: "Log" },
-  { to: "/map", icon: MapIcon, label: "Map" },
-  { to: "/stats", icon: BarChart2, label: "Stats" },
-  { to: "/settings", icon: Settings, label: "Settings" },
-];
-
 export default function BottomNav() {
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { to: "/", icon: Home, labelKey: "nav.home" },
+    { to: "/log", icon: Fish, labelKey: "nav.log" },
+    { to: "/map", icon: MapIcon, labelKey: "nav.map" },
+    { to: "/stats", icon: BarChart2, labelKey: "nav.stats" },
+    { to: "/settings", icon: Settings, labelKey: "nav.settings" },
+  ];
 
   // Calculate active index for sliding indicator
   const activeIndex = navItems.findIndex((item) => {
@@ -39,7 +41,7 @@ export default function BottomNav() {
         }}
       />
 
-      {navItems.map(({ to, icon: Icon, label }) => (
+      {navItems.map(({ to, icon: Icon, labelKey }) => (
         <NavLink
           key={to}
           to={to}
@@ -47,7 +49,7 @@ export default function BottomNav() {
           onClick={triggerHaptic}
         >
           <Icon size={24} />
-          <span className="nav-label">{label}</span>
+          <span className="nav-label">{t(labelKey)}</span>
         </NavLink>
       ))}
     </nav>

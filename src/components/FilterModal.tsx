@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { useFilterStore } from "../stores/filterStore";
 import { useFilteredCatches } from "../hooks/useFilteredCatches";
 import { SPECIES_LIST } from "../data/species";
+import { useTranslation } from "@/i18n";
 import "../styles/components/FilterModal.css";
 
 interface FilterModalProps {
@@ -10,6 +11,7 @@ interface FilterModalProps {
 }
 
 export function FilterModal({ isOpen, onClose }: FilterModalProps) {
+  const { t } = useTranslation();
   const {
     dateRange,
     species,
@@ -30,7 +32,7 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
     <div className="filter-modal-overlay" onClick={onClose}>
       <div className="filter-modal" onClick={(e) => e.stopPropagation()}>
         <div className="filter-header">
-          <h3 className="filter-title">Filter Catches</h3>
+          <h3 className="filter-title">{t("filter.title")}</h3>
           <button className="filter-close" onClick={onClose}>
             <X size={24} />
           </button>
@@ -39,63 +41,65 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
         <div className="filter-body">
           {/* Date Range Section */}
           <div className="filter-section">
-            <h4 className="filter-section-title">Date Range</h4>
+            <h4 className="filter-section-title">{t("filter.dateRange")}</h4>
             <div className="filter-chips">
               <button
                 className={`filter-chip ${dateRange === "all" ? "active" : ""}`}
                 onClick={() => setDateRange("all")}
               >
-                All Time
+                {t("filter.allTime")}
               </button>
               <button
                 className={`filter-chip ${dateRange === "7d" ? "active" : ""}`}
                 onClick={() => setDateRange("7d")}
               >
-                Last 7 Days
+                {t("filter.last7Days")}
               </button>
               <button
                 className={`filter-chip ${dateRange === "30d" ? "active" : ""}`}
                 onClick={() => setDateRange("30d")}
               >
-                Last 30 Days
+                {t("filter.last30Days")}
               </button>
               <button
                 className={`filter-chip ${dateRange === "1y" ? "active" : ""}`}
                 onClick={() => setDateRange("1y")}
               >
-                Last Year
+                {t("filter.thisYear")}
               </button>
             </div>
           </div>
 
           {/* Has Photo Section */}
           <div className="filter-section">
-            <h4 className="filter-section-title">Photo</h4>
+            <h4 className="filter-section-title">{t("catch.photo")}</h4>
             <div className="filter-chips">
               <button
                 className={`filter-chip ${hasPhoto === "all" ? "active" : ""}`}
                 onClick={() => setHasPhoto("all")}
               >
-                All
+                {t("filter.allSpecies")}
               </button>
               <button
                 className={`filter-chip ${hasPhoto === "yes" ? "active" : ""}`}
                 onClick={() => setHasPhoto("yes")}
               >
-                With Photo
+                {t("common.yes")}
               </button>
               <button
                 className={`filter-chip ${hasPhoto === "no" ? "active" : ""}`}
                 onClick={() => setHasPhoto("no")}
               >
-                No Photo
+                {t("common.no")}
               </button>
             </div>
           </div>
 
           {/* Species Section */}
           <div className="filter-section">
-            <h4 className="filter-section-title">Species ({species.length})</h4>
+            <h4 className="filter-section-title">
+              {t("filter.species")} ({species.length})
+            </h4>
             <div className="species-grid">
               {SPECIES_LIST.map((item) => (
                 <label key={item} className="species-item">
@@ -113,10 +117,12 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
 
         <div className="filter-footer">
           <button className="btn-reset" onClick={resetFilters}>
-            Reset All
+            {t("filter.reset")}
           </button>
           <button className="btn-apply" onClick={onClose}>
-            Show {resultCount} {resultCount === 1 ? "Catch" : "Catches"}
+            {resultCount === 1
+              ? t("log.catchesSingular", { count: 1 })
+              : t("log.catches", { count: resultCount })}
           </button>
         </div>
       </div>

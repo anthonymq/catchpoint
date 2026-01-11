@@ -9,6 +9,7 @@ import { FilterModal } from "../components/FilterModal";
 import { ConfirmModal } from "../components/ConfirmModal";
 import { db } from "../db";
 import { generateTestCatches } from "../data/testCatches";
+import { useTranslation } from "@/i18n";
 import "../styles/pages/Log.css";
 
 function SkeletonCard() {
@@ -36,6 +37,7 @@ function LogSkeleton() {
 }
 
 export default function Log() {
+  const { t } = useTranslation();
   const {
     fetchCatches,
     deleteCatch,
@@ -69,8 +71,8 @@ export default function Log() {
       <div className="log-page">
         <div className="log-header">
           <div>
-            <h1 className="log-title">Catch Log</h1>
-            <p className="log-subtitle">Loading...</p>
+            <h1 className="log-title">{t("log.title")}</h1>
+            <p className="log-subtitle">{t("common.loading")}</p>
           </div>
         </div>
         <div className="log-list">
@@ -95,29 +97,26 @@ export default function Log() {
         <div className="log-empty-icon">
           <Fish size={64} />
         </div>
-        <h2 className="log-empty-title">No catches yet!</h2>
-        <p className="log-empty-text">
-          Tap <strong>"FISH ON!"</strong> on the home screen to log your first
-          catch.
-        </p>
+        <h2 className="log-empty-title">{t("log.empty.title")}</h2>
+        <p className="log-empty-text">{t("log.empty.description")}</p>
 
         <Link to="/" className="btn-primary log-empty-cta">
-          Start Fishing
+          {t("log.empty.cta")}
         </Link>
 
         {/* Dev only */}
         <button onClick={handleLoadTestDataClick} className="btn-link">
-          [DEV] Load Test Data
+          {t("log.loadTestData")}
         </button>
 
         <ConfirmModal
           isOpen={showTestDataModal}
           onClose={() => setShowTestDataModal(false)}
           onConfirm={handleConfirmLoadTestData}
-          title="Load Test Data?"
-          message="This will add 20 sample catches to your log for testing purposes."
-          confirmText="Load Data"
-          cancelText="Cancel"
+          title={t("log.loadTestDataTitle")}
+          message={t("log.loadTestDataMessage")}
+          confirmText={t("log.loadTestDataConfirm")}
+          cancelText={t("common.cancel")}
           variant="info"
         />
       </div>
@@ -126,16 +125,23 @@ export default function Log() {
 
   const activeFilters = activeFilterCount();
 
+  // Format catches count text
+  const catchesText =
+    allCatches.length !== filteredCatches.length
+      ? t("log.catchesOf", {
+          filtered: filteredCatches.length,
+          total: allCatches.length,
+        })
+      : filteredCatches.length === 1
+        ? t("log.catchesSingular", { count: 1 })
+        : t("log.catches", { count: filteredCatches.length });
+
   return (
     <div className="log-page">
       <div className="log-header">
         <div>
-          <h1 className="log-title">Catch Log</h1>
-          <p className="log-subtitle">
-            {filteredCatches.length} catches
-            {allCatches.length !== filteredCatches.length &&
-              ` (of ${allCatches.length})`}
-          </p>
+          <h1 className="log-title">{t("log.title")}</h1>
+          <p className="log-subtitle">{catchesText}</p>
         </div>
         <button
           className="btn-icon"
@@ -152,12 +158,12 @@ export default function Log() {
       <div className="log-list">
         {filteredCatches.length === 0 ? (
           <div className="text-center p-8 text-muted">
-            <p>No catches match your filters.</p>
+            <p>{t("log.noMatches")}</p>
             <button
               className="btn-link mt-2"
               onClick={() => useFilterStore.getState().resetFilters()}
             >
-              Clear Filters
+              {t("log.clearFilters")}
             </button>
           </div>
         ) : (

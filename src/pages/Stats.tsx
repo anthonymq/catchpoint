@@ -6,20 +6,15 @@ import { CatchesByMonthChart } from "../components/stats/CatchesByMonthChart";
 import { CatchesByTimeChart } from "../components/stats/CatchesByTimeChart";
 import { MoonPhaseChart } from "../components/stats/MoonPhaseChart";
 import { PressureChart } from "../components/stats/PressureChart";
+import { useTranslation } from "@/i18n";
 import "../styles/pages/Stats.css";
 
 // Skeleton loading components
 function StatCardSkeleton() {
   return (
     <div className="stat-card stat-card--skeleton">
-      <div
-        className="skeleton-line skeleton-shimmer"
-        style={{ width: "60%", height: "12px" }}
-      />
-      <div
-        className="skeleton-line skeleton-shimmer"
-        style={{ width: "80%", height: "24px", marginTop: "8px" }}
-      />
+      <div className="skeleton-line skeleton-shimmer stat-skeleton-label" />
+      <div className="skeleton-line skeleton-shimmer stat-skeleton-value" />
     </div>
   );
 }
@@ -35,10 +30,10 @@ function ChartCardSkeleton({ title }: { title: string }) {
   );
 }
 
-function StatsSkeleton() {
+function StatsSkeleton({ t }: { t: (key: string) => string }) {
   return (
     <div className="stats-page">
-      <h1 className="stats-header">Statistics</h1>
+      <h1 className="stats-header">{t("stats.title")}</h1>
 
       <div className="stats-summary-grid">
         <StatCardSkeleton />
@@ -47,17 +42,18 @@ function StatsSkeleton() {
         <StatCardSkeleton />
       </div>
 
-      <ChartCardSkeleton title="Catches by Time" />
+      <ChartCardSkeleton title={t("stats.charts.catchesByTime")} />
 
       <div className="charts-grid">
-        <ChartCardSkeleton title="Species Distribution" />
-        <ChartCardSkeleton title="Monthly Activity" />
+        <ChartCardSkeleton title={t("stats.charts.speciesDistribution")} />
+        <ChartCardSkeleton title={t("stats.charts.monthlyActivity")} />
       </div>
     </div>
   );
 }
 
 export default function Stats() {
+  const { t } = useTranslation();
   const { catches, fetchCatches, loading } = useCatchStore();
   const [hasLoaded, setHasLoaded] = useState(false);
 
@@ -74,42 +70,44 @@ export default function Stats() {
 
   // Show skeleton on initial load
   if (loading && !hasLoaded) {
-    return <StatsSkeleton />;
+    return <StatsSkeleton t={t} />;
   }
 
   if (!stats) {
     return (
       <div className="stats-empty">
         <div className="stats-empty-icon">📊</div>
-        <h2 className="stats-empty-title">No statistics yet</h2>
-        <p className="stats-empty-text">
-          Log your first catch to see insights about your fishing habits.
-        </p>
+        <h2 className="stats-empty-title">{t("stats.empty.title")}</h2>
+        <p className="stats-empty-text">{t("stats.empty.description")}</p>
       </div>
     );
   }
 
   return (
     <div className="stats-page">
-      <h1 className="stats-header">Statistics</h1>
+      <h1 className="stats-header">{t("stats.title")}</h1>
 
       {/* Summary Cards */}
       <div className="stats-summary-grid">
-        <StatCard label="Total Catches" value={stats.totalCatches} icon="🎣" />
         <StatCard
-          label="Top Species"
+          label={t("stats.cards.totalCatches")}
+          value={stats.totalCatches}
+          icon="🎣"
+        />
+        <StatCard
+          label={t("stats.cards.topSpecies")}
           value={stats.topSpecies[0]?.species || "-"}
           icon="🐟"
         />
         <StatCard
-          label="Avg Weight"
+          label={t("stats.cards.avgWeight")}
           value={
             stats.averageWeight ? `${stats.averageWeight.toFixed(1)} lb` : "-"
           }
           icon="⚖️"
         />
         <StatCard
-          label="Best Day"
+          label={t("stats.cards.bestDay")}
           value={
             stats.bestDay?.date
               ? new Date(stats.bestDay.date).toLocaleDateString(undefined, {
@@ -127,7 +125,9 @@ export default function Stats() {
           <div className="golden-hour-content">
             <span className="golden-hour-icon">🌅</span>
             <div>
-              <h3 className="golden-hour-title">Golden Hour</h3>
+              <h3 className="golden-hour-title">
+                {t("stats.goldenHour.title")}
+              </h3>
               <p className="golden-hour-text">
                 {stats.goldenHourInsight.insightText}
               </p>
@@ -137,33 +137,35 @@ export default function Stats() {
       )}
 
       {/* Charts */}
-      <ChartCard title="Catches by Time">
+      <ChartCard title={t("stats.charts.catchesByTime")}>
         <CatchesByTimeChart data={stats.catchesByHour} />
       </ChartCard>
 
       <div className="charts-grid">
-        <ChartCard title="Species Distribution" variant="pie">
+        <ChartCard title={t("stats.charts.speciesDistribution")} variant="pie">
           <SpeciesChart data={stats.topSpecies} />
         </ChartCard>
 
-        <ChartCard title="Monthly Activity">
+        <ChartCard title={t("stats.charts.monthlyActivity")}>
           <CatchesByMonthChart data={stats.catchesByMonth} />
         </ChartCard>
       </div>
 
       {/* Moon Phase Impact Chart */}
-      <ChartCard title="Moon Phase Impact">
+      <ChartCard title={t("stats.charts.moonPhase")}>
         <MoonPhaseChart data={stats.catchesByMoonPhase} />
       </ChartCard>
 
       {/* Barometric Pressure Impact Chart */}
-      <ChartCard title="Pressure Impact">
+      <ChartCard title={t("stats.charts.pressure")}>
         <PressureChart data={stats.catchesByPressureTrend} />
       </ChartCard>
 
       {/* Weather Stats */}
       <div className="weather-stats-card">
-        <h3 className="weather-stats-title">Weather Conditions</h3>
+        <h3 className="weather-stats-title">
+          {t("stats.charts.weatherConditions")}
+        </h3>
         <div className="weather-stats-grid">
           {stats.catchesBySkyCondition.map((item) => (
             <div key={item.condition} className="weather-stat-item">

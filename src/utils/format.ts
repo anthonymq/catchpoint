@@ -1,20 +1,48 @@
-import { format, isToday, isYesterday, isThisYear } from "date-fns";
+import { isToday, isYesterday, isThisYear } from "date-fns";
+import type { Language } from "@/i18n/types";
 
-export const formatCatchDate = (date: Date): string => {
+/**
+ * Format catch date with locale support.
+ * Uses Intl.DateTimeFormat for proper localization.
+ */
+export const formatCatchDate = (date: Date, locale?: Language): string => {
+  const lang = locale ?? "en";
+
+  const timeFormat = new Intl.DateTimeFormat(lang, {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: lang === "en",
+  });
+
+  const time = timeFormat.format(date);
+
   if (isToday(date)) {
-    return `Today at ${format(date, "h:mm a")}`;
+    return lang === "fr" ? `Aujourd'hui à ${time}` : `Today at ${time}`;
   }
   if (isYesterday(date)) {
-    return `Yesterday at ${format(date, "h:mm a")}`;
+    return lang === "fr" ? `Hier à ${time}` : `Yesterday at ${time}`;
   }
   if (isThisYear(date)) {
-    return format(date, "MMM d 'at' h:mm a");
+    const dateFormat = new Intl.DateTimeFormat(lang, {
+      month: "short",
+      day: "numeric",
+    });
+    const dateStr = dateFormat.format(date);
+    return lang === "fr" ? `${dateStr} à ${time}` : `${dateStr} at ${time}`;
   }
-  return format(date, "MMM d, yyyy");
+
+  const fullFormat = new Intl.DateTimeFormat(lang, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  return fullFormat.format(date);
 };
 
 export const formatCoordinates = (lat: number, lon: number): string => {
-  return `${lat.toFixed(4)}°N, ${lon.toFixed(4)}°W`;
+  const latDir = lat >= 0 ? "N" : "S";
+  const lonDir = lon >= 0 ? "E" : "W";
+  return `${Math.abs(lat).toFixed(4)}°${latDir}, ${Math.abs(lon).toFixed(4)}°${lonDir}`;
 };
 
 export const formatWeight = (
@@ -60,4 +88,12 @@ export const toBaseLength = (value: number, fromUnit: "in" | "cm"): number => {
 export const toDisplayLength = (value: number, toUnit: "in" | "cm"): number => {
   if (toUnit === "cm") return value * 2.54;
   return value;
+};
+
+/**
+ * Format a number with locale-appropriate separators.
+ */
+export const formatNumber = (num: number, locale?: Language): string => {
+  const lang = locale ?? "en";
+  return new Intl.NumberFormat(lang).format(num);
 };

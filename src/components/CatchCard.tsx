@@ -8,6 +8,7 @@ import {
   formatWeight,
 } from "../utils/format";
 import { ConfirmModal } from "./ConfirmModal";
+import { useTranslation } from "@/i18n";
 import "../styles/components/CatchCard.css";
 
 interface CatchCardProps {
@@ -21,6 +22,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
   onDelete,
   onClick,
 }) => {
+  const { t, language } = useTranslation();
   const { weightUnit } = useSettingsStore();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -43,6 +45,8 @@ export const CatchCard: React.FC<CatchCardProps> = ({
     }
   };
 
+  const speciesName = catchData.species || t("catch.unknownSpecies");
+
   return (
     <div
       ref={cardRef}
@@ -53,7 +57,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
         {catchData.photoUri ? (
           <img
             src={catchData.photoUri}
-            alt={catchData.species || "Catch photo"}
+            alt={speciesName}
             className="catch-card-image"
           />
         ) : (
@@ -64,9 +68,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
       </div>
 
       <div className="catch-card-content">
-        <div className="catch-card-species">
-          {catchData.species || "Unknown Species"}
-        </div>
+        <div className="catch-card-species">{speciesName}</div>
 
         <div className="catch-card-detail">
           <Scale size={14} />
@@ -75,7 +77,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
 
         <div className="catch-card-detail">
           <Calendar size={14} />
-          <span>{formatCatchDate(catchData.timestamp)}</span>
+          <span>{formatCatchDate(catchData.timestamp, language)}</span>
         </div>
 
         <div className="catch-card-detail">
@@ -91,7 +93,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
           <button
             className="catch-card-delete-btn"
             onClick={handleDeleteClick}
-            aria-label="Delete catch"
+            aria-label={t("common.delete")}
           >
             <Trash2 size={20} />
           </button>
@@ -102,10 +104,10 @@ export const CatchCard: React.FC<CatchCardProps> = ({
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
-        title="Delete Catch?"
-        message={`Are you sure you want to delete this ${catchData.species || "catch"}? This action cannot be undone.`}
-        confirmText="Delete"
-        cancelText="Keep"
+        title={t("catch.deleteTitle")}
+        message={t("catch.deleteMessage")}
+        confirmText={t("catch.deleteConfirm")}
+        cancelText={t("catch.deleteCancel")}
         variant="danger"
       />
     </div>
