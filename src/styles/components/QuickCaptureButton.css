@@ -162,7 +162,7 @@
   transform: scale(0.9);
 }
 
-/* Label with premium text styling + breathing animation */
+/* Label with premium text styling */
 .quick-capture-btn .label {
   font-size: 1.4rem;
   font-weight: 800;
@@ -171,25 +171,6 @@
   text-shadow:
     0 2px 4px rgba(0, 0, 0, 0.3),
     0 4px 8px rgba(0, 0, 0, 0.15);
-  animation: labelBreathe 2.5s ease-in-out infinite;
-}
-
-/* Subtle breathing animation - makes button feel alive */
-@keyframes labelBreathe {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-}
-
-/* Pause breathing during active states */
-.quick-capture-btn.capturing .label,
-.quick-capture-btn.success .label,
-.quick-capture-btn.error .label {
-  animation: none;
 }
 
 /* ============================================================================

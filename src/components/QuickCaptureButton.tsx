@@ -49,10 +49,14 @@ export const QuickCaptureButton = () => {
         onClick={handlePress}
         aria-label="Quick Catch"
       >
-        <div className="icon">
-          {showSuccess ? <Check size={64} /> : <Fish size={64} />}
-        </div>
-        <span className="label">{showSuccess ? "CAUGHT!" : "FISH ON!"}</span>
+        {!showSuccess && (
+          <>
+            <div className="icon">
+              <Fish size={64} />
+            </div>
+            <span className="label">FISH ON!</span>
+          </>
+        )}
 
         <div className="success-overlay">
           <Check size={80} color="white" strokeWidth={3} />
