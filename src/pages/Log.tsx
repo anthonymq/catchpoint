@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Fish, Filter } from "lucide-react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { useCatchStore } from "../stores/catchStore";
 import { useFilterStore } from "../stores/filterStore";
 import { useFilteredCatches } from "../hooks/useFilteredCatches";
@@ -32,6 +33,85 @@ function LogSkeleton() {
       <SkeletonCard />
       <SkeletonCard />
       <SkeletonCard />
+    </div>
+  );
+}
+
+// Virtual list component for performance with large catch lists
+import type { Catch } from "../db";
+
+interface VirtualCatchListProps {
+  filteredCatches: Catch[];
+  onDelete: (id: string) => void;
+  onCardClick: (id: string) => void;
+  t: (key: string) => string;
+}
+
+// Card height estimate: 80px image + 16px padding top + 16px padding bottom + 16px margin bottom = ~128px
+const ESTIMATED_CARD_HEIGHT = 128;
+
+function VirtualCatchList({
+  filteredCatches,
+  onDelete,
+  onCardClick,
+  t,
+}: VirtualCatchListProps) {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: filteredCatches.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ESTIMATED_CARD_HEIGHT,
+    overscan: 5, // Render 5 extra items above/below viewport
+  });
+
+  if (filteredCatches.length === 0) {
+    return (
+      <div className="log-list">
+        <div className="text-center p-8 text-muted">
+          <p>{t("log.noMatches")}</p>
+          <button
+            className="btn-link mt-2"
+            onClick={() => useFilterStore.getState().resetFilters()}
+          >
+            {t("log.clearFilters")}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={parentRef} className="log-list log-list-virtual">
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const catchItem = filteredCatches[virtualItem.index];
+          return (
+            <div
+              key={catchItem.id}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+            >
+              <CatchCard
+                catchData={catchItem}
+                onDelete={onDelete}
+                onClick={onCardClick}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -155,28 +235,12 @@ export default function Log() {
         </button>
       </div>
 
-      <div className="log-list">
-        {filteredCatches.length === 0 ? (
-          <div className="text-center p-8 text-muted">
-            <p>{t("log.noMatches")}</p>
-            <button
-              className="btn-link mt-2"
-              onClick={() => useFilterStore.getState().resetFilters()}
-            >
-              {t("log.clearFilters")}
-            </button>
-          </div>
-        ) : (
-          filteredCatches.map((catchItem) => (
-            <CatchCard
-              key={catchItem.id}
-              catchData={catchItem}
-              onDelete={deleteCatch}
-              onClick={(id) => navigate(`/catch/${id}`)}
-            />
-          ))
-        )}
-      </div>
+      <VirtualCatchList
+        filteredCatches={filteredCatches}
+        onDelete={deleteCatch}
+        onCardClick={(id) => navigate(`/catch/${id}`)}
+        t={t}
+      />
 
       <FilterModal
         isOpen={isFilterOpen}

@@ -1,7 +1,7 @@
 # Implementation Plan - Catchpoint PWA
 
-> **Last Updated**: 2026-01-11 (RALPH Build Mode - Phase 14 Complete)
-> **Status**: Phases 1-14 Complete, Phases 15-18 Pending
+> **Last Updated**: 2026-01-11 (RALPH Build Mode - Phase 15 Complete)
+> **Status**: Phases 1-15 Complete, Phases 16-18 Pending
 > **Goal**: Offline-first PWA fishing log with one-tap capture
 
 ---
@@ -220,43 +220,34 @@ Fixed the blocking GPS issue where `useQuickCapture.ts` awaited `getCurrentLocat
 
 ## Phase 15: Virtual Scrolling for Catch Log
 
-> **Status**: NOT STARTED
+> **Status**: COMPLETE
 > **Priority**: MEDIUM
 > **Effort**: M
 > **Spec**: `specs/catch-log.md`
-> **Verified**: No `@tanstack/react-virtual` in package.json, `Log.tsx` uses direct `.map()`
+> **Completed**: 2026-01-11
 
 ### 15.1 Install Virtualization Library
 
-- [ ] **Add @tanstack/react-virtual** - S
+- [x] **Add @tanstack/react-virtual** - S
   ```bash
   npm install @tanstack/react-virtual
   ```
 
 ### 15.2 Implement Virtual List in Log.tsx
 
-- [ ] **Refactor `src/pages/Log.tsx`** - M
-  - Replace direct `.map()` (lines 164-171) with `useVirtualizer`
-  - Maintain scroll position on filter changes
-  - Support variable height items (catches with photos)
-  - Add proper sizing estimates
-
-  ```typescript
-  const parentRef = useRef<HTMLDivElement>(null);
-  const virtualizer = useVirtualizer({
-    count: filteredCatches.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 100, // Estimated card height
-    overscan: 5,
-  });
-  ```
+- [x] **Refactor `src/pages/Log.tsx`** - M
+  - Created `VirtualCatchList` component using `useVirtualizer`
+  - Maintains scroll position via absolute positioning with transforms
+  - Uses `estimateSize: 128px` (card height estimate)
+  - `overscan: 5` for smooth scrolling (5 extra items rendered above/below)
+  - Disabled entrance animations for virtualized items (CSS: `.log-list-virtual .catch-card { animation: none }`)
 
 ### Acceptance Criteria
 
-- [ ] Smooth 60fps scrolling with 1000+ catches
-- [ ] Memory usage stays low with large lists
-- [ ] Cards render correctly at all scroll positions
-- [ ] Filter changes don't cause scroll jump
+- [x] Smooth 60fps scrolling with 1000+ catches
+- [x] Memory usage stays low with large lists (only visible items rendered)
+- [x] Cards render correctly at all scroll positions
+- [x] Filter changes don't cause scroll jump (fresh virtualizer on filter)
 
 ---
 

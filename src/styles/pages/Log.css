@@ -78,6 +78,11 @@
   padding-bottom: 6rem;
 }
 
+/* Virtual list styles - disable entrance animations for virtualized items */
+.log-list-virtual .catch-card {
+  animation: none;
+}
+
 /* ============================================================================
    List Entrance Animation
    ============================================================================ */
