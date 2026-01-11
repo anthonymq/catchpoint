@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useCatchStore } from "../stores/catchStore";
 import { getCurrentLocation } from "../services/location";
+import { syncService } from "../services/sync";
 
 export const useQuickCapture = () => {
   const [isCapturing, setIsCapturing] = useState(false);
@@ -45,8 +46,10 @@ export const useQuickCapture = () => {
       // 4. Optimistic Save (Store updates immediately, DB in background)
       await addCatch(newCatch);
 
-      // Weather sync would be triggered here or via a service listening to store changes
-      // For now, we just flag it as pending.
+      // 5. Trigger weather sync if online (don't await - let it run in background)
+      if (navigator.onLine) {
+        syncService.processWeatherQueue();
+      }
     } catch (error) {
       console.error("Capture failed:", error);
       // In a real app, we might want to surface this error to the user if it was a critical failure
