@@ -13,10 +13,12 @@ import { useFilterStore } from "../stores/filterStore";
 import { useFilteredCatches } from "../hooks/useFilteredCatches";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { FilterModal } from "../components/FilterModal";
-import { Filter, WifiOff, AlertTriangle } from "lucide-react";
+import { Filter, WifiOff, AlertTriangle, MapPin, Flame } from "lucide-react";
 import { format } from "date-fns";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "../styles/pages/Map.css";
+
+type ViewMode = "markers" | "heatmap";
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -38,6 +40,7 @@ export default function MapPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [hasMapError, setHasMapError] = useState(false);
   const [mapErrorMessage, setMapErrorMessage] = useState<string>("");
+  const [viewMode, setViewMode] = useState<ViewMode>("markers");
 
   useEffect(() => {
     fetchCatches();
@@ -192,75 +195,135 @@ export default function MapPage() {
         }}
         mapStyle="mapbox://styles/mapbox/outdoors-v12"
         mapboxAccessToken={MAPBOX_TOKEN}
-        interactiveLayerIds={["clusters", "unclustered-point"]}
-        onClick={onClick}
+        interactiveLayerIds={
+          viewMode === "markers" ? ["clusters", "unclustered-point"] : []
+        }
+        onClick={viewMode === "markers" ? onClick : undefined}
         attributionControl={false}
         onError={handleMapError}
       >
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
 
-        <Source
-          id="catches"
-          type="geojson"
-          data={geojson}
-          cluster={true}
-          clusterMaxZoom={14}
-          clusterRadius={50}
-        >
-          <Layer
-            id="clusters"
-            type="circle"
-            filter={["has", "point_count"]}
-            paint={{
-              "circle-color": [
-                "step",
-                ["get", "point_count"],
-                "#3b82f6", // Blue for small clusters
-                10,
-                "#10b981", // Emerald for medium
-                50,
-                "#f59e0b", // Amber for large
-              ],
-              "circle-radius": [
-                "step",
-                ["get", "point_count"],
-                22,
-                100,
-                32,
-                750,
-                42,
-              ],
-              "circle-stroke-width": 3,
-              "circle-stroke-color": "#ffffff",
-              "circle-opacity": 0.9,
-            }}
-          />
+        {/* Heatmap Source - no clustering needed */}
+        {viewMode === "heatmap" && (
+          <Source id="catches-heatmap" type="geojson" data={geojson}>
+            <Layer
+              id="catches-heat"
+              type="heatmap"
+              paint={{
+                // Each point has equal weight (1)
+                "heatmap-weight": 1,
+                // Increase intensity at higher zoom levels
+                "heatmap-intensity": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  0,
+                  1,
+                  12,
+                  3,
+                ],
+                // Color gradient from transparent blue to red
+                "heatmap-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["heatmap-density"],
+                  0,
+                  "rgba(33, 102, 172, 0)",
+                  0.2,
+                  "rgb(103, 169, 207)",
+                  0.4,
+                  "rgb(209, 229, 240)",
+                  0.6,
+                  "rgb(253, 219, 199)",
+                  0.8,
+                  "rgb(239, 138, 98)",
+                  1,
+                  "rgb(178, 24, 43)",
+                ],
+                // Adjust radius based on zoom level
+                "heatmap-radius": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  0,
+                  5,
+                  6,
+                  20,
+                  12,
+                  40,
+                ],
+                "heatmap-opacity": 0.8,
+              }}
+            />
+          </Source>
+        )}
 
-          <Layer
-            id="cluster-count"
-            type="symbol"
-            filter={["has", "point_count"]}
-            layout={{
-              "text-field": "{point_count_abbreviated}",
-              "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-              "text-size": 12,
-            }}
-          />
+        {/* Marker Source - with clustering */}
+        {viewMode === "markers" && (
+          <Source
+            id="catches"
+            type="geojson"
+            data={geojson}
+            cluster={true}
+            clusterMaxZoom={14}
+            clusterRadius={50}
+          >
+            <Layer
+              id="clusters"
+              type="circle"
+              filter={["has", "point_count"]}
+              paint={{
+                "circle-color": [
+                  "step",
+                  ["get", "point_count"],
+                  "#3b82f6", // Blue for small clusters
+                  10,
+                  "#10b981", // Emerald for medium
+                  50,
+                  "#f59e0b", // Amber for large
+                ],
+                "circle-radius": [
+                  "step",
+                  ["get", "point_count"],
+                  22,
+                  100,
+                  32,
+                  750,
+                  42,
+                ],
+                "circle-stroke-width": 3,
+                "circle-stroke-color": "#ffffff",
+                "circle-opacity": 0.9,
+              }}
+            />
 
-          <Layer
-            id="unclustered-point"
-            type="circle"
-            filter={["!", ["has", "point_count"]]}
-            paint={{
-              "circle-color": "#3b82f6",
-              "circle-radius": 10,
-              "circle-stroke-width": 3,
-              "circle-stroke-color": "#ffffff",
-              "circle-opacity": 0.95,
-            }}
-          />
-        </Source>
+            <Layer
+              id="cluster-count"
+              type="symbol"
+              filter={["has", "point_count"]}
+              layout={{
+                "text-field": "{point_count_abbreviated}",
+                "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+                "text-size": 12,
+              }}
+            />
+
+            <Layer
+              id="unclustered-point"
+              type="circle"
+              filter={["!", ["has", "point_count"]]}
+              paint={{
+                "circle-color": "#3b82f6",
+                "circle-radius": 10,
+                "circle-stroke-width": 3,
+                "circle-stroke-color": "#ffffff",
+                "circle-opacity": 0.95,
+              }}
+            />
+          </Source>
+        )}
 
         {popupInfo && (
           <Popup
@@ -301,6 +364,28 @@ export default function MapPage() {
           {activeFilters > 0 && (
             <span className="map-badge-count">{activeFilters}</span>
           )}
+        </button>
+      </div>
+
+      {/* View Mode Toggle */}
+      <div className="map-view-toggle">
+        <button
+          className={`btn-view-mode ${viewMode === "markers" ? "active" : ""}`}
+          onClick={() => setViewMode("markers")}
+          title="Marker View"
+          aria-pressed={viewMode === "markers"}
+        >
+          <MapPin size={18} />
+          <span>Markers</span>
+        </button>
+        <button
+          className={`btn-view-mode ${viewMode === "heatmap" ? "active" : ""}`}
+          onClick={() => setViewMode("heatmap")}
+          title="Heatmap View"
+          aria-pressed={viewMode === "heatmap"}
+        >
+          <Flame size={18} />
+          <span>Heatmap</span>
         </button>
       </div>
 

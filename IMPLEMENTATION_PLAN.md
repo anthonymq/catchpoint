@@ -1,6 +1,6 @@
 # Implementation Plan - Catchpoint PWA Rewrite
 
-> **Status**: 🔄 IN PROGRESS
+> **Status**: ✅ COMPLETE
 > **Goal**: Replace existing React Native app with an offline-first PWA.
 
 ## Phase 1: Demolition & Rescue (Day 1)
@@ -214,7 +214,7 @@
 
 ## Phase 10: Enhanced Stats & Map Features
 
-> **Status**: 🔲 PENDING
+> **Status**: ✅ COMPLETE
 > **Priority**: MEDIUM - User-requested enhancements
 
 ### 10.1 Advanced Statistics Charts
@@ -237,12 +237,15 @@
 
 ### 10.2 Map Heatmap Layer
 
-- [ ] **Catch Density Heatmap**
-  - Add toggle to switch between markers and heatmap view
-  - Use Mapbox GL JS heatmap layer
-  - Color gradient based on catch density
-  - Adjust heatmap radius based on zoom level
-  - Consider: Weighted by catch size or count
+- [x] **Catch Density Heatmap**
+  - Added toggle to switch between markers and heatmap view
+  - Implemented Mapbox GL JS heatmap layer with:
+    - Color gradient from blue (low) to red (high density)
+    - Zoom-responsive radius (5px at z0, 20px at z6, 40px at z12)
+    - Intensity scaling with zoom level
+  - Premium glassmorphism toggle button centered at bottom
+  - Dark mode support for toggle button
+  - Responsive design (icons only on very small screens)
 
 ## Discovered Issues / Notes
 
