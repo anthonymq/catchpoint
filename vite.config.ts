@@ -15,7 +15,7 @@ export default defineConfig({
       strategies: "injectManifest",
       srcDir: "src",
       filename: "sw.ts",
-      includeAssets: ["icons/icon.svg"],
+      includeAssets: ["icons/icon.svg", "icons/apple-touch-icon-180x180.png"],
       manifest: {
         name: "Catchpoint",
         short_name: "Catchpoint",
@@ -26,8 +26,18 @@ export default defineConfig({
         start_url: process.env.GITHUB_PAGES ? "/catchpoint/" : "/",
         icons: [
           {
+            src: "icons/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "icons/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+          {
             src: "icons/icon.svg",
-            sizes: "192x192 512x512",
+            sizes: "any",
             type: "image/svg+xml",
             purpose: "any maskable",
           },

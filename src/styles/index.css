@@ -91,6 +91,8 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  /* iOS Safari 100vh fix: use dvh where supported */
+  height: 100dvh;
   width: 100%;
   overflow: hidden; /* App-like feel, scroll inside containers */
   font-family: var(--font-family);
@@ -102,6 +104,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   user-select: none; /* App-like feel */
+  /* iOS: Disable pull-to-refresh */
+  overscroll-behavior: none;
+  /* iOS: Disable double-tap zoom on interactive elements */
+  touch-action: manipulation;
 }
 
 #root {
@@ -402,14 +408,4 @@ textarea {
   background-color: var(--color-surface);
 }
 
-.chart-container {
-  height: 220px;
-  width: 100%;
-  min-height: 220px;
-}
-
-/* Pie charts need extra height for legend */
-.chart-container--pie {
-  height: 280px;
-  min-height: 280px;
-}
+/* Chart container sizes defined in Stats.css with responsive breakpoints */
