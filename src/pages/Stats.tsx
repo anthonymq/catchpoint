@@ -5,6 +5,7 @@ import { SpeciesChart } from "../components/stats/SpeciesChart";
 import { CatchesByMonthChart } from "../components/stats/CatchesByMonthChart";
 import { CatchesByTimeChart } from "../components/stats/CatchesByTimeChart";
 import { MoonPhaseChart } from "../components/stats/MoonPhaseChart";
+import { PressureChart } from "../components/stats/PressureChart";
 import "../styles/pages/Stats.css";
 
 // Skeleton loading components
@@ -153,6 +154,11 @@ export default function Stats() {
       {/* Moon Phase Impact Chart */}
       <ChartCard title="Moon Phase Impact">
         <MoonPhaseChart data={stats.catchesByMoonPhase} />
+      </ChartCard>
+
+      {/* Barometric Pressure Impact Chart */}
+      <ChartCard title="Pressure Impact">
+        <PressureChart data={stats.catchesByPressureTrend} />
       </ChartCard>
 
       {/* Weather Stats */}

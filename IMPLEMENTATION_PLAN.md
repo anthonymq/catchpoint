@@ -225,7 +225,7 @@
   - Display: New Moon, Waxing Crescent, First Quarter, Waxing Gibbous, Full Moon, etc.
   - Visualization: Bar chart or radial chart showing catches per phase
 
-- [ ] **Barometric Pressure Impact Chart**
+- [x] **Barometric Pressure Impact Chart**
   - Add chart showing catch success rate by pressure conditions
   - Categories: Rising, Falling, Stable, High, Low
   - Requires pressure data from weather API (already captured in `weather.pressure`)
