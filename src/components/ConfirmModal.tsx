@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Trash2, AlertTriangle, Info, X } from "lucide-react";
 import "../styles/components/ConfirmModal.css";
 
@@ -52,6 +53,15 @@ export function ConfirmModal({
     onClose();
   };
 
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClose();
+  };
+
+  const handleModalClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   const getIcon = () => {
     switch (variant) {
       case "danger":
@@ -65,12 +75,12 @@ export function ConfirmModal({
     }
   };
 
-  return (
-    <div className="confirm-modal-overlay" onClick={onClose}>
+  const modalContent = (
+    <div className="confirm-modal-overlay" onClick={handleOverlayClick}>
       <div
         ref={modalRef}
         className={`confirm-modal confirm-modal--${variant}`}
-        onClick={(e) => e.stopPropagation()}
+        onClick={handleModalClick}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
@@ -114,4 +124,7 @@ export function ConfirmModal({
       </div>
     </div>
   );
+
+  // Use Portal to render modal at document root, escaping any overflow:hidden containers
+  return createPortal(modalContent, document.body);
 }
