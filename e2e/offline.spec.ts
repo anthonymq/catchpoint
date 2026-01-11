@@ -61,8 +61,8 @@ test.describe("Offline Functionality", () => {
     await expect(captureBtn).toBeVisible();
     await captureBtn.click();
 
-    // Verify optimistic feedback works offline
-    await expect(page.getByText("CAUGHT!")).toBeVisible();
+    // Verify optimistic feedback works offline (button has success class)
+    await expect(captureBtn).toHaveClass(/success/);
 
     // 4. Verify Catch exists in Log
     await page.getByRole("link", { name: "Log" }).click();

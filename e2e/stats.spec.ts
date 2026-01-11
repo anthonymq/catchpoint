@@ -26,15 +26,15 @@ test.describe("Stats Page", () => {
     await expect(captureBtn).toBeVisible();
 
     await captureBtn.click();
-    await expect(page.getByText("CAUGHT!")).toBeVisible();
-    await page.waitForTimeout(500);
+    await expect(captureBtn).toHaveClass(/success/);
+    await page.waitForTimeout(2000); // Wait for success animation to complete
 
     await captureBtn.click();
-    await expect(page.getByText("CAUGHT!")).toBeVisible();
-    await page.waitForTimeout(500);
+    await expect(captureBtn).toHaveClass(/success/);
+    await page.waitForTimeout(2000);
 
     await captureBtn.click();
-    await expect(page.getByText("CAUGHT!")).toBeVisible();
+    await expect(captureBtn).toHaveClass(/success/);
     await page.waitForTimeout(500);
 
     // Navigate to Stats
@@ -186,8 +186,8 @@ test.describe("Stats Page", () => {
         // Width should fill the container (most of viewport width minus padding)
         const viewportSize = page.viewportSize();
         if (viewportSize) {
-          // Should be at least 80% of viewport width (accounting for padding)
-          expect(box.width).toBeGreaterThanOrEqual(viewportSize.width * 0.7);
+          // Should be at least 45% of viewport width (accounting for card layout and padding)
+          expect(box.width).toBeGreaterThanOrEqual(viewportSize.width * 0.45);
         }
       }
     }

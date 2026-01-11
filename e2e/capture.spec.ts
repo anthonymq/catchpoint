@@ -20,8 +20,8 @@ test.describe("Catch Capture Flow", () => {
     await expect(captureBtn).toBeVisible();
     await captureBtn.click();
 
-    // 3. Verify optimistic feedback
-    await expect(page.getByText("CAUGHT!")).toBeVisible();
+    // 3. Verify optimistic feedback (button has success class)
+    await expect(captureBtn).toHaveClass(/success/);
 
     // 4. Navigate to Log
     await page.getByRole("link", { name: "Log" }).click();

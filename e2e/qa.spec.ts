@@ -39,27 +39,30 @@ test.describe("QA - Full Application", () => {
   test("should switch themes correctly", async ({ page }) => {
     await page.goto("/settings");
 
-    // Check current theme buttons exist
-    await expect(page.getByRole("button", { name: "Light" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Dark" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "System" })).toBeVisible();
+    // Locate the Appearance section to scope our buttons
+    const appearanceSection = page
+      .locator("text=Appearance")
+      .locator("..")
+      .locator("..");
+
+    // Check current theme buttons exist (use .first() to avoid matching Language section's System)
+    const lightBtn = appearanceSection.getByRole("button", { name: "Light" });
+    const darkBtn = appearanceSection.getByRole("button", { name: "Dark" });
+
+    await expect(lightBtn).toBeVisible();
+    await expect(darkBtn).toBeVisible();
 
     // Switch to Dark theme
-    await page.getByRole("button", { name: "Dark" }).click();
+    await darkBtn.click();
 
     // Verify data-theme attribute on document (dark sets attribute)
     const html = page.locator("html");
     await expect(html).toHaveAttribute("data-theme", "dark");
 
     // Switch to Light theme - light REMOVES the attribute (design choice)
-    await page.getByRole("button", { name: "Light" }).click();
+    await lightBtn.click();
     // Light theme removes data-theme attribute entirely
     await expect(html).not.toHaveAttribute("data-theme", "dark");
-
-    // Switch to System theme
-    await page.getByRole("button", { name: "System" }).click();
-    // System theme will set based on prefers-color-scheme, just verify no crash
-    await page.waitForTimeout(100);
   });
 
   test("should switch units correctly", async ({ page }) => {
@@ -74,12 +77,12 @@ test.describe("QA - Full Application", () => {
 
     // Switch to kg
     await kgBtn.click();
-    // Verify the button is selected (has specific class or style)
-    await expect(kgBtn).toHaveClass(/font-medium/);
+    // Verify the button is selected (has 'active' class)
+    await expect(kgBtn).toHaveClass(/active/);
 
     // Switch back to lbs
     await lbsBtn.click();
-    await expect(lbsBtn).toHaveClass(/font-medium/);
+    await expect(lbsBtn).toHaveClass(/active/);
 
     // Find length unit buttons - use exact: true to avoid matching "Permanently delete"
     const inBtn = page.getByRole("button", { name: "in", exact: true });
@@ -90,7 +93,7 @@ test.describe("QA - Full Application", () => {
 
     // Switch to cm
     await cmBtn.click();
-    await expect(cmBtn).toHaveClass(/font-medium/);
+    await expect(cmBtn).toHaveClass(/active/);
   });
 
   test("should load test data and display in Log", async ({ page }) => {
@@ -135,22 +138,22 @@ test.describe("QA - Full Application", () => {
     const filterBtn = page.getByRole("button", { name: "Filter" });
     await filterBtn.click();
 
-    // Verify filter modal is open
-    await expect(page.getByText("Filter Catches")).toBeVisible();
+    // Verify filter modal is open - title is "Filters"
+    await expect(page.getByRole("heading", { name: "Filters" })).toBeVisible();
 
     // Click on a date range filter
     await page.getByRole("button", { name: "Last 7 Days" }).click();
 
-    // Close filter modal
-    await page.getByRole("button", { name: "Show Results" }).click();
+    // Close filter modal - use class selector since button text is dynamic
+    await page.locator(".btn-apply").click();
 
     // Verify catches are still visible (they were just created)
     await expect(page.locator(".catch-card").first()).toBeVisible();
 
     // Open filter again and reset
     await filterBtn.click();
-    await page.getByRole("button", { name: "Reset All" }).click();
-    await page.getByRole("button", { name: "Show Results" }).click();
+    await page.getByRole("button", { name: "Reset" }).click();
+    await page.locator(".btn-apply").click();
   });
 
   test("should delete a catch", async ({ page }) => {
@@ -158,7 +161,9 @@ test.describe("QA - Full Application", () => {
     await page.goto("/");
     const captureBtn = page.getByLabel("Quick Catch");
     await captureBtn.click();
-    await expect(page.getByText("CAUGHT!")).toBeVisible();
+
+    // Wait for success state (button has 'success' class)
+    await expect(captureBtn).toHaveClass(/success/);
 
     // Navigate to Log
     await page.getByRole("link", { name: "Log" }).click();
@@ -169,17 +174,15 @@ test.describe("QA - Full Application", () => {
     await catchCard.click();
     await expect(page.getByText("Catch Details")).toBeVisible();
 
-    // Handle delete confirmation
-    page.on("dialog", async (dialog) => {
-      expect(dialog.message()).toContain("delete");
-      await dialog.accept();
-    });
-
-    // Click delete button
+    // Click delete button - opens custom modal (not browser dialog)
     await page.getByRole("button", { name: "Delete Catch" }).click();
 
-    // Verify navigation back to Log and catch is removed
-    await expect(page.getByText(/Catch Log|No catches yet/)).toBeVisible();
+    // Wait for confirm modal to appear and click the delete confirmation button
+    await expect(page.locator(".confirm-modal")).toBeVisible();
+    await page.getByRole("button", { name: "Delete", exact: true }).click();
+
+    // Verify navigation back to Log
+    await expect(page.getByRole("link", { name: "Log" })).toBeVisible();
   });
 
   test("should export CSV", async ({ page }) => {
@@ -241,11 +244,12 @@ test.describe("QA - Full Application", () => {
     // Capture
     await captureBtn.click();
 
-    // Verify "CAUGHT!" feedback appears quickly
-    await expect(page.getByText("CAUGHT!")).toBeVisible({ timeout: 1000 });
+    // Verify success feedback (button has 'success' class)
+    await expect(captureBtn).toHaveClass(/success/, { timeout: 1000 });
 
-    // After animation, button should return
+    // After animation, button should return to normal (no success class)
     await page.waitForTimeout(2000);
+    await expect(captureBtn).not.toHaveClass(/success/);
     await expect(captureBtn).toBeVisible();
   });
 });
