@@ -1,6 +1,6 @@
 # Implementation Plan - Catchpoint PWA Rewrite
 
-> **Status**: ✅ COMPLETE
+> **Status**: 🔄 IN PROGRESS
 > **Goal**: Replace existing React Native app with an offline-first PWA.
 
 ## Phase 1: Demolition & Rescue (Day 1)
@@ -211,6 +211,38 @@
   - Build: Passes
   - E2E Tests: 14/17 pass on Mobile Chrome (3 pre-existing failures in qa.spec.ts unrelated to Phase 9)
   - Stats page E2E tests: 5/5 pass
+
+## Phase 10: Enhanced Stats & Map Features
+
+> **Status**: 🔲 PENDING
+> **Priority**: MEDIUM - User-requested enhancements
+
+### 10.1 Advanced Statistics Charts
+
+- [x] **Moon Phase Impact Chart**
+  - Add chart showing catch success rate by moon phase
+  - Correlate catches with moon phase data (already have `moonPhase` in Catch model)
+  - Display: New Moon, Waxing Crescent, First Quarter, Waxing Gibbous, Full Moon, etc.
+  - Visualization: Bar chart or radial chart showing catches per phase
+
+- [ ] **Barometric Pressure Impact Chart**
+  - Add chart showing catch success rate by pressure conditions
+  - Categories: Rising, Falling, Stable, High, Low
+  - Requires pressure data from weather API (already captured in `weather.pressure`)
+  - Visualization: Bar chart with pressure ranges
+
+- [ ] **Additional Stats Enhancements**
+  - Consider: Best pressure + moon phase combinations
+  - Consider: Time of day analysis with weather overlay
+
+### 10.2 Map Heatmap Layer
+
+- [ ] **Catch Density Heatmap**
+  - Add toggle to switch between markers and heatmap view
+  - Use Mapbox GL JS heatmap layer
+  - Color gradient based on catch density
+  - Adjust heatmap radius based on zoom level
+  - Consider: Weighted by catch size or count
 
 ## Discovered Issues / Notes
 

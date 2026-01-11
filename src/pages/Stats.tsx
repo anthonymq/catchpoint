@@ -4,6 +4,7 @@ import { calculateStatistics } from "../utils/statistics";
 import { SpeciesChart } from "../components/stats/SpeciesChart";
 import { CatchesByMonthChart } from "../components/stats/CatchesByMonthChart";
 import { CatchesByTimeChart } from "../components/stats/CatchesByTimeChart";
+import { MoonPhaseChart } from "../components/stats/MoonPhaseChart";
 import "../styles/pages/Stats.css";
 
 // Skeleton loading components
@@ -148,6 +149,11 @@ export default function Stats() {
           <CatchesByMonthChart data={stats.catchesByMonth} />
         </ChartCard>
       </div>
+
+      {/* Moon Phase Impact Chart */}
+      <ChartCard title="Moon Phase Impact">
+        <MoonPhaseChart data={stats.catchesByMoonPhase} />
+      </ChartCard>
 
       {/* Weather Stats */}
       <div className="weather-stats-card">
