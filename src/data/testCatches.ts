@@ -41,8 +41,16 @@ export function generateTestCatches(): Catch[] {
       length: Number((weight * 2 + 10).toFixed(1)), // Rough correlation
       notes: `Test catch ${i}`,
       weatherData: {
-        temp: 65 + Math.random() * 10,
-        description: Math.random() > 0.5 ? "Sunny" : "Cloudy",
+        temperature: 65 + Math.random() * 10,
+        temperatureUnit: "C",
+        weatherCondition: Math.random() > 0.5 ? "Clear" : "Clouds",
+        weatherDescription:
+          Math.random() > 0.5 ? "clear sky" : "overcast clouds",
+        pressure: 1010 + Math.floor(Math.random() * 20),
+        pressureUnit: "hPa",
+        humidity: 50 + Math.floor(Math.random() * 30),
+        windSpeed: 5 + Math.random() * 10,
+        fetchedAt: date,
       },
       pendingWeatherFetch: false,
       createdAt: date,

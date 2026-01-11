@@ -1,24 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useCatchStore } from "../stores/catchStore";
-import { calculateStatistics, type CatchStatistics } from "../utils/statistics";
+import { calculateStatistics } from "../utils/statistics";
 import { SpeciesChart } from "../components/stats/SpeciesChart";
 import { CatchesByMonthChart } from "../components/stats/CatchesByMonthChart";
 import { CatchesByTimeChart } from "../components/stats/CatchesByTimeChart";
 
 export default function Stats() {
   const { catches, fetchCatches } = useCatchStore();
-  const [stats, setStats] = useState<CatchStatistics | null>(null);
 
   useEffect(() => {
     fetchCatches();
   }, [fetchCatches]);
 
-  useEffect(() => {
+  const stats = useMemo(() => {
     if (catches.length > 0) {
-      setStats(calculateStatistics(catches));
-    } else {
-      setStats(null);
+      return calculateStatistics(catches);
     }
+    return null;
   }, [catches]);
 
   if (!stats) {

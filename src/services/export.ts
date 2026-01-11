@@ -79,10 +79,10 @@ export function generateCSV(
     const w = c.weatherData;
     const weatherRow = includeWeather
       ? [
-          escapeCSV(w?.main?.temp),
-          escapeCSV(w?.weather?.[0]?.description),
-          escapeCSV(w?.main?.humidity),
-          escapeCSV(w?.wind?.speed),
+          escapeCSV(w?.temperature),
+          escapeCSV(w?.weatherDescription || w?.weatherCondition),
+          escapeCSV(w?.humidity),
+          escapeCSV(w?.windSpeed),
         ]
       : [];
 

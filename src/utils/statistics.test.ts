@@ -1,6 +1,19 @@
 import { describe, it, expect } from "vitest";
 import { calculateStatistics, groupCatchesBySpecies } from "./statistics";
 import type { Catch } from "../db";
+import type { WeatherData } from "../services/weather";
+
+// Helper to create test weather data
+const makeWeather = (condition: string, pressure: number): WeatherData => ({
+  temperature: 20,
+  temperatureUnit: "C",
+  weatherCondition: condition,
+  pressure,
+  pressureUnit: "hPa",
+  humidity: 50,
+  windSpeed: 5,
+  fetchedAt: new Date(),
+});
 
 const mockCatches: Catch[] = [
   {
@@ -11,7 +24,7 @@ const mockCatches: Catch[] = [
     species: "Bass",
     weight: 5,
     pendingWeatherFetch: false,
-    weatherData: { weatherCondition: "Clear", pressure: 1015 },
+    weatherData: makeWeather("Clear", 1015),
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -23,7 +36,7 @@ const mockCatches: Catch[] = [
     species: "Bass",
     weight: 3,
     pendingWeatherFetch: false,
-    weatherData: { weatherCondition: "Clouds", pressure: 1010 },
+    weatherData: makeWeather("Clouds", 1010),
     createdAt: new Date(),
     updatedAt: new Date(),
   },
@@ -35,7 +48,7 @@ const mockCatches: Catch[] = [
     species: "Trout",
     weight: 2,
     pendingWeatherFetch: false,
-    weatherData: { weatherCondition: "Rain", pressure: 1000 },
+    weatherData: makeWeather("Rain", 1000),
     createdAt: new Date(),
     updatedAt: new Date(),
   },

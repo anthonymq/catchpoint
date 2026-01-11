@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
+import type { WeatherData } from "../services/weather";
 
 export interface Catch {
   id: string; // UUID
@@ -10,7 +11,7 @@ export interface Catch {
   length?: number; // In user's preferred unit (stored as inches)
   photoUri?: string; // Base64 or blob URL
   notes?: string; // Free text
-  weatherData?: Record<string, any>; // Flexible storage for weather API response
+  weatherData?: WeatherData; // Weather data from OpenWeatherMap API
   pendingWeatherFetch: boolean; // True if weather needs sync
   createdAt: Date;
   updatedAt: Date;

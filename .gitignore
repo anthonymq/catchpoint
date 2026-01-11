@@ -29,3 +29,7 @@ dev-dist
 test-results/
 playwright-report/
 blob-report/
+
+# Ralph logs (keep directory, ignore contents)
+ralph/logs/*
+!ralph/logs/.gitkeep

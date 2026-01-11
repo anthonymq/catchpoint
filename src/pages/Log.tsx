@@ -22,7 +22,6 @@ export default function Log() {
   }, [fetchCatches]);
 
   const handleLoadTestData = async () => {
-    // eslint-disable-next-line no-restricted-globals
     if (confirm("Load 20 test catches? This will add to your existing data.")) {
       const testData = generateTestCatches();
       await db.catches.bulkAdd(testData);

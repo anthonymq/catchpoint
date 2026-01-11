@@ -59,9 +59,11 @@ describe("location service", () => {
       timestamp: 1234567890,
     };
 
-    mockGeolocation.getCurrentPosition.mockImplementation((success: any) => {
-      success(mockPosition);
-    });
+    mockGeolocation.getCurrentPosition.mockImplementation(
+      (success: PositionCallback) => {
+        success(mockPosition as unknown as GeolocationPosition);
+      },
+    );
 
     const result = await getCurrentLocation();
 
@@ -94,8 +96,8 @@ describe("location service", () => {
 
     // Mock failure
     mockGeolocation.getCurrentPosition.mockImplementation(
-      (_: any, error: any) => {
-        error(new Error("Timeout"));
+      (_: PositionCallback, error: PositionErrorCallback) => {
+        error(new Error("Timeout") as unknown as GeolocationPositionError);
       },
     );
 
@@ -107,8 +109,8 @@ describe("location service", () => {
   it("returns (0,0) when fresh fails and no cache", async () => {
     // Mock failure
     mockGeolocation.getCurrentPosition.mockImplementation(
-      (_: any, error: any) => {
-        error(new Error("Timeout"));
+      (_: PositionCallback, error: PositionErrorCallback) => {
+        error(new Error("Timeout") as unknown as GeolocationPositionError);
       },
     );
 

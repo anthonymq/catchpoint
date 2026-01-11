@@ -7,6 +7,7 @@ import Map, {
   Popup,
 } from "react-map-gl/mapbox";
 import type { MapLayerMouseEvent, GeoJSONSource } from "mapbox-gl";
+import type { FeatureCollection, Point } from "geojson";
 import { useCatchStore } from "../stores/catchStore";
 import { useFilterStore } from "../stores/filterStore";
 import { useFilteredCatches } from "../hooks/useFilteredCatches";
@@ -38,7 +39,7 @@ export default function MapPage() {
     fetchCatches();
   }, [fetchCatches]);
 
-  const geojson = useMemo(() => {
+  const geojson: FeatureCollection = useMemo(() => {
     return {
       type: "FeatureCollection",
       features: filteredCatches.map((c) => ({
@@ -70,15 +71,16 @@ export default function MapPage() {
         if (err || zoom === null || zoom === undefined) return;
 
         event.target.easeTo({
-          center: (feature.geometry as any).coordinates,
+          center: (feature.geometry as Point).coordinates as [number, number],
           zoom: zoom,
         });
       });
       return;
     }
 
-    const coordinates = (feature.geometry as any).coordinates.slice();
-    const { species, timestamp, weight, photoUri } = feature.properties as any;
+    const coordinates = (feature.geometry as Point).coordinates.slice();
+    const { species, timestamp, weight, photoUri } =
+      feature.properties as unknown as PopupInfo;
 
     // Ensure we point to the marker location, not the click location
     while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
@@ -129,7 +131,7 @@ export default function MapPage() {
         <Source
           id="catches"
           type="geojson"
-          data={geojson as any}
+          data={geojson}
           cluster={true}
           clusterMaxZoom={14}
           clusterRadius={50}

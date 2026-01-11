@@ -383,7 +383,9 @@ function calculateSkyConditionStats(
  * - Falling: < 1005 hPa
  * - Stable: 1005-1020 hPa
  */
-function categorizePressure(pressure: number | null): PressureTrend {
+function categorizePressure(
+  pressure: number | null | undefined,
+): PressureTrend {
   if (pressure === null || pressure === undefined) return "Unknown";
 
   if (pressure > 1020) return "Rising";

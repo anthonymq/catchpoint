@@ -2,16 +2,21 @@
 # RALPH Loop for Catchpoint (OpenCode Edition)
 # The Ralph Wiggum Technique - autonomous AI development loop
 #
-# Usage: ./loop.sh [plan] [max_iterations]
+# Usage: ./loop.sh [plan] [max_iterations] [--verbose|-v]
 # Examples:
 #   ./loop.sh              # Build mode, unlimited iterations
 #   ./loop.sh 20           # Build mode, max 20 iterations
 #   ./loop.sh plan         # Plan mode, unlimited iterations
 #   ./loop.sh plan 5       # Plan mode, max 5 iterations
+#   ./loop.sh --verbose    # Build mode with full debug logging
+#   ./loop.sh plan -v      # Plan mode with full debug logging
 #
 # Modes:
 #   PLAN  - Gap analysis only, creates/updates IMPLEMENTATION_PLAN.md
 #   BUILD - Implements from plan, runs tests, commits changes
+#
+# Flags:
+#   --verbose, -v  Enable full debug logging (saved to ralph/logs/)
 #
 # Based on: https://github.com/ghuntley/how-to-ralph-wiggum
 
@@ -29,18 +34,35 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Parse arguments
-if [ "$1" = "plan" ]; then
-    MODE="plan"
-    PROMPT_FILE="ralph/PROMPT_plan.md"
-    MAX_ITERATIONS=${2:-0}
-elif [[ "$1" =~ ^[0-9]+$ ]]; then
-    MODE="build"
-    PROMPT_FILE="ralph/PROMPT_build.md"
-    MAX_ITERATIONS=$1
-else
-    MODE="build"
-    PROMPT_FILE="ralph/PROMPT_build.md"
-    MAX_ITERATIONS=0
+MODE="build"
+PROMPT_FILE="ralph/PROMPT_build.md"
+MAX_ITERATIONS=0
+VERBOSE=false
+
+for arg in "$@"; do
+    case $arg in
+        plan)
+            MODE="plan"
+            PROMPT_FILE="ralph/PROMPT_plan.md"
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            ;;
+        *)
+            if [[ "$arg" =~ ^[0-9]+$ ]]; then
+                MAX_ITERATIONS=$arg
+            fi
+            ;;
+    esac
+done
+
+# Create logs directory if verbose mode
+LOGS_DIR="ralph/logs"
+if [ "$VERBOSE" = true ]; then
+    mkdir -p "$LOGS_DIR"
+    # Generate session ID for this run
+    SESSION_ID=$(date '+%Y%m%d_%H%M%S')
+    echo -e "${GREEN}Logs will be saved to: $LOGS_DIR/session_${SESSION_ID}_*.log${NC}"
 fi
 
 ITERATION=0
@@ -55,6 +77,7 @@ echo -e "  Prompt:  $PROMPT_FILE"
 echo -e "  Branch:  $CURRENT_BRANCH"
 echo -e "  Project: $PROJECT_ROOT"
 [ $MAX_ITERATIONS -gt 0 ] && echo -e "  Max:     ${YELLOW}$MAX_ITERATIONS iterations${NC}"
+[ "$VERBOSE" = true ] && echo -e "  Verbose: ${GREEN}ON${NC} (logs in $LOGS_DIR/)"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
@@ -92,10 +115,16 @@ while true; do
     # Read prompt content
     PROMPT_CONTENT=$(cat "$PROMPT_FILE")
     
-    # Run opencode with the prompt using the 'run' subcommand
-    # opencode run [message..] - run opencode with a message
-    # The prompt content is passed as the message argument
-    opencode run "$PROMPT_CONTENT"
+    # Run opencode with the prompt
+    if [ "$VERBOSE" = true ]; then
+        LOG_FILE="$LOGS_DIR/session_${SESSION_ID}_iter_$(printf '%03d' $ITERATION).log"
+        echo -e "${BLUE}[RALPH] Logging to: $LOG_FILE${NC}"
+        
+        # Run with debug logging and tee output to both terminal and log file
+        opencode run --log-level DEBUG "$PROMPT_CONTENT" 2>&1 | tee "$LOG_FILE"
+    else
+        opencode run "$PROMPT_CONTENT"
+    fi
 
     # Check if there are changes to push
     if git diff --quiet HEAD 2>/dev/null && git diff --cached --quiet 2>/dev/null; then

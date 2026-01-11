@@ -3,21 +3,11 @@
 
 const OPENWEATHERMAP_BASE_URL = "https://api.openweathermap.org/data";
 
-interface OpenWeatherMapConfig {
-  apiKey: string;
-}
-
-let config: OpenWeatherMapConfig | null = null;
-
 function getApiKey(): string {
   // Use Vite environment variable
   const envApiKey = import.meta.env.VITE_OPENWEATHERMAP_API_KEY;
   if (envApiKey) {
     return envApiKey;
-  }
-
-  if (config?.apiKey) {
-    return config.apiKey;
   }
 
   console.warn(

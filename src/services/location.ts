@@ -25,7 +25,7 @@ const getCachedLocation = (): LocationCoords | null => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 };
