@@ -120,3 +120,216 @@ select,
 textarea {
   font-size: 16px; /* Prevent zoom on iOS */
 }
+
+/* ============================================================================
+   Utility Classes (Tailwind-compatible)
+   ============================================================================ */
+
+/* Layout */
+.grid {
+  display: grid;
+}
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.gap-2 {
+  gap: 0.5rem;
+}
+.gap-3 {
+  gap: 0.75rem;
+}
+.gap-4 {
+  gap: 1rem;
+}
+
+/* Flexbox */
+.items-start {
+  align-items: flex-start;
+}
+.justify-between {
+  justify-content: space-between;
+}
+
+/* Spacing */
+.p-2 {
+  padding: 0.5rem;
+}
+.p-3 {
+  padding: 0.75rem;
+}
+.p-4 {
+  padding: 1rem;
+}
+.p-8 {
+  padding: 2rem;
+}
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.mb-4 {
+  margin-bottom: 1rem;
+}
+.mt-1 {
+  margin-top: 0.25rem;
+}
+.pb-24 {
+  padding-bottom: 6rem;
+}
+.space-x-3 > * + * {
+  margin-left: 0.75rem;
+}
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* Sizing */
+.h-24 {
+  height: 6rem;
+}
+.h-64 {
+  height: 16rem;
+}
+.min-h-0 {
+  min-height: 0;
+}
+
+/* Typography */
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+.text-4xl {
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+}
+.font-medium {
+  font-weight: 500;
+}
+.font-semibold {
+  font-weight: 600;
+}
+.font-bold {
+  font-weight: 700;
+}
+.opacity-80 {
+  opacity: 0.8;
+}
+
+/* Colors - Gray */
+.text-gray-400 {
+  color: #9ca3af;
+}
+.text-gray-500 {
+  color: #6b7280;
+}
+.text-gray-900 {
+  color: #111827;
+}
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+/* Colors - Blue */
+.text-blue-600 {
+  color: #2563eb;
+}
+
+/* Colors - Amber */
+.text-amber-800 {
+  color: #92400e;
+}
+.text-amber-900 {
+  color: #78350f;
+}
+.bg-amber-50 {
+  background-color: #fffbeb;
+}
+.border-amber-100 {
+  border-color: #fef3c7;
+}
+
+/* Colors - Orange */
+.text-orange-600 {
+  color: #ea580c;
+}
+
+/* Backgrounds */
+.bg-white {
+  background-color: #ffffff;
+}
+
+/* Borders */
+.border {
+  border-width: 1px;
+  border-style: solid;
+}
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+/* Shadows */
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+/* Overflow */
+.overflow-y-auto {
+  overflow-y: auto;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Chart Components */
+.chart-card {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-container {
+  height: 220px;
+  width: 100%;
+  min-height: 220px;
+}
+
+/* Pie charts need extra height for legend */
+.chart-container--pie {
+  height: 280px;
+  min-height: 280px;
+}

@@ -113,11 +113,15 @@
 
 ## Phase 8: QA & Enhancements
 
-- [ ] **Stats Page Charts Not Displaying**: Full review and fix of the Stats page - charts are not rendering properly
-  - Debug chart components in `src/pages/Stats.tsx` and `src/components/stats/`
-  - Verify data is being passed correctly to Recharts
-  - Ensure statistics utilities return correct format
-  - Add test data if needed to verify chart rendering
+- [x] **Stats Page Charts Not Displaying**: Full review and fix of the Stats page - charts are now rendering properly
+  - Verified chart components in `src/pages/Stats.tsx` and `src/components/stats/`
+  - Confirmed Recharts receives data correctly
+  - Added E2E tests (`e2e/stats.spec.ts`) that verify:
+    - Empty state shows correctly when no catches
+    - Charts render with SVG elements when catches exist
+    - Chart containers have proper height (220px+)
+    - Weather conditions section displays correctly
+  - All 9 Stats page E2E tests pass
 - [ ] **Full QA of the App**: Comprehensive quality assurance pass
   - Test all user flows end-to-end (capture, edit, delete, filter, export)
   - Verify responsive design on mobile and desktop

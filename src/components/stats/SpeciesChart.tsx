@@ -36,9 +36,9 @@ export function SpeciesChart({ data }: SpeciesChartProps) {
         <Pie
           data={data}
           cx="50%"
-          cy="50%"
+          cy="45%"
           labelLine={false}
-          outerRadius={80}
+          outerRadius={60}
           fill="#8884d8"
           dataKey="count"
           nameKey="species"

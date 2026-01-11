@@ -82,7 +82,7 @@ export default function Stats() {
       </ChartCard>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ChartCard title="Species Distribution">
+        <ChartCard title="Species Distribution" variant="pie">
           <SpeciesChart data={stats.topSpecies} />
         </ChartCard>
 
@@ -136,14 +136,20 @@ function StatCard({
 function ChartCard({
   title,
   children,
+  variant = "default",
 }: {
   title: string;
   children: React.ReactNode;
+  variant?: "default" | "pie";
 }) {
+  const containerClass =
+    variant === "pie"
+      ? "chart-container chart-container--pie"
+      : "chart-container";
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col h-64">
+    <div className="chart-card">
       <h3 className="font-semibold text-gray-900 mb-4">{title}</h3>
-      <div className="flex-1 min-h-0">{children}</div>
+      <div className={containerClass}>{children}</div>
     </div>
   );
 }

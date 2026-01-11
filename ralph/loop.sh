@@ -115,15 +115,15 @@ while true; do
     # Read prompt content
     PROMPT_CONTENT=$(cat "$PROMPT_FILE")
     
-    # Run opencode with the prompt
+    # Run opencode with the prompt (using Sisyphus agent)
     if [ "$VERBOSE" = true ]; then
         LOG_FILE="$LOGS_DIR/session_${SESSION_ID}_iter_$(printf '%03d' $ITERATION).log"
         echo -e "${BLUE}[RALPH] Logging to: $LOG_FILE${NC}"
         
         # Run with debug logging and tee output to both terminal and log file
-        opencode run --log-level DEBUG "$PROMPT_CONTENT" 2>&1 | tee "$LOG_FILE"
+        opencode run --agent Sisyphus --log-level DEBUG "$PROMPT_CONTENT" 2>&1 | tee "$LOG_FILE"
     else
-        opencode run "$PROMPT_CONTENT"
+        opencode run --agent Sisyphus "$PROMPT_CONTENT"
     fi
 
     # Check if there are changes to push
