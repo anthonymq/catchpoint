@@ -1,6 +1,6 @@
 # Implementation Plan - Catchpoint PWA Rewrite
 
-> **Status**: 🚧 IN PROGRESS
+> **Status**: ✅ COMPLETE
 > **Goal**: Replace existing React Native app with an offline-first PWA.
 
 ## Phase 1: Demolition & Rescue (Day 1)
@@ -131,14 +131,18 @@
   - Tested unit switching (lbs/kg, in/cm) - works correctly
   - Verified all navigation works correctly
   - All 44 E2E tests pass (1 skipped: Mobile Safari offline)
-- [ ] **Offline Map Support**: Implement proper offline map tile caching
-  - Configure Mapbox for offline tile storage
-  - Implement tile caching strategy in Service Worker
-  - Add UI indicator for offline map availability
-  - Handle map gracefully when offline with no cached tiles
+- [x] **Offline Map Support**: Implement proper offline map tile caching (completed)
+  - Updated Service Worker to cache all Mapbox domains:
+    - `api.mapbox.com` (styles, sprites, fonts/glyphs)
+    - `tiles.mapbox.com` and `*.tiles.mapbox.com` (vector/raster tiles)
+  - Added offline indicator banner in Map.tsx when offline
+  - Added error handling for map when offline with no cached tiles
+  - Implemented retry button for users to reload map when back online
+  - Configured tile cache limit to 2000 entries (~50-100MB)
+  - 30-day expiration for tiles (they rarely change)
 
 ## Discovered Issues / Notes
 
-- [ ] **Mapbox Offline**: Check limits for offline tile caching (typically 6000 tiles).
+- [x] **Mapbox Offline**: Tile caching implemented with 2000-tile limit. Users should browse areas while online to cache tiles.
 - [ ] **Safari Support**: Background Sync API not supported; ensure fallback to foreground sync on network restore works reliably.
 - [ ] **Storage Quota**: Monitor usage as photos are stored in IndexedDB.

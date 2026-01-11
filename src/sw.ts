@@ -33,15 +33,49 @@ registerRoute(
   }),
 );
 
-// Cache Mapbox tiles
+// ============================================================================
+// Mapbox Offline Tile Caching
+// ============================================================================
+// Mapbox GL JS loads resources from multiple domains:
+// - api.mapbox.com: Styles, sprites, fonts (glyphs), and API requests
+// - tiles.mapbox.com: Vector and raster tiles (with a/b/c/d subdomains)
+//
+// We use CacheFirst strategy for tiles and styles since map data changes
+// infrequently and we want fast offline access to previously viewed areas.
+// ============================================================================
+
+// Cache Mapbox API resources (styles, sprites, fonts/glyphs)
+// This includes:
+// - Style JSON: api.mapbox.com/styles/v1/...
+// - Sprites: api.mapbox.com/styles/v1/.../sprite...
+// - Fonts/Glyphs: api.mapbox.com/fonts/v1/...
 registerRoute(
   ({ url }) => url.origin === "https://api.mapbox.com",
+  new CacheFirst({
+    cacheName: "mapbox-api",
+    plugins: [
+      new ExpirationPlugin({
+        maxEntries: 200,
+        maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+      }),
+    ],
+  }),
+);
+
+// Cache Mapbox vector/raster tiles from tiles.mapbox.com and subdomains
+// Tiles are loaded from: a.tiles.mapbox.com, b.tiles.mapbox.com, etc.
+// This is the most important cache for offline map functionality.
+// Mapbox recommends max 6000 tiles for offline (we use 2000 to be safe).
+registerRoute(
+  ({ url }) =>
+    url.hostname === "tiles.mapbox.com" ||
+    url.hostname.match(/^[a-d]\.tiles\.mapbox\.com$/),
   new CacheFirst({
     cacheName: "mapbox-tiles",
     plugins: [
       new ExpirationPlugin({
-        maxEntries: 500,
-        maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        maxEntries: 2000, // ~50-100MB depending on tile size
+        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days (tiles rarely change)
       }),
     ],
   }),

@@ -4,11 +4,45 @@
   width: 100%;
 }
 
+/* Offline Banner - shown when viewing map offline */
+.map-offline-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.95) 0%,
+    rgba(217, 119, 6, 0.95) 100%
+  );
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+}
+
+.map-offline-banner svg {
+  flex-shrink: 0;
+}
+
 .map-controls-overlay {
   position: absolute;
   top: 1rem;
   left: 1rem;
   z-index: 10;
+}
+
+/* Adjust controls position when offline banner is visible */
+.map-page:has(.map-offline-banner) .map-controls-overlay {
+  top: calc(1rem + 2.5rem); /* banner height + original top */
 }
 
 .btn-map-control {
@@ -49,6 +83,7 @@
   border: 2px solid white;
 }
 
+/* Map Unavailable / Error State */
 .map-unavailable {
   display: flex;
   flex-direction: column;
@@ -57,14 +92,56 @@
   height: 100%;
   padding: 2rem;
   text-align: center;
+  background: var(--color-background);
 }
 
 .map-unavailable h2 {
   font-size: 1.25rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  color: var(--color-text);
 }
 
 .map-unavailable p {
   color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+  max-width: 320px;
+}
+
+.map-error-icon {
+  color: var(--color-warning, #f59e0b);
+  margin-bottom: 1rem;
+}
+
+.map-hint {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface, #f3f4f6);
+  border-radius: 0.5rem;
+  max-width: 320px;
+}
+
+.btn-retry {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-primary, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
+}
+
+.btn-retry:hover:not(:disabled) {
+  background: var(--color-primary-dark, #2563eb);
+}
+
+.btn-retry:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

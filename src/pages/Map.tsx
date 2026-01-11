@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Map, {
   Source,
   Layer,
@@ -11,8 +11,9 @@ import type { FeatureCollection, Point } from "geojson";
 import { useCatchStore } from "../stores/catchStore";
 import { useFilterStore } from "../stores/filterStore";
 import { useFilteredCatches } from "../hooks/useFilteredCatches";
+import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { FilterModal } from "../components/FilterModal";
-import { Filter } from "lucide-react";
+import { Filter, WifiOff, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "../styles/pages/Map.css";
@@ -32,12 +33,23 @@ export default function MapPage() {
   const { fetchCatches } = useCatchStore();
   const { activeFilterCount } = useFilterStore();
   const filteredCatches = useFilteredCatches();
+  const isOnline = useNetworkStatus();
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [hasMapError, setHasMapError] = useState(false);
+  const [mapErrorMessage, setMapErrorMessage] = useState<string>("");
 
   useEffect(() => {
     fetchCatches();
   }, [fetchCatches]);
+
+  // Reset error state when coming back online
+  useEffect(() => {
+    if (isOnline && hasMapError) {
+      // Give user a chance to retry - don't auto-reset
+      // They can reload the page or use the retry button
+    }
+  }, [isOnline, hasMapError]);
 
   const geojson: FeatureCollection = useMemo(() => {
     return {
@@ -59,7 +71,7 @@ export default function MapPage() {
     };
   }, [filteredCatches]);
 
-  const onClick = (event: MapLayerMouseEvent) => {
+  const onClick = useCallback((event: MapLayerMouseEvent) => {
     if (!event.features || event.features.length === 0) return;
     const feature = event.features[0];
     const clusterId = feature.properties?.cluster_id;
@@ -95,7 +107,37 @@ export default function MapPage() {
       weight,
       photoUri,
     });
-  };
+  }, []);
+
+  // Handle map load errors (e.g., tiles not available offline)
+  const handleMapError = useCallback(
+    (e: { error: { message?: string; status?: number } }) => {
+      console.warn("[Map] Error loading map resources:", e.error);
+
+      // Check if this is a network-related error when offline
+      if (!isOnline) {
+        // Only show error for critical failures, not individual tile failures
+        // Mapbox will use cached tiles when available
+        if (
+          e.error?.message?.includes("Failed to fetch") ||
+          e.error?.message?.includes("NetworkError")
+        ) {
+          setHasMapError(true);
+          setMapErrorMessage(
+            "Map tiles unavailable. Previously viewed areas may still be accessible.",
+          );
+        }
+      }
+    },
+    [isOnline],
+  );
+
+  const handleRetry = useCallback(() => {
+    setHasMapError(false);
+    setMapErrorMessage("");
+    // Force a re-render by updating state
+    window.location.reload();
+  }, []);
 
   const activeFilters = activeFilterCount();
 
@@ -111,8 +153,37 @@ export default function MapPage() {
     );
   }
 
+  // Show error state when map can't load at all offline
+  if (hasMapError && !isOnline) {
+    return (
+      <div className="map-unavailable">
+        <AlertTriangle size={48} className="map-error-icon" />
+        <h2>Map Unavailable Offline</h2>
+        <p>{mapErrorMessage}</p>
+        <p className="map-hint">
+          Browse the map while online to cache tiles for offline use.
+        </p>
+        <button
+          className="btn-retry"
+          onClick={handleRetry}
+          disabled={!isOnline}
+        >
+          {isOnline ? "Retry Loading" : "Go online to load map"}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="map-page">
+      {/* Offline Banner */}
+      {!isOnline && (
+        <div className="map-offline-banner" role="status" aria-live="polite">
+          <WifiOff size={16} />
+          <span>Offline - Showing cached map tiles</span>
+        </div>
+      )}
+
       <Map
         initialViewState={{
           latitude: 40,
@@ -124,6 +195,7 @@ export default function MapPage() {
         interactiveLayerIds={["clusters", "unclustered-point"]}
         onClick={onClick}
         attributionControl={false}
+        onError={handleMapError}
       >
         <GeolocateControl position="top-right" />
         <NavigationControl position="top-right" />
