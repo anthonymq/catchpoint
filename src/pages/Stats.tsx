@@ -6,6 +6,7 @@ import { CatchesByMonthChart } from "../components/stats/CatchesByMonthChart";
 import { CatchesByTimeChart } from "../components/stats/CatchesByTimeChart";
 import { MoonPhaseChart } from "../components/stats/MoonPhaseChart";
 import { PressureChart } from "../components/stats/PressureChart";
+import { TemperatureChart } from "../components/stats/TemperatureChart";
 import { useTranslation } from "@/i18n";
 import "../styles/pages/Stats.css";
 
@@ -159,6 +160,11 @@ export default function Stats() {
       {/* Barometric Pressure Impact Chart */}
       <ChartCard title={t("stats.charts.pressure")}>
         <PressureChart data={stats.catchesByPressureTrend} />
+      </ChartCard>
+
+      {/* Temperature Impact Chart */}
+      <ChartCard title={t("stats.charts.temperature")}>
+        <TemperatureChart data={stats.catchesByTemperature} />
       </ChartCard>
 
       {/* Weather Stats */}

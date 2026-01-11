@@ -84,6 +84,7 @@
       "monthlyActivity": "Monthly Activity",
       "moonPhase": "Moon Phase Impact",
       "pressure": "Pressure Impact",
+      "temperature": "Temperature Impact",
       "weatherConditions": "Weather Conditions"
     },
     "goldenHour": {

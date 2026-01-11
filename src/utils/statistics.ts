@@ -11,6 +11,15 @@ export type SkyCondition =
   | "Other"
   | "Unknown";
 
+export type TemperatureRange =
+  | "Freezing"
+  | "Cold"
+  | "Cool"
+  | "Mild"
+  | "Warm"
+  | "Hot"
+  | "Unknown";
+
 export interface GoldenHourInsight {
   peakHourStart: number; // 0-23
   peakHourEnd: number; // 0-23
@@ -39,6 +48,12 @@ export interface CatchStatistics {
     count: number;
     icon: string;
   }[];
+  catchesByTemperature: {
+    range: TemperatureRange;
+    count: number;
+    minTemp: number;
+    maxTemp: number;
+  }[];
   goldenHourInsight: GoldenHourInsight | null;
 }
 
@@ -61,6 +76,7 @@ export function calculateStatistics(catches: Catch[]): CatchStatistics {
       catchesByMoonPhase: MOON_PHASES.map((phase) => ({ phase, count: 0 })),
       catchesByPressureTrend: [],
       catchesBySkyCondition: [],
+      catchesByTemperature: [],
       goldenHourInsight: null,
     };
   }
@@ -181,6 +197,9 @@ export function calculateStatistics(catches: Catch[]): CatchStatistics {
   // Catches by sky condition
   const catchesBySkyCondition = calculateSkyConditionStats(catches);
 
+  // Catches by temperature range
+  const catchesByTemperature = calculateTemperatureStats(catches);
+
   // Golden hour insight
   const goldenHourInsight = calculateGoldenHourInsight(catchesByHour);
 
@@ -198,6 +217,7 @@ export function calculateStatistics(catches: Catch[]): CatchStatistics {
     catchesByMoonPhase,
     catchesByPressureTrend,
     catchesBySkyCondition,
+    catchesByTemperature,
     goldenHourInsight,
   };
 }
@@ -467,4 +487,90 @@ function calculateGoldenHourInsight(
     multiplier: Math.round(multiplier * 10) / 10,
     insightText,
   };
+}
+
+/**
+ * Temperature range definitions (in Celsius)
+ * These thresholds are designed for fishing relevance:
+ * - Fish activity varies significantly with water/air temperature
+ */
+const TEMPERATURE_RANGES: {
+  range: TemperatureRange;
+  min: number;
+  max: number;
+}[] = [
+  { range: "Freezing", min: -50, max: 0 },
+  { range: "Cold", min: 0, max: 10 },
+  { range: "Cool", min: 10, max: 15 },
+  { range: "Mild", min: 15, max: 20 },
+  { range: "Warm", min: 20, max: 25 },
+  { range: "Hot", min: 25, max: 50 },
+];
+
+/**
+ * Categorize temperature into a range
+ */
+function categorizeTemperature(
+  temperature: number | null | undefined,
+): TemperatureRange {
+  if (temperature === null || temperature === undefined) return "Unknown";
+
+  for (const { range, min, max } of TEMPERATURE_RANGES) {
+    if (temperature >= min && temperature < max) {
+      return range;
+    }
+  }
+
+  return "Unknown";
+}
+
+/**
+ * Calculate temperature range statistics from catches
+ */
+function calculateTemperatureStats(
+  catches: Catch[],
+): {
+  range: TemperatureRange;
+  count: number;
+  minTemp: number;
+  maxTemp: number;
+}[] {
+  const rangeCount = new Map<TemperatureRange, number>();
+
+  catches.forEach((c) => {
+    const temperature = c.weatherData?.temperature;
+    const range = categorizeTemperature(temperature);
+    rangeCount.set(range, (rangeCount.get(range) || 0) + 1);
+  });
+
+  // Return all ranges with counts, including those with 0
+  // Filter out Unknown if there are other categories with data
+  const hasNonUnknown = [...rangeCount.entries()].some(
+    ([range, count]) => range !== "Unknown" && count > 0,
+  );
+
+  return TEMPERATURE_RANGES.filter(
+    ({ range }) =>
+      (rangeCount.get(range) || 0) > 0 ||
+      (!hasNonUnknown && range === "Unknown"),
+  )
+    .map(({ range, min, max }) => ({
+      range,
+      count: rangeCount.get(range) || 0,
+      minTemp: min,
+      maxTemp: max,
+    }))
+    .concat(
+      // Add Unknown if it has data
+      (rangeCount.get("Unknown") || 0) > 0
+        ? [
+            {
+              range: "Unknown" as TemperatureRange,
+              count: rangeCount.get("Unknown") || 0,
+              minTemp: 0,
+              maxTemp: 0,
+            },
+          ]
+        : [],
+    );
 }
