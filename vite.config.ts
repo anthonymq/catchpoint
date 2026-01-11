@@ -23,7 +23,7 @@ export default defineConfig({
         theme_color: "#0f3460",
         background_color: "#ffffff",
         display: "standalone",
-        start_url: "/",
+        start_url: process.env.GITHUB_PAGES ? "/catchpoint/" : "/",
         icons: [
           {
             src: "icons/icon.svg",

@@ -22,8 +22,11 @@ function App() {
     }
   }, [isOnline]);
 
+  // Use Vite's BASE_URL for GitHub Pages deployment
+  const basename = import.meta.env.BASE_URL;
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />

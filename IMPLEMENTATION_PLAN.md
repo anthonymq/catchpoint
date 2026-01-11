@@ -1,6 +1,6 @@
 # Implementation Plan - Catchpoint PWA Rewrite
 
-> **Status**: ✅ COMPLETE
+> **Status**: 🔄 IN PROGRESS - Phase 9 (Mobile Polish & iOS)
 > **Goal**: Replace existing React Native app with an offline-first PWA.
 
 ## Phase 1: Demolition & Rescue (Day 1)
@@ -141,8 +141,118 @@
   - Configured tile cache limit to 2000 entries (~50-100MB)
   - 30-day expiration for tiles (they rarely change)
 
+## Phase 9: Mobile Polish & iOS Compatibility
+
+> **Status**: 🔴 NOT STARTED
+> **Priority**: HIGH - Critical UX issues on mobile devices
+
+### 9.1 Stats Screen Mobile Fix (Pixel 7)
+
+**Problem**: Charts are not fully visible on mobile (Pixel 7 - 1080x2400, 412x915 CSS pixels). User cannot see all charts without issues.
+
+- [ ] **Audit Stats Page Layout**
+  - Open Stats page on Pixel 7 viewport (412x915)
+  - Identify which charts are cut off, overlapping, or not visible
+  - Check if BottomNav overlaps chart content
+  - Verify scroll behavior works correctly
+
+- [ ] **Fix Chart Container Heights**
+  - Ensure each chart section has proper `min-height` that works on mobile
+  - Charts should NOT have fixed heights that break on small screens
+  - Use `aspect-ratio` or percentage-based heights where appropriate
+  - Add proper padding-bottom for BottomNav clearance (at least 80px)
+
+- [ ] **Fix Chart Responsiveness**
+  - Verify Recharts `ResponsiveContainer` is used correctly
+  - Charts should resize properly on orientation change
+  - Ensure chart legends don't overflow on narrow screens
+  - Test touch interactions on charts (tooltips should work)
+
+- [ ] **Fix Stats Page Scroll**
+  - Page must scroll smoothly to show all content
+  - No content should be hidden behind BottomNav
+  - Add `padding-bottom: env(safe-area-inset-bottom)` for iOS
+  - Verify all 4 chart sections are accessible by scrolling
+
+- [ ] **E2E Test on Mobile Viewport**
+  - Add/update E2E test for Pixel 7 viewport (412x915)
+  - Verify all charts are visible and have proper dimensions
+  - Test scrolling to bottom of stats page
+
+### 9.2 iOS Full Compatibility
+
+**Problem**: PWA needs to work flawlessly on iOS Safari, including standalone mode (Add to Home Screen).
+
+- [ ] **Safe Area Handling**
+  - Add `viewport-fit=cover` to meta viewport tag
+  - Use `env(safe-area-inset-*)` for all edge elements:
+    - Top: Header/status bar area
+    - Bottom: BottomNav + home indicator
+    - Left/Right: For landscape mode
+  - Test on iPhone with notch (X, 11, 12, 13, 14, 15 series)
+
+- [ ] **iOS PWA Meta Tags**
+  - Add `apple-mobile-web-app-capable` meta tag
+  - Add `apple-mobile-web-app-status-bar-style` (black-translucent recommended)
+  - Add `apple-mobile-web-app-title`
+  - Add Apple touch icons (180x180 required)
+  - Add `apple-touch-startup-image` for splash screens (optional but nice)
+
+- [ ] **iOS-Specific Touch Behaviors**
+  - Disable double-tap zoom on interactive elements (`touch-action: manipulation`)
+  - Prevent pull-to-refresh interfering with app (`overscroll-behavior: none` on body)
+  - Fix any `-webkit-overflow-scrolling: touch` issues
+  - Ensure smooth momentum scrolling on all scrollable containers
+
+- [ ] **iOS PWA Standalone Mode**
+  - Test app works when added to home screen
+  - Verify navigation doesn't break in standalone mode
+  - Ensure back gesture works correctly
+  - Test that external links open in Safari (not in-app)
+
+- [ ] **iOS Safari Quirks**
+  - Fix any 100vh issues (iOS Safari has dynamic viewport)
+  - Use `dvh` units or JS-based viewport height fix
+  - Test keyboard behavior doesn't break layout on forms
+  - Verify date inputs work correctly (iOS has native date picker)
+
+- [ ] **iOS Geolocation**
+  - Verify location permissions work on iOS Safari
+  - Test location accuracy on iOS devices
+  - Handle iOS-specific permission prompts gracefully
+
+- [ ] **iOS Offline/Service Worker**
+  - Test Service Worker registration on iOS Safari
+  - Verify offline mode works (iOS has SW limitations)
+  - Note: Background Sync not supported - ensure foreground sync works
+  - Test app reload behavior when coming from background
+
+- [ ] **E2E Tests for iOS**
+  - Run E2E tests on WebKit (Safari) engine
+  - Verify all critical flows work on iOS Safari viewport
+  - Test PWA install flow on iOS
+
+### 9.3 Verification
+
+- [ ] **Manual Testing Checklist**
+  - [ ] Stats page fully visible and scrollable on Pixel 7 (Android)
+  - [ ] Stats page fully visible and scrollable on iPhone 12/13/14 (iOS)
+  - [ ] All charts render correctly on both platforms
+  - [ ] Quick Capture works on iOS
+  - [ ] Map loads and works on iOS
+  - [ ] Theme switching works on iOS
+  - [ ] Offline mode works on iOS (with limitations noted)
+  - [ ] PWA installs correctly on iOS (Add to Home Screen)
+
+- [ ] **Build & Test**
+  - All E2E tests pass including mobile viewports
+  - Build completes without errors
+  - Lighthouse PWA audit passes on iOS Safari
+
 ## Discovered Issues / Notes
 
 - [x] **Mapbox Offline**: Tile caching implemented with 2000-tile limit. Users should browse areas while online to cache tiles.
 - [ ] **Safari Support**: Background Sync API not supported; ensure fallback to foreground sync on network restore works reliably.
 - [ ] **Storage Quota**: Monitor usage as photos are stored in IndexedDB.
+- [ ] **iOS 100vh Bug**: iOS Safari's 100vh includes the URL bar. Use `100dvh` or JS workaround.
+- [ ] **iOS PWA Limitations**: No Background Sync, no Push notifications without workarounds, limited Service Worker support.
