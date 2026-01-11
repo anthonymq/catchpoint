@@ -62,7 +62,9 @@
     "cluster": "{{count}} catches",
     "offline": "Map unavailable offline",
     "showHeatmap": "Heatmap",
-    "showMarkers": "Markers"
+    "showMarkers": "Markers",
+    "previousCatch": "Previous catch",
+    "nextCatch": "Next catch"
   },
   "stats": {
     "title": "Statistics",

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import Map, {
   Source,
   Layer,
@@ -6,6 +6,7 @@ import Map, {
   GeolocateControl,
   Popup,
 } from "react-map-gl/mapbox";
+import type { MapRef } from "react-map-gl/mapbox";
 import type { MapLayerMouseEvent, GeoJSONSource } from "mapbox-gl";
 import type { FeatureCollection, Point } from "geojson";
 import { useCatchStore } from "../stores/catchStore";
@@ -14,7 +15,15 @@ import { useFilteredCatches } from "../hooks/useFilteredCatches";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
 import { FilterModal } from "../components/FilterModal";
 import { useTranslation } from "@/i18n";
-import { Filter, WifiOff, AlertTriangle, MapPin, Flame } from "lucide-react";
+import {
+  Filter,
+  WifiOff,
+  AlertTriangle,
+  MapPin,
+  Flame,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { format } from "date-fns";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "../styles/pages/Map.css";
@@ -38,11 +47,16 @@ export default function MapPage() {
   const { activeFilterCount } = useFilterStore();
   const filteredCatches = useFilteredCatches();
   const isOnline = useNetworkStatus();
+  const mapRef = useRef<MapRef>(null);
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [hasMapError, setHasMapError] = useState(false);
   const [mapErrorMessage, setMapErrorMessage] = useState<string>("");
   const [viewMode, setViewMode] = useState<ViewMode>("markers");
+  const [selectedCatchIndex, setSelectedCatchIndex] = useState<number | null>(
+    null,
+  );
+  const [hasCenteredOnUser, setHasCenteredOnUser] = useState(false);
 
   useEffect(() => {
     fetchCatches();
@@ -55,6 +69,94 @@ export default function MapPage() {
       // They can reload the page or use the retry button
     }
   }, [isOnline, hasMapError]);
+
+  // Auto-center to user's current location on mount
+  useEffect(() => {
+    if (hasCenteredOnUser) return;
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        mapRef.current?.flyTo({
+          center: [longitude, latitude],
+          zoom: 10,
+          duration: 1500,
+        });
+        setHasCenteredOnUser(true);
+      },
+      (error) => {
+        console.warn("[Map] Could not get user location:", error.message);
+        setHasCenteredOnUser(true); // Prevent retry loop
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 8000,
+        maximumAge: 60000, // Use cached position if available (1 min)
+      },
+    );
+  }, [hasCenteredOnUser]);
+
+  // Navigate to a specific catch and show popup
+  const navigateToCatch = useCallback(
+    (index: number) => {
+      if (
+        filteredCatches.length === 0 ||
+        index < 0 ||
+        index >= filteredCatches.length
+      ) {
+        return;
+      }
+
+      const catchItem = filteredCatches[index];
+      setSelectedCatchIndex(index);
+
+      // Fly to catch location
+      mapRef.current?.flyTo({
+        center: [catchItem.longitude, catchItem.latitude],
+        zoom: 14,
+        duration: 1000,
+      });
+
+      // Show popup for this catch
+      setPopupInfo({
+        longitude: catchItem.longitude,
+        latitude: catchItem.latitude,
+        species: catchItem.species || t("catch.unknownSpecies"),
+        timestamp: catchItem.timestamp,
+        weight: catchItem.weight,
+        photoUri: catchItem.photoUri,
+      });
+    },
+    [filteredCatches, t],
+  );
+
+  // Go to previous catch
+  const handlePreviousCatch = useCallback(() => {
+    if (filteredCatches.length === 0) return;
+
+    const newIndex =
+      selectedCatchIndex === null
+        ? filteredCatches.length - 1
+        : selectedCatchIndex <= 0
+          ? filteredCatches.length - 1
+          : selectedCatchIndex - 1;
+
+    navigateToCatch(newIndex);
+  }, [filteredCatches.length, selectedCatchIndex, navigateToCatch]);
+
+  // Go to next catch
+  const handleNextCatch = useCallback(() => {
+    if (filteredCatches.length === 0) return;
+
+    const newIndex =
+      selectedCatchIndex === null
+        ? 0
+        : selectedCatchIndex >= filteredCatches.length - 1
+          ? 0
+          : selectedCatchIndex + 1;
+
+    navigateToCatch(newIndex);
+  }, [filteredCatches.length, selectedCatchIndex, navigateToCatch]);
 
   const geojson: FeatureCollection = useMemo(() => {
     return {
@@ -188,6 +290,7 @@ export default function MapPage() {
       )}
 
       <Map
+        ref={mapRef}
         initialViewState={{
           latitude: 40,
           longitude: -100,
@@ -388,6 +491,35 @@ export default function MapPage() {
           <span>{t("map.showHeatmap")}</span>
         </button>
       </div>
+
+      {/* Catch Navigation Controls */}
+      {filteredCatches.length > 0 && (
+        <div className="map-catch-navigation">
+          <button
+            className="btn-catch-nav"
+            onClick={handlePreviousCatch}
+            title={t("map.previousCatch")}
+            aria-label={t("map.previousCatch")}
+          >
+            <ChevronLeft size={22} />
+          </button>
+          <div className="catch-nav-indicator">
+            <span className="catch-nav-current">
+              {selectedCatchIndex !== null ? selectedCatchIndex + 1 : "—"}
+            </span>
+            <span className="catch-nav-separator">/</span>
+            <span className="catch-nav-total">{filteredCatches.length}</span>
+          </div>
+          <button
+            className="btn-catch-nav"
+            onClick={handleNextCatch}
+            title={t("map.nextCatch")}
+            aria-label={t("map.nextCatch")}
+          >
+            <ChevronRight size={22} />
+          </button>
+        </div>
+      )}
 
       <FilterModal
         isOpen={isFilterOpen}

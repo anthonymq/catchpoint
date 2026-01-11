@@ -460,3 +460,145 @@
     padding-right: 1rem;
   }
 }
+
+/* ============================================================================
+   Catch Navigation Controls - Previous / Next Buttons
+   ============================================================================ */
+.map-catch-navigation {
+  position: absolute;
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 20px;
+  padding: 0.375rem;
+
+  /* Premium glassmorphism matching view toggle */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 0 40px rgba(50, 130, 184, 0.08);
+}
+
+.btn-catch-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--color-text, #374151);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-catch-nav:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--color-primary, #3b82f6);
+  transform: scale(1.05);
+}
+
+.btn-catch-nav:active {
+  transform: scale(0.95);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.catch-nav-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 0.75rem;
+  font-family: "SF Mono", "Monaco", "Consolas", monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text, #374151);
+  min-width: 70px;
+  justify-content: center;
+}
+
+.catch-nav-current {
+  color: var(--color-primary, #3b82f6);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.catch-nav-separator {
+  color: var(--color-text-muted, #9ca3af);
+  font-weight: 400;
+}
+
+.catch-nav-total {
+  color: var(--color-text-muted, #6b7280);
+  font-weight: 500;
+}
+
+/* Dark mode */
+[data-theme="dark"] .map-catch-navigation {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 33, 62, 0.95) 0%,
+    rgba(22, 33, 62, 0.9) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.15),
+    0 0 40px rgba(50, 130, 184, 0.1);
+}
+
+[data-theme="dark"] .btn-catch-nav {
+  color: var(--color-text, #f3f4f6);
+}
+
+[data-theme="dark"] .btn-catch-nav:hover {
+  background: rgba(50, 130, 184, 0.15);
+  color: var(--color-primary, #3282b8);
+}
+
+[data-theme="dark"] .btn-catch-nav:active {
+  background: rgba(50, 130, 184, 0.2);
+}
+
+[data-theme="dark"] .catch-nav-current {
+  color: var(--color-primary, #3282b8);
+}
+
+[data-theme="dark"] .catch-nav-total {
+  color: var(--color-text-muted, #9ca3af);
+}
+
+/* Responsive adjustments */
+@media (max-width: 360px) {
+  .map-catch-navigation {
+    padding: 0.25rem;
+  }
+
+  .btn-catch-nav {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  .catch-nav-indicator {
+    min-width: 55px;
+    font-size: 0.8rem;
+    padding: 0 0.5rem;
+  }
+
+  .catch-nav-current {
+    font-size: 0.9rem;
+  }
+}

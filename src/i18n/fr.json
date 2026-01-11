@@ -62,7 +62,9 @@
     "cluster": "{{count}} prises",
     "offline": "Carte non disponible hors ligne",
     "showHeatmap": "Densité",
-    "showMarkers": "Marqueurs"
+    "showMarkers": "Marqueurs",
+    "previousCatch": "Prise précédente",
+    "nextCatch": "Prise suivante"
   },
   "stats": {
     "title": "Statistiques",
