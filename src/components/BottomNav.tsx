@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Fish, Map as MapIcon, BarChart2 } from "lucide-react";
+import { Home, Fish, Map as MapIcon, BarChart2, Settings } from "lucide-react";
 import clsx from "clsx";
 import "../styles/components/BottomNav.css";
 
@@ -9,6 +9,7 @@ export default function BottomNav() {
     { to: "/log", icon: Fish, label: "Log" },
     { to: "/map", icon: MapIcon, label: "Map" },
     { to: "/stats", icon: BarChart2, label: "Stats" },
+    { to: "/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
