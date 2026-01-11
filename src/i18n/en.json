@@ -133,6 +133,11 @@
       "clearDataTitle": "Clear All Data?",
       "clearDataMessage": "Are you sure you want to delete all {{count}} catches? This action cannot be undone.",
       "clearDataConfirm": "Delete All"
+    },
+    "about": {
+      "version": "Version",
+      "licenses": "Open Source Licenses",
+      "privacy": "Privacy Policy"
     }
   },
   "catch": {

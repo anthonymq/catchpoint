@@ -159,6 +159,12 @@
 .settings-section:nth-child(4) {
   animation-delay: 240ms;
 }
+.settings-section:nth-child(5) {
+  animation-delay: 320ms;
+}
+.settings-section:nth-child(6) {
+  animation-delay: 400ms;
+}
 
 .settings-section-title {
   font-size: 0.75rem;
@@ -607,4 +613,39 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* About Section Links */
+.about-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.about-link:last-child {
+  border-bottom: none;
+}
+
+.about-link:hover,
+.about-link:active {
+  background: var(--color-surface);
+}
+
+.about-link:active {
+  transform: scale(0.99);
+}
+
+.about-link-icon {
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.about-link:hover .about-link-icon {
+  transform: translateX(2px);
+  color: var(--color-primary);
 }

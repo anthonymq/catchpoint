@@ -11,6 +11,10 @@ import {
   HardDrive,
   Share,
   Globe,
+  Info,
+  FileText,
+  Shield,
+  ExternalLink,
 } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useCatchStore } from "@/stores/catchStore";
@@ -318,6 +322,53 @@ export default function Settings() {
                 </p>
               </div>
             </button>
+          </div>
+        </section>
+
+        {/* About */}
+        <section className="settings-section">
+          <h2 className="settings-section-title">
+            {t("settings.sections.about")}
+          </h2>
+          <div className="settings-card">
+            {/* Version */}
+            <div className="app-row">
+              <div className="app-row-label">
+                <Info size={20} />
+                <span>{t("settings.about.version")}</span>
+              </div>
+              <div className="app-row-value">
+                <span className="storage-value">v{__APP_VERSION__}</span>
+              </div>
+            </div>
+
+            {/* Licenses */}
+            <a
+              href="https://github.com/anthonymq/catchpoint/blob/main/LICENSES.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="about-link"
+            >
+              <div className="app-row-label">
+                <FileText size={20} />
+                <span>{t("settings.about.licenses")}</span>
+              </div>
+              <ExternalLink size={16} className="about-link-icon" />
+            </a>
+
+            {/* Privacy Policy */}
+            <a
+              href="https://github.com/anthonymq/catchpoint/blob/main/PRIVACY.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="about-link"
+            >
+              <div className="app-row-label">
+                <Shield size={20} />
+                <span>{t("settings.about.privacy")}</span>
+              </div>
+              <ExternalLink size={16} className="about-link-icon" />
+            </a>
           </div>
         </section>
 

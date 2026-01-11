@@ -133,6 +133,11 @@
       "clearDataTitle": "Effacer toutes les données ?",
       "clearDataMessage": "Êtes-vous sûr de vouloir supprimer les {{count}} prises ? Cette action est irréversible.",
       "clearDataConfirm": "Tout supprimer"
+    },
+    "about": {
+      "version": "Version",
+      "licenses": "Licences open source",
+      "privacy": "Politique de confidentialité"
     }
   },
   "catch": {

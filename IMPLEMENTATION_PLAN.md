@@ -253,10 +253,11 @@ Fixed the blocking GPS issue where `useQuickCapture.ts` awaited `getCurrentLocat
 
 ## Phase 16: Settings Page Completion
 
-> **Status**: PARTIAL
+> **Status**: COMPLETE
 > **Priority**: MEDIUM
 > **Effort**: S
 > **Spec**: `specs/settings.md`
+> **Completed**: 2026-01-11
 
 ### 16.1 Missing Settings Features
 
@@ -268,9 +269,12 @@ Fixed the blocking GPS issue where `useQuickCapture.ts` awaited `getCurrentLocat
   - Removed hardcoded version from translation files
   - package.json version set to "1.0.0"
 
-- [ ] **About Section Links** - S
-  - Licenses: Link to `/licenses` or modal with OSS attributions
-  - Privacy Policy: External link (can be placeholder URL for now)
+- [x] **About Section Links** - S (completed 2026-01-11)
+  - Added About section with Version, Licenses, Privacy Policy
+  - Created LICENSES.md with OSS attributions
+  - Created PRIVACY.md with privacy policy
+  - Links open in new tab with external link icon
+  - Translations added for EN/FR
 
 ### 16.2 Already Implemented
 
