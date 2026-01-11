@@ -8,8 +8,54 @@ import { MoonPhaseChart } from "../components/stats/MoonPhaseChart";
 import { PressureChart } from "../components/stats/PressureChart";
 import { TemperatureChart } from "../components/stats/TemperatureChart";
 import { useTranslation } from "@/i18n";
-import { Info } from "lucide-react";
+import { Info, X } from "lucide-react";
 import "../styles/pages/Stats.css";
+
+// Info Modal Component
+function InfoModal({
+  title,
+  content,
+  onClose,
+}: {
+  title: string;
+  content: string;
+  onClose: () => void;
+}) {
+  // Close on escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onClose]);
+
+  return (
+    <div className="info-modal-overlay" onClick={onClose}>
+      <div
+        className="info-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="info-modal-title"
+      >
+        <div className="info-modal-header">
+          <h3 id="info-modal-title" className="info-modal-title">
+            {title}
+          </h3>
+          <button
+            className="info-modal-close"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <p className="info-modal-content">{content}</p>
+      </div>
+    </div>
+  );
+}
 
 // Skeleton loading components
 function StatCardSkeleton() {
@@ -58,6 +104,18 @@ export default function Stats() {
   const { t } = useTranslation();
   const { catches, fetchCatches, loading } = useCatchStore();
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [activeModal, setActiveModal] = useState<{
+    title: string;
+    content: string;
+  } | null>(null);
+
+  const openModal = (title: string, content: string) => {
+    setActiveModal({ title, content });
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+  };
 
   useEffect(() => {
     fetchCatches().then(() => setHasLoaded(true));
@@ -96,12 +154,24 @@ export default function Stats() {
           value={stats.totalCatches}
           icon="🎣"
           tooltip={t("stats.tooltips.totalCatches")}
+          onInfoClick={() =>
+            openModal(
+              t("stats.cards.totalCatches"),
+              t("stats.tooltips.totalCatches"),
+            )
+          }
         />
         <StatCard
           label={t("stats.cards.topSpecies")}
           value={stats.topSpecies[0]?.species || "-"}
           icon="🐟"
           tooltip={t("stats.tooltips.topSpecies")}
+          onInfoClick={() =>
+            openModal(
+              t("stats.cards.topSpecies"),
+              t("stats.tooltips.topSpecies"),
+            )
+          }
         />
         <StatCard
           label={t("stats.cards.avgWeight")}
@@ -110,6 +180,9 @@ export default function Stats() {
           }
           icon="⚖️"
           tooltip={t("stats.tooltips.avgWeight")}
+          onInfoClick={() =>
+            openModal(t("stats.cards.avgWeight"), t("stats.tooltips.avgWeight"))
+          }
         />
         <StatCard
           label={t("stats.cards.bestDay")}
@@ -122,6 +195,9 @@ export default function Stats() {
           }
           icon="📅"
           tooltip={t("stats.tooltips.bestDay")}
+          onInfoClick={() =>
+            openModal(t("stats.cards.bestDay"), t("stats.tooltips.bestDay"))
+          }
         />
       </div>
 
@@ -131,20 +207,22 @@ export default function Stats() {
           <div className="golden-hour-content">
             <span className="golden-hour-icon">🌅</span>
             <div>
-              <div className="golden-hour-title-wrapper has-tooltip">
+              <div className="golden-hour-title-wrapper">
                 <h3 className="golden-hour-title">
                   {t("stats.goldenHour.title")}
                 </h3>
                 <button
-                  className="info-tooltip-trigger"
+                  className="info-button"
+                  onClick={() =>
+                    openModal(
+                      t("stats.goldenHour.title"),
+                      t("stats.tooltips.goldenHour"),
+                    )
+                  }
                   aria-label={`Info about ${t("stats.goldenHour.title")}`}
-                  tabIndex={0}
                 >
-                  <Info size={10} />
+                  <Info size={12} />
                 </button>
-                <div className="info-tooltip-content" role="tooltip">
-                  {t("stats.tooltips.goldenHour")}
-                </div>
               </div>
               <p className="golden-hour-text">
                 {stats.goldenHourInsight.insightText}
@@ -158,6 +236,12 @@ export default function Stats() {
       <ChartCard
         title={t("stats.charts.catchesByTime")}
         tooltip={t("stats.tooltips.catchesByTime")}
+        onInfoClick={() =>
+          openModal(
+            t("stats.charts.catchesByTime"),
+            t("stats.tooltips.catchesByTime"),
+          )
+        }
       >
         <CatchesByTimeChart data={stats.catchesByHour} />
       </ChartCard>
@@ -167,6 +251,12 @@ export default function Stats() {
           title={t("stats.charts.speciesDistribution")}
           variant="pie"
           tooltip={t("stats.tooltips.speciesDistribution")}
+          onInfoClick={() =>
+            openModal(
+              t("stats.charts.speciesDistribution"),
+              t("stats.tooltips.speciesDistribution"),
+            )
+          }
         >
           <SpeciesChart data={stats.topSpecies} />
         </ChartCard>
@@ -174,6 +264,12 @@ export default function Stats() {
         <ChartCard
           title={t("stats.charts.monthlyActivity")}
           tooltip={t("stats.tooltips.monthlyActivity")}
+          onInfoClick={() =>
+            openModal(
+              t("stats.charts.monthlyActivity"),
+              t("stats.tooltips.monthlyActivity"),
+            )
+          }
         >
           <CatchesByMonthChart data={stats.catchesByMonth} />
         </ChartCard>
@@ -183,6 +279,9 @@ export default function Stats() {
       <ChartCard
         title={t("stats.charts.moonPhase")}
         tooltip={t("stats.tooltips.moonPhase")}
+        onInfoClick={() =>
+          openModal(t("stats.charts.moonPhase"), t("stats.tooltips.moonPhase"))
+        }
       >
         <MoonPhaseChart data={stats.catchesByMoonPhase} />
       </ChartCard>
@@ -191,6 +290,9 @@ export default function Stats() {
       <ChartCard
         title={t("stats.charts.pressure")}
         tooltip={t("stats.tooltips.pressure")}
+        onInfoClick={() =>
+          openModal(t("stats.charts.pressure"), t("stats.tooltips.pressure"))
+        }
       >
         <PressureChart data={stats.catchesByPressureTrend} />
       </ChartCard>
@@ -199,26 +301,34 @@ export default function Stats() {
       <ChartCard
         title={t("stats.charts.temperature")}
         tooltip={t("stats.tooltips.temperature")}
+        onInfoClick={() =>
+          openModal(
+            t("stats.charts.temperature"),
+            t("stats.tooltips.temperature"),
+          )
+        }
       >
         <TemperatureChart data={stats.catchesByTemperature} />
       </ChartCard>
 
       {/* Weather Stats */}
       <div className="weather-stats-card">
-        <div className="weather-stats-header has-tooltip">
+        <div className="weather-stats-header">
           <h3 className="weather-stats-title">
             {t("stats.charts.weatherConditions")}
           </h3>
           <button
-            className="info-tooltip-trigger"
+            className="info-button"
+            onClick={() =>
+              openModal(
+                t("stats.charts.weatherConditions"),
+                t("stats.tooltips.weatherConditions"),
+              )
+            }
             aria-label={`Info about ${t("stats.charts.weatherConditions")}`}
-            tabIndex={0}
           >
-            <Info size={10} />
+            <Info size={12} />
           </button>
-          <div className="info-tooltip-content" role="tooltip">
-            {t("stats.tooltips.weatherConditions")}
-          </div>
         </div>
         <div className="weather-stats-grid">
           {stats.catchesBySkyCondition.map((item) => (
@@ -230,6 +340,15 @@ export default function Stats() {
           ))}
         </div>
       </div>
+
+      {/* Info Modal */}
+      {activeModal && (
+        <InfoModal
+          title={activeModal.title}
+          content={activeModal.content}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 }
@@ -238,30 +357,26 @@ function StatCard({
   label,
   value,
   icon,
-  tooltip,
+  onInfoClick,
 }: {
   label: string;
   value: string | number;
   icon: string;
   tooltip?: string;
+  onInfoClick?: () => void;
 }) {
   return (
-    <div className="stat-card has-tooltip">
+    <div className="stat-card">
       <div className="stat-card-label-wrapper">
         <span className="stat-card-label">{label}</span>
-        {tooltip && (
-          <>
-            <button
-              className="info-tooltip-trigger"
-              aria-label={`Info about ${label}`}
-              tabIndex={0}
-            >
-              <Info size={10} />
-            </button>
-            <div className="info-tooltip-content" role="tooltip">
-              {tooltip}
-            </div>
-          </>
+        {onInfoClick && (
+          <button
+            className="info-button"
+            onClick={onInfoClick}
+            aria-label={`Info about ${label}`}
+          >
+            <Info size={12} />
+          </button>
         )}
       </div>
       <div className="stat-card-value">
@@ -276,12 +391,13 @@ function ChartCard({
   title,
   children,
   variant = "default",
-  tooltip,
+  onInfoClick,
 }: {
   title: string;
   children: React.ReactNode;
   variant?: "default" | "pie";
   tooltip?: string;
+  onInfoClick?: () => void;
 }) {
   const containerClass =
     variant === "pie"
@@ -289,21 +405,16 @@ function ChartCard({
       : "chart-container";
   return (
     <div className="chart-card">
-      <div className="chart-card-header has-tooltip">
+      <div className="chart-card-header">
         <h3 className="chart-card-title">{title}</h3>
-        {tooltip && (
-          <>
-            <button
-              className="info-tooltip-trigger"
-              aria-label={`Info about ${title}`}
-              tabIndex={0}
-            >
-              <Info size={10} />
-            </button>
-            <div className="info-tooltip-content" role="tooltip">
-              {tooltip}
-            </div>
-          </>
+        {onInfoClick && (
+          <button
+            className="info-button"
+            onClick={onInfoClick}
+            aria-label={`Info about ${title}`}
+          >
+            <Info size={12} />
+          </button>
         )}
       </div>
       <div className={containerClass}>{children}</div>
