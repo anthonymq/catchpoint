@@ -1,7 +1,7 @@
 # Implementation Plan - Catchpoint PWA
 
-> **Last Updated**: 2026-01-11 (RALPH Build Mode - Phase 17 Complete)
-> **Status**: Phases 1-17 Complete, Phase 18 Pending (LOW priority - E2E tests)
+> **Last Updated**: 2026-01-11 (RALPH Build Mode - Phase 18 In Progress)
+> **Status**: Phases 1-17 Complete, Phase 18 In Progress (Log Sorting Complete)
 > **Goal**: Offline-first PWA fishing log with one-tap capture
 
 ---
@@ -354,9 +354,11 @@ After comprehensive review, all inline styles in the codebase are **acceptable**
   - Test photo capture/upload in CatchDetail
   - Verify photo persists and displays
 
-- [ ] **Log Sorting** - S
-  - Verify sort order changes (newest/oldest)
-  - Test weight-based sorting
+- [x] **Log Sorting** - S (completed 2026-01-11)
+  - Added sorting feature to Filter Modal (Date/Weight/Species)
+  - Sort options: ascending/descending toggle per field
+  - E2E tests: `e2e/log-sorting.spec.ts` (20 tests, WebKit skipped)
+  - Files modified: filterStore.ts, useFilteredCatches.ts, FilterModal.tsx
 
 - [x] **i18n Tests** - M (completed 2026-01-11)
   - Language switching ✓

@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
-import { useFilterStore } from "../stores/filterStore";
+import { X, ArrowUp, ArrowDown } from "lucide-react";
+import { useFilterStore, type SortBy } from "../stores/filterStore";
 import { useFilteredCatches } from "../hooks/useFilteredCatches";
 import { SPECIES_LIST } from "../data/species";
 import { useTranslation } from "@/i18n";
@@ -16,9 +16,13 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
     dateRange,
     species,
     hasPhoto,
+    sortBy,
+    sortOrder,
     setDateRange,
     toggleSpecies,
     setHasPhoto,
+    setSortBy,
+    setSortOrder,
     resetFilters,
   } = useFilterStore();
 
@@ -27,6 +31,30 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
   const resultCount = filteredCatches.length;
 
   if (!isOpen) return null;
+
+  const handleSortByClick = (newSortBy: SortBy) => {
+    if (sortBy === newSortBy) {
+      // Toggle order if same sort field clicked
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortBy(newSortBy);
+      // Set sensible default order for each sort type
+      setSortOrder(
+        newSortBy === "date" ? "desc" : newSortBy === "weight" ? "desc" : "asc",
+      );
+    }
+  };
+
+  const getSortLabel = (sortType: SortBy): string => {
+    switch (sortType) {
+      case "date":
+        return t("filter.sortDate");
+      case "weight":
+        return t("filter.sortWeight");
+      case "species":
+        return t("filter.sortSpecies");
+    }
+  };
 
   return (
     <div className="filter-modal-overlay" onClick={onClose}>
@@ -39,6 +67,32 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
         </div>
 
         <div className="filter-body">
+          {/* Sort Section */}
+          <div className="filter-section">
+            <h4 className="filter-section-title">{t("filter.sortBy")}</h4>
+            <div className="filter-chips">
+              {(["date", "weight", "species"] as SortBy[]).map((sortType) => (
+                <button
+                  key={sortType}
+                  className={`filter-chip sort-chip ${sortBy === sortType ? "active" : ""}`}
+                  onClick={() => handleSortByClick(sortType)}
+                  aria-label={`${t("filter.sortBy")} ${getSortLabel(sortType)}`}
+                >
+                  {getSortLabel(sortType)}
+                  {sortBy === sortType && (
+                    <span className="sort-order-icon">
+                      {sortOrder === "asc" ? (
+                        <ArrowUp size={14} />
+                      ) : (
+                        <ArrowDown size={14} />
+                      )}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Date Range Section */}
           <div className="filter-section">
             <h4 className="filter-section-title">{t("filter.dateRange")}</h4>

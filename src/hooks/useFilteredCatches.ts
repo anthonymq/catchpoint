@@ -5,11 +5,12 @@ import { useFilterStore } from "../stores/filterStore";
 
 export function useFilteredCatches() {
   const { catches } = useCatchStore();
-  const { dateRange, species, hasPhoto } = useFilterStore();
+  const { dateRange, species, hasPhoto, sortBy, sortOrder } = useFilterStore();
 
   return useMemo(() => {
-    return catches.filter((catchItem) => {
-      // 1. Filter by Date Range
+    // 1. Filter catches
+    const filtered = catches.filter((catchItem) => {
+      // 1a. Filter by Date Range
       if (dateRange !== "all") {
         const catchDate = new Date(catchItem.timestamp);
         let cutoffDate: Date;
@@ -33,17 +34,14 @@ export function useFilteredCatches() {
         }
       }
 
-      // 2. Filter by Species
+      // 1b. Filter by Species
       if (species.length > 0) {
-        // If species is not recorded, only show if we aren't filtering strictly?
-        // Usually if I select "Bass", I only want "Bass".
-        // If catch has no species, it shouldn't show if species filter is active.
         if (!catchItem.species || !species.includes(catchItem.species)) {
           return false;
         }
       }
 
-      // 3. Filter by Photo
+      // 1c. Filter by Photo
       if (hasPhoto !== "all") {
         const hasUri = !!catchItem.photoUri;
         if (hasPhoto === "yes" && !hasUri) return false;
@@ -52,5 +50,38 @@ export function useFilteredCatches() {
 
       return true;
     });
-  }, [catches, dateRange, species, hasPhoto]);
+
+    // 2. Sort catches
+    const sorted = [...filtered].sort((a, b) => {
+      let comparison = 0;
+
+      switch (sortBy) {
+        case "date": {
+          const dateA = new Date(a.timestamp).getTime();
+          const dateB = new Date(b.timestamp).getTime();
+          comparison = dateA - dateB;
+          break;
+        }
+        case "weight": {
+          // Put catches without weight at the end
+          const weightA = a.weight ?? -Infinity;
+          const weightB = b.weight ?? -Infinity;
+          comparison = weightA - weightB;
+          break;
+        }
+        case "species": {
+          // Put catches without species at the end
+          const speciesA = a.species ?? "";
+          const speciesB = b.species ?? "";
+          comparison = speciesA.localeCompare(speciesB);
+          break;
+        }
+      }
+
+      // Apply sort order
+      return sortOrder === "asc" ? comparison : -comparison;
+    });
+
+    return sorted;
+  }, [catches, dateRange, species, hasPhoto, sortBy, sortOrder]);
 }

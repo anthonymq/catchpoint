@@ -352,3 +352,17 @@
 [data-theme="dark"] .btn-apply {
   box-shadow: 0 4px 12px rgba(50, 130, 184, 0.4);
 }
+
+/* Sort chip with order indicator */
+.sort-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sort-order-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 2px;
+  opacity: 0.8;
+}
