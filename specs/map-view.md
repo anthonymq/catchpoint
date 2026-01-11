@@ -1,10 +1,12 @@
 # Map View Specification
 
 ## Overview
-Interactive map showing catch locations with clustering, filtering, and 
+
+Interactive map showing catch locations with clustering, filtering, and
 location-based insights.
 
 ## User Story
+
 **As a** fisher  
 **I want to** see my catches on a map  
 **So that** I can find my best fishing spots and navigate back to them
@@ -12,11 +14,14 @@ location-based insights.
 ## Screen Layout
 
 ### Map (Full Screen)
+
 - Mapbox GL JS map covering entire viewport
 - Catch markers clustered when zoomed out
 - User location indicator (optional)
+- Auto-centers to user's GPS location on tab open
 
 ### Controls Overlay
+
 ```
 ┌─────────────────────────────────────┐
 │ [🔍] [📍] [🎚️]              [+][-] │
@@ -25,9 +30,12 @@ location-based insights.
 │        [Map Content]                │
 │                                     │
 │                                     │
-│ ┌─────────────────────────────────┐ │
-│ │ Bottom Sheet (collapsed)        │ │
-│ └─────────────────────────────────┘ │
+│      ┌─────────────────────┐        │
+│      │ [<] 3/15 [>]        │        │  ← Catch Navigation
+│      └─────────────────────┘        │
+│      ┌─────────────────────┐        │
+│      │ [Markers] [Heatmap] │        │  ← View Mode Toggle
+│      └─────────────────────┘        │
 └─────────────────────────────────────┘
 
 Legend:
@@ -35,9 +43,11 @@ Legend:
 📍 - Center on user location
 🎚️ - Layer controls
 +/- - Zoom controls
+[<] [>] - Previous/Next catch navigation
 ```
 
 ### Bottom Sheet/Sidebar (Expandable)
+
 - Collapsed: shows summary of visible catches
 - Expanded: list of catches in current viewport
 - Clickable to navigate to catch detail
@@ -47,35 +57,40 @@ Legend:
 ### Map Provider
 
 **Mapbox GL JS** (web version):
+
 - Access token required: `VITE_MAPBOX_ACCESS_TOKEN`
 - CDN or npm: `mapbox-gl` or `react-map-gl`
 - Works in all modern browsers
 
 ### Markers & Clustering
 
-| Zoom Level | Display |
-|------------|---------|
-| Low (< 10) | Clusters with count |
+| Zoom Level     | Display                      |
+| -------------- | ---------------------------- |
+| Low (< 10)     | Clusters with count          |
 | Medium (10-14) | Small clusters or individual |
-| High (> 14) | Individual markers with icon |
+| High (> 14)    | Individual markers with icon |
 
 Cluster styling:
+
 - Circle with count number
 - Size proportional to count
 - Color gradient (cool → warm) by density
 
 Individual markers:
+
 - Fish icon or species-specific icon
 - Click to select and show info
 
 ### Marker Interaction
 
 **Click marker**:
+
 1. Highlight selected marker
 2. Show info popup or sidebar detail
 3. Option to navigate to full detail
 
 **Click cluster**:
+
 1. Zoom in to expand cluster
 2. Or show list of catches in cluster
 
@@ -83,13 +98,33 @@ Individual markers:
 
 - Show current location indicator (blue dot)
 - "Center on me" button
+- **Auto-center on mount**: Map automatically flies to user's GPS location when tab is opened (8s timeout, uses cached location as fallback)
 - Request location permission if needed
 - Handle permission denied gracefully
 - Show last known location when offline
 
+### Catch Navigation
+
+Navigate through catches sequentially without manual searching:
+
+| Control                  | Action                                 |
+| ------------------------ | -------------------------------------- |
+| Previous button (`<`)    | Fly to previous catch, show popup      |
+| Next button (`>`)        | Fly to next catch, show popup          |
+| Indicator (e.g., `3/15`) | Shows current position / total catches |
+
+Behavior:
+
+- Wraps around (last → first, first → last)
+- FlyTo animation with zoom level 14
+- Opens popup with catch details automatically
+- Respects current filter (only navigates filtered catches)
+- Hidden when no catches exist
+
 ### Filtering
 
 Quick filters accessible from map:
+
 - Species filter
 - Date range
 - Catches with photos only
@@ -107,6 +142,7 @@ Filters affect which markers display.
 ### Setup
 
 Environment variable for Mapbox:
+
 ```bash
 VITE_MAPBOX_ACCESS_TOKEN=pk.xxx
 ```
@@ -114,8 +150,8 @@ VITE_MAPBOX_ACCESS_TOKEN=pk.xxx
 ### Map Component Structure (React)
 
 ```tsx
-import Map, { Marker, Source, Layer, GeolocateControl } from 'react-map-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import Map, { Marker, Source, Layer, GeolocateControl } from "react-map-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 <Map
   mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
@@ -124,28 +160,35 @@ import 'mapbox-gl/dist/mapbox-gl.css';
     latitude: 37.8,
     zoom: 10,
   }}
-  style={{ width: '100%', height: '100vh' }}
+  style={{ width: "100%", height: "100vh" }}
   mapStyle="mapbox://styles/mapbox/outdoors-v12"
 >
   <GeolocateControl position="top-right" />
-  <Source id="catches" type="geojson" data={geoJSON} cluster clusterMaxZoom={14}>
-    <Layer id="clusters" type="circle" filter={['has', 'point_count']} />
-    <Layer id="cluster-count" type="symbol" filter={['has', 'point_count']} />
-    <Layer id="markers" type="symbol" filter={['!', ['has', 'point_count']]} />
+  <Source
+    id="catches"
+    type="geojson"
+    data={geoJSON}
+    cluster
+    clusterMaxZoom={14}
+  >
+    <Layer id="clusters" type="circle" filter={["has", "point_count"]} />
+    <Layer id="cluster-count" type="symbol" filter={["has", "point_count"]} />
+    <Layer id="markers" type="symbol" filter={["!", ["has", "point_count"]]} />
   </Source>
-</Map>
+</Map>;
 ```
 
 ### GeoJSON Data
 
 Convert catches to GeoJSON FeatureCollection:
+
 ```typescript
 const geoJSON: FeatureCollection = {
-  type: 'FeatureCollection',
-  features: catches.map(c => ({
-    type: 'Feature',
+  type: "FeatureCollection",
+  features: catches.map((c) => ({
+    type: "Feature",
     geometry: {
-      type: 'Point',
+      type: "Point",
       coordinates: [c.longitude, c.latitude],
     },
     properties: {
@@ -160,16 +203,20 @@ const geoJSON: FeatureCollection = {
 
 ## Acceptance Criteria
 
-- [ ] Map renders with Mapbox tiles
-- [ ] Catches display as markers
-- [ ] Clustering works at low zoom levels
-- [ ] Click marker shows catch info
-- [ ] Click cluster zooms in
-- [ ] User location shows (with permission)
-- [ ] Filter affects visible markers
-- [ ] Map degrades gracefully offline
-- [ ] Smooth pan/zoom (60fps)
-- [ ] Responsive on mobile and desktop
+- [x] Map renders with Mapbox tiles
+- [x] Catches display as markers
+- [x] Clustering works at low zoom levels
+- [x] Click marker shows catch info
+- [x] Click cluster zooms in
+- [x] User location shows (with permission)
+- [x] Filter affects visible markers
+- [x] Map degrades gracefully offline
+- [x] Smooth pan/zoom (60fps)
+- [x] Responsive on mobile and desktop
+- [x] Auto-center to user location on tab open
+- [x] Previous/Next navigation through catches
+- [x] Current/total catch indicator displayed
+- [x] FlyTo animation on navigation with popup
 
 ## Platform Notes
 
@@ -185,5 +232,6 @@ const geoJSON: FeatureCollection = {
 - Reduced motion respects `prefers-reduced-motion`
 
 ## Related Specs
+
 - `catch-log.md` - Alternative list view
 - `quick-capture.md` - Location data source
