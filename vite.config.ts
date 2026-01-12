@@ -7,14 +7,15 @@ import { readFileSync } from "fs";
 // Read version from package.json at build time
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 
+// GitHub Pages deployment: set base to repo name if GITHUB_PAGES env is set
+const base = process.env.GITHUB_PAGES ? "/catchpoint/" : "/";
+
 // https://vite.dev/config/
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
-  // GitHub Pages deployment: set base to repo name if GITHUB_PAGES env is set
-  // For custom domain or root deployment, leave as '/'
-  base: process.env.GITHUB_PAGES ? "/catchpoint/" : "/",
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -23,6 +24,7 @@ export default defineConfig({
       srcDir: "src",
       filename: "sw.ts",
       includeAssets: ["icons/icon.svg", "icons/apple-touch-icon-180x180.png"],
+      scope: base,
       manifest: {
         name: "Catchpoint",
         short_name: "Catchpoint",
@@ -30,23 +32,26 @@ export default defineConfig({
         theme_color: "#0f3460",
         background_color: "#ffffff",
         display: "standalone",
-        start_url: process.env.GITHUB_PAGES ? "/catchpoint/" : "/",
+        start_url: base,
+        scope: base,
         icons: [
           {
             src: "icons/pwa-192x192.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any",
           },
           {
             src: "icons/pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any",
           },
           {
-            src: "icons/icon.svg",
-            sizes: "any",
-            type: "image/svg+xml",
-            purpose: "any maskable",
+            src: "icons/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },
