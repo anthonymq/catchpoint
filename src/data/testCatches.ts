@@ -41,7 +41,7 @@ export function generateTestCatches(): Catch[] {
       length: Number((weight * 2 + 10).toFixed(1)), // Rough correlation
       notes: `Test catch ${i}`,
       weatherData: {
-        temperature: 65 + Math.random() * 10,
+        temperature: 10 + Math.random() * 15,
         temperatureUnit: "C",
         weatherCondition: Math.random() > 0.5 ? "Clear" : "Clouds",
         weatherDescription:

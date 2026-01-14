@@ -1,4 +1,5 @@
 import { catchRepository } from "../db/repository";
+import { syncService } from "./sync";
 
 export interface LocationCoords {
   latitude: number;
@@ -131,7 +132,6 @@ export const refreshLocationForCatch = async (
     // Cache the fresh location for future quick captures
     cacheLocation(coords);
 
-    // Update the catch with fresh location
     await catchRepository.update(catchId, {
       latitude: coords.latitude,
       longitude: coords.longitude,
@@ -139,6 +139,10 @@ export const refreshLocationForCatch = async (
     });
 
     console.log("[Location] Refreshed location for catch", catchId);
+
+    if (navigator.onLine) {
+      syncService.processWeatherQueue();
+    }
   } catch (error) {
     console.warn("[Location] Background GPS refresh failed:", error);
     // Mark as no longer pending even if refresh failed (we tried)

@@ -19,14 +19,25 @@ export const syncService = {
   /**
    * Process the weather queue
    * Fetches weather for all catches marked with pendingWeatherFetch
+   * Skips catches that are still waiting for location refresh (to avoid fetching weather for wrong coords)
    */
   async processWeatherQueue(): Promise<SyncResult> {
     const result: SyncResult = { processed: 0, failed: 0, errors: [] };
 
     // Find all catches needing weather
+    // Skip catches with pendingLocationRefresh=true (wait for valid coords)
+    // Skip catches with (0,0) coordinates (invalid fallback location)
     // Sort by newest first to prioritize recent catches (better chance of current weather match)
     const pendingCatches = await db.catches
-      .filter((c) => c.pendingWeatherFetch)
+      .filter((c) => {
+        // Must need weather fetch
+        if (!c.pendingWeatherFetch) return false;
+        // Skip if location refresh is pending (coords may be invalid)
+        if (c.pendingLocationRefresh) return false;
+        // Skip if coords are (0,0) - this is the fallback when no location available
+        if (c.latitude === 0 && c.longitude === 0) return false;
+        return true;
+      })
       .reverse()
       .toArray();
 
