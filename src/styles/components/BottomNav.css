@@ -6,6 +6,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+  overflow: hidden;
 
   /* Floating effect with margins and rounded corners */
   position: fixed;
@@ -62,8 +63,8 @@
 
 .nav-indicator::before {
   content: "";
-  width: 64px;
-  height: 56px;
+  width: 58px;
+  height: 52px;
   background: linear-gradient(
     145deg,
     var(--color-primary) 0%,
