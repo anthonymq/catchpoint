@@ -8,6 +8,7 @@ import MapPage from "./pages/Map";
 import Stats from "./pages/Stats";
 import Settings from "./pages/Settings";
 import CatchDetail from "./pages/CatchDetail";
+import Profile from "./pages/Profile";
 import SignIn from "./pages/auth/SignIn";
 import SignUp from "./pages/auth/SignUp";
 import VerifyEmail from "./pages/auth/VerifyEmail";
@@ -44,6 +45,7 @@ function App() {
             <Route path="/stats" element={<Stats />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/catch/:id" element={<CatchDetail />} />
+            <Route path="/profile/:userId" element={<Profile />} />
           </Route>
         </Routes>
       </BrowserRouter>

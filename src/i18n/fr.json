@@ -255,5 +255,21 @@
     "sendResetLink": "Envoyer le lien",
     "resetLinkSent": "Lien envoyé ! Vérifiez votre email.",
     "backToSignIn": "Retour à la connexion"
+  },
+  "profile": {
+    "title": "Profil",
+    "notFound": "Profil non trouvé",
+    "privateProfile": "Ce profil est privé",
+    "public": "Public",
+    "private": "Privé",
+    "publicHint": "Tout le monde peut voir votre profil et vos stats",
+    "privateHint": "Vous seul pouvez voir votre profil",
+    "topSpecies": "Espèces les plus pêchées",
+    "stats": {
+      "title": "Statistiques de pêche",
+      "totalCatches": "Total prises",
+      "speciesCount": "Espèces pêchées",
+      "biggestFish": "Plus gros poisson"
+    }
   }
 }

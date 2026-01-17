@@ -1,4 +1,10 @@
-import { db, type Catch, type InsertCatch } from "./index";
+import {
+  db,
+  type Catch,
+  type InsertCatch,
+  type UserProfile,
+  type InsertUserProfile,
+} from "./index";
 
 export const catchRepository = {
   /**
@@ -60,5 +66,48 @@ export const catchRepository = {
    */
   clearAll: async (): Promise<void> => {
     await db.catches.clear();
+  },
+};
+
+export const profileRepository = {
+  get: async (userId: string): Promise<UserProfile | undefined> => {
+    return await db.userProfiles.get(userId);
+  },
+
+  create: async (profileData: InsertUserProfile): Promise<string> => {
+    const now = new Date();
+    const newProfile: UserProfile = {
+      ...profileData,
+      createdAt: now,
+      updatedAt: now,
+    };
+    await db.userProfiles.add(newProfile);
+    return newProfile.userId;
+  },
+
+  update: async (
+    userId: string,
+    updates: Partial<UserProfile>,
+  ): Promise<void> => {
+    await db.userProfiles.update(userId, {
+      ...updates,
+      updatedAt: new Date(),
+    });
+  },
+
+  upsert: async (profileData: InsertUserProfile): Promise<string> => {
+    const existing = await db.userProfiles.get(profileData.userId);
+    if (existing) {
+      await db.userProfiles.update(profileData.userId, {
+        ...profileData,
+        updatedAt: new Date(),
+      });
+      return profileData.userId;
+    }
+    return await profileRepository.create(profileData);
+  },
+
+  delete: async (userId: string): Promise<void> => {
+    await db.userProfiles.delete(userId);
   },
 };

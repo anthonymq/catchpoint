@@ -255,5 +255,21 @@
     "sendResetLink": "Send Reset Link",
     "resetLinkSent": "Reset link sent! Check your email.",
     "backToSignIn": "Back to Sign In"
+  },
+  "profile": {
+    "title": "Profile",
+    "notFound": "Profile not found",
+    "privateProfile": "This profile is private",
+    "public": "Public",
+    "private": "Private",
+    "publicHint": "Anyone can view your profile and stats",
+    "privateHint": "Only you can view your profile",
+    "topSpecies": "Top Species",
+    "stats": {
+      "title": "Fishing Stats",
+      "totalCatches": "Total Catches",
+      "speciesCount": "Species Caught",
+      "biggestFish": "Biggest Fish"
+    }
   }
 }
