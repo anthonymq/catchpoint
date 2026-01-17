@@ -43,6 +43,7 @@ export const useQuickCapture = () => {
         longitude: cachedLocation?.longitude ?? 0,
         pendingWeatherFetch: true,
         pendingLocationRefresh: needsLocationRefresh,
+        syncStatus: "pending" as const,
         // Optional fields defaults
         species: undefined,
         weight: undefined,

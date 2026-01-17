@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import { AuthProvider } from "./components/AuthProvider";
 import { CloudSyncProvider } from "./components/CloudSyncProvider";
+import { MigrationProvider } from "./components/MigrationProvider";
 import Home from "./pages/Home";
 import Log from "./pages/Log";
 import MapPage from "./pages/Map";
@@ -33,24 +34,29 @@ function App() {
   return (
     <AuthProvider>
       <CloudSyncProvider>
-        <BrowserRouter basename={basename}>
-          <Routes>
-            <Route path="/auth/sign-in" element={<SignIn />} />
-            <Route path="/auth/sign-up" element={<SignUp />} />
-            <Route path="/auth/verify-email" element={<VerifyEmail />} />
-            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+        <MigrationProvider>
+          <BrowserRouter basename={basename}>
+            <Routes>
+              <Route path="/auth/sign-in" element={<SignIn />} />
+              <Route path="/auth/sign-up" element={<SignUp />} />
+              <Route path="/auth/verify-email" element={<VerifyEmail />} />
+              <Route
+                path="/auth/forgot-password"
+                element={<ForgotPassword />}
+              />
 
-            <Route element={<Layout />}>
-              <Route path="/" element={<Home />} />
-              <Route path="/log" element={<Log />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/stats" element={<Stats />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/catch/:id" element={<CatchDetail />} />
-              <Route path="/profile/:userId" element={<Profile />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/log" element={<Log />} />
+                <Route path="/map" element={<MapPage />} />
+                <Route path="/stats" element={<Stats />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/catch/:id" element={<CatchDetail />} />
+                <Route path="/profile/:userId" element={<Profile />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </MigrationProvider>
       </CloudSyncProvider>
     </AuthProvider>
   );

@@ -277,5 +277,21 @@
       "speciesCount": "Species Caught",
       "biggestFish": "Biggest Fish"
     }
+  },
+  "migration": {
+    "title": "Sync Existing Catches?",
+    "message": "You have {{count}} catches stored locally. Would you like to sync them to the cloud?",
+    "hint": "Your catches will be backed up securely and available on all your devices.",
+    "sync": "Sync Now",
+    "skip": "Skip",
+    "syncingTitle": "Syncing Catches...",
+    "syncingMessage": "Please wait while we upload your catches.",
+    "syncingCurrent": "Syncing {{species}}...",
+    "progress": "{{completed}} of {{total}} completed",
+    "completeTitle": "Sync Complete!",
+    "completeMessage": "Successfully synced {{synced}} catches. {{failed}} failed.",
+    "errorTitle": "Sync Error",
+    "errorMessage": "An error occurred during sync. Please try again.",
+    "retry": "Retry"
   }
 }

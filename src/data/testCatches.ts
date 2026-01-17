@@ -53,6 +53,7 @@ export function generateTestCatches(): Catch[] {
         fetchedAt: date,
       },
       pendingWeatherFetch: false,
+      syncStatus: "pending",
       createdAt: date,
       updatedAt: date,
     });

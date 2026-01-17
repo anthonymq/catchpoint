@@ -277,5 +277,21 @@
       "speciesCount": "Espèces pêchées",
       "biggestFish": "Plus gros poisson"
     }
+  },
+  "migration": {
+    "title": "Synchroniser les prises existantes ?",
+    "message": "Vous avez {{count}} prises stockées localement. Voulez-vous les synchroniser dans le cloud ?",
+    "hint": "Vos prises seront sauvegardées et accessibles sur tous vos appareils.",
+    "sync": "Synchroniser",
+    "skip": "Ignorer",
+    "syncingTitle": "Synchronisation en cours...",
+    "syncingMessage": "Veuillez patienter pendant le téléchargement de vos prises.",
+    "syncingCurrent": "Synchronisation de {{species}}...",
+    "progress": "{{completed}} sur {{total}} terminées",
+    "completeTitle": "Synchronisation terminée !",
+    "completeMessage": "{{synced}} prises synchronisées avec succès. {{failed}} échecs.",
+    "errorTitle": "Erreur de synchronisation",
+    "errorMessage": "Une erreur s'est produite. Veuillez réessayer.",
+    "retry": "Réessayer"
   }
 }

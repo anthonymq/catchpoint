@@ -15,6 +15,7 @@ describe("Catch Repository", () => {
       latitude: 10,
       longitude: 20,
       pendingWeatherFetch: true,
+      syncStatus: "pending" as const,
     };
 
     const id = await catchRepository.add(catchData);
@@ -33,6 +34,7 @@ describe("Catch Repository", () => {
       latitude: 10,
       longitude: 20,
       pendingWeatherFetch: true,
+      syncStatus: "pending" as const,
     });
 
     await catchRepository.add({
@@ -41,6 +43,7 @@ describe("Catch Repository", () => {
       latitude: 10,
       longitude: 20,
       pendingWeatherFetch: false,
+      syncStatus: "synced" as const,
     });
 
     const pending = await catchRepository.getPendingWeather();
@@ -56,6 +59,7 @@ describe("Catch Repository", () => {
       latitude: 10,
       longitude: 20,
       pendingWeatherFetch: true,
+      syncStatus: "pending" as const,
     });
 
     await catchRepository.update(id, { species: "Bass" });
@@ -71,6 +75,7 @@ describe("Catch Repository", () => {
       latitude: 10,
       longitude: 20,
       pendingWeatherFetch: true,
+      syncStatus: "pending" as const,
     });
 
     await catchRepository.delete(id);
