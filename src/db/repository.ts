@@ -5,6 +5,8 @@ import {
   type UserProfile,
   type InsertUserProfile,
   type Follow,
+  type Like,
+  type Notification,
 } from "./index";
 
 export const catchRepository = {
@@ -367,5 +369,160 @@ export const discoverRepository = {
       .slice(0, 10);
 
     return suggestions;
+  },
+};
+
+export interface LikeWithProfile {
+  like: Like;
+  userProfile: UserProfile | null;
+}
+
+export const likeRepository = {
+  like: async (
+    catchId: string,
+    userId: string,
+    catchOwnerId: string,
+  ): Promise<string> => {
+    const id = `${catchId}_${userId}`;
+    const existing = await db.likes.get(id);
+    if (existing) {
+      return id;
+    }
+    const like: Like = {
+      id,
+      catchId,
+      userId,
+      catchOwnerId,
+      createdAt: new Date(),
+    };
+    await db.likes.add(like);
+    return id;
+  },
+
+  unlike: async (catchId: string, userId: string): Promise<void> => {
+    const id = `${catchId}_${userId}`;
+    await db.likes.delete(id);
+  },
+
+  isLiked: async (catchId: string, userId: string): Promise<boolean> => {
+    const id = `${catchId}_${userId}`;
+    const like = await db.likes.get(id);
+    return !!like;
+  },
+
+  getLikeCount: async (catchId: string): Promise<number> => {
+    return await db.likes.where("catchId").equals(catchId).count();
+  },
+
+  getLikesForCatch: async (catchId: string): Promise<LikeWithProfile[]> => {
+    const likes = await db.likes
+      .where("catchId")
+      .equals(catchId)
+      .reverse()
+      .sortBy("createdAt");
+
+    const results: LikeWithProfile[] = [];
+    for (const like of likes) {
+      const profile = await profileRepository.get(like.userId);
+      results.push({
+        like,
+        userProfile: profile?.isPublic ? profile : null,
+      });
+    }
+    return results;
+  },
+
+  getLikeCountsBatch: async (
+    catchIds: string[],
+  ): Promise<Map<string, number>> => {
+    const counts = new Map<string, number>();
+    for (const catchId of catchIds) {
+      counts.set(catchId, 0);
+    }
+
+    const likes = await db.likes.where("catchId").anyOf(catchIds).toArray();
+
+    for (const like of likes) {
+      const current = counts.get(like.catchId) || 0;
+      counts.set(like.catchId, current + 1);
+    }
+
+    return counts;
+  },
+
+  getUserLikesBatch: async (
+    catchIds: string[],
+    userId: string,
+  ): Promise<Set<string>> => {
+    const likedSet = new Set<string>();
+
+    for (const catchId of catchIds) {
+      const id = `${catchId}_${userId}`;
+      const like = await db.likes.get(id);
+      if (like) {
+        likedSet.add(catchId);
+      }
+    }
+
+    return likedSet;
+  },
+};
+
+export const notificationRepository = {
+  create: async (
+    userId: string,
+    type: Notification["type"],
+    actorId: string,
+    targetId?: string,
+  ): Promise<string> => {
+    const id = crypto.randomUUID();
+    const notification: Notification = {
+      id,
+      userId,
+      type,
+      actorId,
+      targetId,
+      read: false,
+      createdAt: new Date(),
+    };
+    await db.notifications.add(notification);
+    return id;
+  },
+
+  getForUser: async (
+    userId: string,
+    limit: number = 50,
+  ): Promise<Notification[]> => {
+    return await db.notifications
+      .where("userId")
+      .equals(userId)
+      .reverse()
+      .sortBy("createdAt")
+      .then((notifications) => notifications.slice(0, limit));
+  },
+
+  getUnreadCount: async (userId: string): Promise<number> => {
+    return await db.notifications
+      .where("userId")
+      .equals(userId)
+      .filter((n) => !n.read)
+      .count();
+  },
+
+  markAsRead: async (notificationId: string): Promise<void> => {
+    await db.notifications.update(notificationId, { read: true });
+  },
+
+  markAllAsRead: async (userId: string): Promise<void> => {
+    await db.notifications
+      .where("userId")
+      .equals(userId)
+      .modify({ read: true });
+  },
+
+  deleteOlderThan: async (days: number): Promise<void> => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    await db.notifications.filter((n) => n.createdAt < cutoff).delete();
   },
 };

@@ -4,6 +4,7 @@ import Layout from "./components/Layout";
 import { AuthProvider } from "./components/AuthProvider";
 import { CloudSyncProvider } from "./components/CloudSyncProvider";
 import { MigrationProvider } from "./components/MigrationProvider";
+import { LikersModal } from "./components/LikersModal";
 import Home from "./pages/Home";
 import Feed from "./pages/Feed";
 import Discover from "./pages/Discover";
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/profile/:userId" element={<Profile />} />
               </Route>
             </Routes>
+            <LikersModal />
           </BrowserRouter>
         </MigrationProvider>
       </CloudSyncProvider>

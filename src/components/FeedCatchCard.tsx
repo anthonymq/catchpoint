@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scale, Ruler, Camera, User } from "lucide-react";
+import { Scale, Ruler, Camera, User, Heart } from "lucide-react";
 import { type FeedItem } from "../db/repository";
 import { useSettingsStore } from "../stores/settingsStore";
+import { useLikeStore } from "../stores/likeStore";
+import { useAuthStore } from "../stores/authStore";
 import { formatCatchDate, formatWeight, formatLength } from "../utils/format";
 import { useTranslation } from "@/i18n";
 import "../styles/components/FeedCatchCard.css";
@@ -15,7 +17,24 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const { weightUnit, lengthUnit } = useSettingsStore();
+  const { user } = useAuthStore();
+  const {
+    initializeLikes,
+    toggleLike,
+    getLikeCount,
+    isLiked,
+    openLikersModal,
+  } = useLikeStore();
   const { catch: catchData, userProfile } = item;
+
+  const likeCount = getLikeCount(catchData.id);
+  const liked = isLiked(catchData.id);
+
+  useEffect(() => {
+    if (user?.uid) {
+      initializeLikes([catchData.id], user.uid);
+    }
+  }, [catchData.id, user?.uid, initializeLikes]);
 
   const speciesName = catchData.species || t("catch.unknownSpecies");
 
@@ -27,6 +46,19 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
     e.stopPropagation();
     if (userProfile?.userId) {
       navigate(`/profile/${userProfile.userId}`);
+    }
+  };
+
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user?.uid || !catchData.userId) return;
+    toggleLike(catchData.id, user.uid, catchData.userId);
+  };
+
+  const handleLikeCountClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (likeCount > 0) {
+      openLikersModal(catchData.id);
     }
   };
 
@@ -84,6 +116,29 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="feed-card-actions">
+        <button
+          className={`feed-card-like-button ${liked ? "liked" : ""}`}
+          onClick={handleLikeClick}
+          aria-label={liked ? t("likes.unlike") : t("likes.like")}
+        >
+          <Heart
+            size={22}
+            className={`feed-card-heart ${liked ? "liked" : ""}`}
+            fill={liked ? "currentColor" : "none"}
+          />
+        </button>
+        {likeCount > 0 && (
+          <button
+            className="feed-card-like-count"
+            onClick={handleLikeCountClick}
+            aria-label={t("likes.viewLikers")}
+          >
+            {likeCount} {likeCount === 1 ? t("likes.like") : t("likes.likes")}
+          </button>
+        )}
       </div>
     </article>
   );

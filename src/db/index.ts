@@ -50,10 +50,36 @@ export interface Follow {
 // Minimal type for insertion
 export type InsertFollow = Omit<Follow, "createdAt">;
 
+export interface Like {
+  id: string; // Composite key: `${catchId}_${userId}`
+  catchId: string; // The catch being liked
+  userId: string; // User who liked
+  catchOwnerId: string; // Owner of the catch (for notifications)
+  createdAt: Date;
+}
+
+// Minimal type for insertion
+export type InsertLike = Omit<Like, "createdAt">;
+
+export interface Notification {
+  id: string; // UUID
+  userId: string; // User who receives the notification
+  type: "like" | "follow" | "comment"; // Notification type
+  actorId: string; // User who triggered the notification
+  targetId?: string; // Related entity (catchId for likes, etc.)
+  read: boolean;
+  createdAt: Date;
+}
+
+// Minimal type for insertion
+export type InsertNotification = Omit<Notification, "createdAt">;
+
 const db = new Dexie("CatchpointDatabase") as Dexie & {
   catches: EntityTable<Catch, "id">;
   userProfiles: EntityTable<UserProfile, "userId">;
   follows: EntityTable<Follow, "id">;
+  likes: EntityTable<Like, "id">;
+  notifications: EntityTable<Notification, "id">;
 };
 
 // Schema declaration:
@@ -78,6 +104,15 @@ db.version(4).stores({
   catches: "id, timestamp, species, pendingWeatherFetch, userId, syncStatus",
   userProfiles: "userId",
   follows: "id, followerId, followedId",
+});
+
+// Version 5: Add likes and notifications tables
+db.version(5).stores({
+  catches: "id, timestamp, species, pendingWeatherFetch, userId, syncStatus",
+  userProfiles: "userId",
+  follows: "id, followerId, followedId",
+  likes: "id, catchId, userId, catchOwnerId, createdAt",
+  notifications: "id, userId, type, read, createdAt",
 });
 
 export { db };

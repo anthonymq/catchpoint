@@ -331,5 +331,13 @@
       "title": "No suggestions yet",
       "description": "Keep fishing and we'll find anglers for you to follow!"
     }
+  },
+  "likes": {
+    "like": "like",
+    "likes": "likes",
+    "unlike": "Unlike",
+    "likedBy": "Liked by",
+    "viewLikers": "View who liked",
+    "noLikesYet": "No likes yet"
   }
 }

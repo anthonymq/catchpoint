@@ -331,5 +331,13 @@
       "title": "Aucune suggestion",
       "description": "Continuez à pêcher et nous trouverons des pêcheurs à suivre !"
     }
+  },
+  "likes": {
+    "like": "j'aime",
+    "likes": "j'aime",
+    "unlike": "Je n'aime plus",
+    "likedBy": "Aimé par",
+    "viewLikers": "Voir qui a aimé",
+    "noLikesYet": "Pas encore de j'aime"
   }
 }
