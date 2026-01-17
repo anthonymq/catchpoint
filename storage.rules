@@ -1,0 +1,94 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user is the specified user
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if the file is an image
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+
+    // Check file size (max 10MB for images)
+    function isValidSize() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // ============================================
+    // USER PROFILE PHOTOS
+    // ============================================
+    // Path: /users/{userId}/profile/{filename}
+    // Read: Public (anyone can view profile photos)
+    // Write: Only the user can upload their own profile photo
+
+    match /users/{userId}/profile/{filename} {
+      // Anyone can read profile photos (they're displayed publicly)
+      allow read: if true;
+
+      // Only the owner can upload/update their profile photo
+      allow write: if isOwner(userId) && isImage() && isValidSize();
+
+      // Owner can delete their profile photo
+      allow delete: if isOwner(userId);
+    }
+
+    // ============================================
+    // CATCH PHOTOS
+    // ============================================
+    // Path: /catches/{userId}/{catchId}/{filename}
+    // Read: Anyone (controlled at Firestore level for catch visibility)
+    // Write: Only the catch owner
+
+    match /catches/{userId}/{catchId}/{filename} {
+      // Read access is permissive - visibility controlled by Firestore rules
+      // This allows shared catches to display photos without complex rules
+      allow read: if true;
+
+      // Only the owner can upload catch photos
+      allow write: if isOwner(userId) && isImage() && isValidSize();
+
+      // Only the owner can delete
+      allow delete: if isOwner(userId);
+    }
+
+    // ============================================
+    // MESSAGE ATTACHMENTS (Future feature)
+    // ============================================
+    // Path: /messages/{conversationId}/{messageId}/{filename}
+    // Read/Write: Only conversation participants
+    // Note: This requires Firestore lookup which isn't available in Storage rules
+    // For v1, we use a simpler approach - sender can write, authenticated can read
+
+    match /messages/{conversationId}/{senderId}/{filename} {
+      // Only authenticated users can read message attachments
+      allow read: if isAuthenticated();
+
+      // Only the sender can upload attachments
+      allow write: if isOwner(senderId) && isImage() && isValidSize();
+
+      // Only the sender can delete
+      allow delete: if isOwner(senderId);
+    }
+
+    // ============================================
+    // DENY ALL OTHER PATHS
+    // ============================================
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,279 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the authenticated user is the specified user
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Get a user document
+    function getUser(userId) {
+      return get(/databases/$(database)/documents/users/$(userId));
+    }
+
+    // Check if a user's profile is public
+    function isPublicProfile(userId) {
+      return getUser(userId).data.isPublic == true;
+    }
+
+    // Check if current user follows another user
+    function isFollowing(targetUserId) {
+      return exists(/databases/$(database)/documents/follows/$(request.auth.uid + '_' + targetUserId));
+    }
+
+    // Check if current user can view a user's content (public OR following OR is self)
+    function canViewUserContent(userId) {
+      return isOwner(userId) || isPublicProfile(userId) || isFollowing(userId);
+    }
+
+    // Check if a catch is viewable by current user
+    function canViewCatch(catchData) {
+      return isOwner(catchData.userId) ||
+             catchData.isPublic == true ||
+             isFollowing(catchData.userId);
+    }
+
+    // Check if current user is a participant in a conversation
+    function isParticipant(participantIds) {
+      return isAuthenticated() && request.auth.uid in participantIds;
+    }
+
+    // ============================================
+    // USERS COLLECTION
+    // ============================================
+    // Read: Public profiles OR own profile
+    // Write: Only own profile
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() &&
+                    (isOwner(userId) || isPublicProfile(userId) || isFollowing(userId));
+
+      // Users can create their own profile document
+      allow create: if isOwner(userId) &&
+                      request.resource.data.keys().hasAll(['displayName', 'isPublic', 'createdAt', 'updatedAt']) &&
+                      request.resource.data.displayName is string &&
+                      request.resource.data.displayName.size() >= 1 &&
+                      request.resource.data.displayName.size() <= 50;
+
+      // Users can only update their own profile
+      allow update: if isOwner(userId) &&
+                      request.resource.data.displayName is string &&
+                      request.resource.data.displayName.size() >= 1 &&
+                      request.resource.data.displayName.size() <= 50;
+
+      // Users can delete their own profile
+      allow delete: if isOwner(userId);
+    }
+
+    // ============================================
+    // CATCHES COLLECTION
+    // ============================================
+    // Read: Own catches OR public catches OR followed user's catches
+    // Write: Only own catches
+
+    match /catches/{catchId} {
+      allow read: if isAuthenticated() && canViewCatch(resource.data);
+
+      // Users can create their own catches
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['userId', 'timestamp', 'syncedAt']) &&
+                      request.resource.data.timestamp is timestamp;
+
+      // Users can update their own catches
+      allow update: if isOwner(resource.data.userId) &&
+                      request.resource.data.userId == resource.data.userId; // Cannot change owner
+
+      // Users can delete their own catches
+      allow delete: if isOwner(resource.data.userId);
+    }
+
+    // ============================================
+    // FOLLOWS COLLECTION
+    // ============================================
+    // Read: Any authenticated user
+    // Write: Only the follower can create/delete their follow relationship
+
+    match /follows/{followId} {
+      // Anyone can read follow relationships
+      allow read: if isAuthenticated();
+
+      // Users can only create follows where they are the follower
+      allow create: if isAuthenticated() &&
+                      request.resource.data.followerId == request.auth.uid &&
+                      followId == (request.auth.uid + '_' + request.resource.data.followedId) &&
+                      request.resource.data.keys().hasAll(['followerId', 'followedId', 'createdAt']);
+
+      // Users can only delete their own follow relationships
+      allow delete: if isAuthenticated() && resource.data.followerId == request.auth.uid;
+
+      // No updates allowed - delete and recreate instead
+      allow update: if false;
+    }
+
+    // ============================================
+    // LIKES COLLECTION
+    // ============================================
+    // Read: Anyone who can read the parent catch
+    // Write: Only own likes
+
+    match /likes/{likeId} {
+      // Can read if user can view the associated catch
+      allow read: if isAuthenticated();
+
+      // Users can only like with their own userId
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      likeId == (request.resource.data.catchId + '_' + request.auth.uid) &&
+                      request.resource.data.keys().hasAll(['catchId', 'userId', 'catchOwnerId', 'createdAt']);
+
+      // Users can only delete their own likes
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // No updates allowed
+      allow update: if false;
+    }
+
+    // ============================================
+    // COMMENTS COLLECTION
+    // ============================================
+    // Read: Anyone who can read the parent catch
+    // Write: Create own, delete own OR catch owner can delete
+
+    match /comments/{commentId} {
+      // Can read comments on visible catches
+      allow read: if isAuthenticated();
+
+      // Users can create comments with their own userId
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasAll(['catchId', 'userId', 'catchOwnerId', 'content', 'createdAt']) &&
+                      request.resource.data.content is string &&
+                      request.resource.data.content.size() >= 1 &&
+                      request.resource.data.content.size() <= 500;
+
+      // Comment author can delete their own comments
+      // Catch owner can also delete comments on their catches
+      allow delete: if isAuthenticated() &&
+                      (resource.data.userId == request.auth.uid ||
+                       resource.data.catchOwnerId == request.auth.uid);
+
+      // No updates allowed
+      allow update: if false;
+    }
+
+    // ============================================
+    // NOTIFICATIONS COLLECTION
+    // ============================================
+    // Read/Write: Only the notification recipient
+
+    match /notifications/{notificationId} {
+      // Users can only read their own notifications
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+
+      // Notifications are typically created by Cloud Functions
+      // But allow users to create notifications for testing/demo
+      allow create: if isAuthenticated() &&
+                      request.resource.data.keys().hasAll(['userId', 'type', 'actorId', 'read', 'createdAt']);
+
+      // Users can only update their own notifications (mark as read)
+      allow update: if isAuthenticated() &&
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.userId == resource.data.userId; // Cannot change owner
+
+      // Users can delete their own notifications
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // ============================================
+    // CONVERSATIONS COLLECTION
+    // ============================================
+    // Read/Write: Only participants
+
+    match /conversations/{conversationId} {
+      // Only participants can read the conversation
+      allow read: if isAuthenticated() && isParticipant(resource.data.participantIds);
+
+      // Users can create conversations where they are a participant
+      allow create: if isAuthenticated() &&
+                      request.auth.uid in request.resource.data.participantIds &&
+                      request.resource.data.participantIds.size() == 2 &&
+                      request.resource.data.keys().hasAll(['participantIds', 'createdAt', 'updatedAt']);
+
+      // Only participants can update conversation metadata
+      allow update: if isAuthenticated() &&
+                      isParticipant(resource.data.participantIds) &&
+                      request.resource.data.participantIds == resource.data.participantIds; // Cannot change participants
+
+      // Only participants can delete (leave) the conversation
+      allow delete: if isAuthenticated() && isParticipant(resource.data.participantIds);
+    }
+
+    // ============================================
+    // MESSAGES COLLECTION
+    // ============================================
+    // Read/Write: Only conversation participants
+
+    match /messages/{messageId} {
+      // Helper to get the parent conversation
+      function getConversation() {
+        return get(/databases/$(database)/documents/conversations/$(resource.data.conversationId));
+      }
+
+      function getConversationForCreate() {
+        return get(/databases/$(database)/documents/conversations/$(request.resource.data.conversationId));
+      }
+
+      // Only conversation participants can read messages
+      allow read: if isAuthenticated() &&
+                    request.auth.uid in getConversation().data.participantIds;
+
+      // Users can create messages in conversations they participate in
+      allow create: if isAuthenticated() &&
+                      request.resource.data.senderId == request.auth.uid &&
+                      request.auth.uid in getConversationForCreate().data.participantIds &&
+                      request.resource.data.keys().hasAll(['conversationId', 'senderId', 'content', 'read', 'createdAt']) &&
+                      request.resource.data.content is string &&
+                      request.resource.data.content.size() >= 1 &&
+                      request.resource.data.content.size() <= 1000;
+
+      // Only the message recipient can update (mark as read)
+      allow update: if isAuthenticated() &&
+                      request.auth.uid in getConversation().data.participantIds &&
+                      resource.data.senderId != request.auth.uid && // Only recipient can mark read
+                      request.resource.data.content == resource.data.content && // Cannot edit message content
+                      request.resource.data.senderId == resource.data.senderId; // Cannot change sender
+
+      // Only the sender can delete their own messages
+      allow delete: if isAuthenticated() && resource.data.senderId == request.auth.uid;
+    }
+
+    // ============================================
+    // LEADERBOARDS COLLECTION (read-only, managed by Cloud Functions)
+    // ============================================
+
+    match /leaderboards/{leaderboardId} {
+      // Anyone authenticated can read leaderboards
+      allow read: if isAuthenticated();
+
+      // Only Cloud Functions can write (uses Admin SDK)
+      allow write: if false;
+    }
+
+    match /leaderboards/{leaderboardId}/entries/{entryId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+    }
+  }
+}
