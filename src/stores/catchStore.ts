@@ -29,10 +29,10 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   },
 
   addCatch: async (catchData) => {
-    // Optimistic update
     const now = new Date();
     const optimisticCatch: Catch = {
       ...catchData,
+      syncStatus: catchData.syncStatus ?? "pending",
       createdAt: now,
       updatedAt: now,
     };
@@ -42,9 +42,11 @@ export const useCatchStore = create<CatchState>((set, get) => ({
     }));
 
     try {
-      await catchRepository.add(catchData);
+      await catchRepository.add({
+        ...catchData,
+        syncStatus: catchData.syncStatus ?? "pending",
+      });
     } catch (err) {
-      // Revert on failure
       set((state) => ({
         catches: state.catches.filter((c) => c.id !== catchData.id),
         error: (err as Error).message,
@@ -54,16 +56,26 @@ export const useCatchStore = create<CatchState>((set, get) => ({
 
   updateCatch: async (id, updates) => {
     const prevCatches = get().catches;
+    const updatedAt = new Date();
 
-    // Optimistic update
     set((state) => ({
       catches: state.catches.map((c) =>
-        c.id === id ? { ...c, ...updates, updatedAt: new Date() } : c,
+        c.id === id
+          ? {
+              ...c,
+              ...updates,
+              syncStatus: updates.syncStatus ?? "pending",
+              updatedAt,
+            }
+          : c,
       ),
     }));
 
     try {
-      await catchRepository.update(id, updates);
+      await catchRepository.update(id, {
+        ...updates,
+        syncStatus: updates.syncStatus ?? "pending",
+      });
     } catch (err) {
       set({ catches: prevCatches, error: (err as Error).message });
     }
@@ -72,7 +84,6 @@ export const useCatchStore = create<CatchState>((set, get) => ({
   deleteCatch: async (id) => {
     const prevCatches = get().catches;
 
-    // Optimistic update
     set((state) => ({
       catches: state.catches.filter((c) => c.id !== id),
     }));

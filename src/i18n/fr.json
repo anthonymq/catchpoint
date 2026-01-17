@@ -219,6 +219,12 @@
     "offline": "Vous êtes hors ligne",
     "online": "Connexion rétablie"
   },
+  "sync": {
+    "synced": "Synchronisé",
+    "syncing": "Synchronisation...",
+    "pending": "En attente de sync",
+    "failed": "Échec de sync"
+  },
   "auth": {
     "welcomeBack": "Bon retour",
     "signInSubtitle": "Connectez-vous pour accéder à votre journal",

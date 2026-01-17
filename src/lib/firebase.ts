@@ -5,6 +5,12 @@ import {
   browserLocalPersistence,
   setPersistence,
 } from "firebase/auth";
+import {
+  getFirestore,
+  connectFirestoreEmulator,
+  enableIndexedDbPersistence,
+} from "firebase/firestore";
+import { getStorage, connectStorageEmulator } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,6 +23,17 @@ const firebaseConfig = {
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
+const firestore = getFirestore(app);
+const storage = getStorage(app);
+
+// Enable offline persistence for Firestore
+enableIndexedDbPersistence(firestore).catch((error) => {
+  if (error.code === "failed-precondition") {
+    console.warn("[Firestore] Persistence unavailable: multiple tabs open");
+  } else if (error.code === "unimplemented") {
+    console.warn("[Firestore] Persistence unavailable: browser not supported");
+  }
+});
 
 setPersistence(auth, browserLocalPersistence).catch((error) => {
   console.error("[Firebase] Failed to set persistence:", error);
@@ -31,4 +48,24 @@ if (import.meta.env.DEV && import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST) {
   console.log("[Firebase] Connected to Auth emulator");
 }
 
-export { app, auth };
+if (
+  import.meta.env.DEV &&
+  import.meta.env.VITE_FIREBASE_FIRESTORE_EMULATOR_HOST
+) {
+  const [host, port] =
+    import.meta.env.VITE_FIREBASE_FIRESTORE_EMULATOR_HOST.split(":");
+  connectFirestoreEmulator(firestore, host, parseInt(port, 10));
+  console.log("[Firebase] Connected to Firestore emulator");
+}
+
+if (
+  import.meta.env.DEV &&
+  import.meta.env.VITE_FIREBASE_STORAGE_EMULATOR_HOST
+) {
+  const [host, port] =
+    import.meta.env.VITE_FIREBASE_STORAGE_EMULATOR_HOST.split(":");
+  connectStorageEmulator(storage, host, parseInt(port, 10));
+  console.log("[Firebase] Connected to Storage emulator");
+}
+
+export { app, auth, firestore, storage };

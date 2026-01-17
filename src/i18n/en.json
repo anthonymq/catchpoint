@@ -219,6 +219,12 @@
     "offline": "You're offline",
     "online": "Back online"
   },
+  "sync": {
+    "synced": "Synced",
+    "syncing": "Syncing...",
+    "pending": "Pending sync",
+    "failed": "Sync failed"
+  },
   "auth": {
     "welcomeBack": "Welcome Back",
     "signInSubtitle": "Sign in to access your fishing log",

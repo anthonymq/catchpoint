@@ -8,6 +8,7 @@ import {
   formatWeight,
 } from "../utils/format";
 import { ConfirmModal } from "./ConfirmModal";
+import { SyncStatusIndicator } from "./SyncStatusIndicator";
 import { useTranslation } from "@/i18n";
 import "../styles/components/CatchCard.css";
 
@@ -89,6 +90,7 @@ export const CatchCard: React.FC<CatchCardProps> = ({
       </div>
 
       <div className="catch-card-actions">
+        <SyncStatusIndicator status={catchData.syncStatus} size={14} />
         {onDelete && (
           <button
             className="catch-card-delete-btn"
