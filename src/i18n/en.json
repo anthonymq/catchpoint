@@ -112,7 +112,9 @@
   "settings": {
     "title": "Settings",
     "sections": {
+      "account": "Account",
       "app": "App",
+      "notifications": "Notifications",
       "language": "Language",
       "appearance": "Appearance",
       "units": "Units",
@@ -159,6 +161,18 @@
       "version": "Version",
       "licenses": "Open Source Licenses",
       "privacy": "Privacy Policy"
+    },
+    "notifications": {
+      "pushNotifications": "Push Notifications",
+      "notSupported": "Not supported",
+      "blocked": "Blocked in browser",
+      "enabled": "Enabled",
+      "enable": "Enable",
+      "likes": "Likes",
+      "comments": "Comments",
+      "follows": "New Followers",
+      "messages": "Messages",
+      "leaderboard": "Leaderboard Updates"
     }
   },
   "catch": {

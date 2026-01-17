@@ -112,7 +112,9 @@
   "settings": {
     "title": "Réglages",
     "sections": {
+      "account": "Compte",
       "app": "Application",
+      "notifications": "Notifications",
       "language": "Langue",
       "appearance": "Apparence",
       "units": "Unités",
@@ -159,6 +161,18 @@
       "version": "Version",
       "licenses": "Licences open source",
       "privacy": "Politique de confidentialité"
+    },
+    "notifications": {
+      "pushNotifications": "Notifications push",
+      "notSupported": "Non supporté",
+      "blocked": "Bloqué dans le navigateur",
+      "enabled": "Activé",
+      "enable": "Activer",
+      "likes": "J'aime",
+      "comments": "Commentaires",
+      "follows": "Nouveaux abonnés",
+      "messages": "Messages",
+      "leaderboard": "Mises à jour du classement"
     }
   },
   "catch": {

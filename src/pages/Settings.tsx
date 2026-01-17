@@ -21,6 +21,13 @@ import {
   Mail,
   CheckCircle,
   AlertCircle,
+  Bell,
+  BellOff,
+  Heart,
+  MessageCircle,
+  UserPlus,
+  Trophy,
+  MessageSquare,
 } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useAuthStore } from "@/stores/authStore";
@@ -30,6 +37,7 @@ import { generateTestCatches } from "@/data/testCatches";
 import { ConfirmModal } from "@/components/ConfirmModal";
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import { useStorageQuota } from "@/hooks/useStorageQuota";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useTranslation } from "@/i18n";
 import { signOut } from "@/services/auth";
 import "@/styles/pages/Settings.css";
@@ -52,11 +60,16 @@ export default function Settings() {
   const { catches, addCatch, deleteCatch } = useCatchStore();
   const [showClearModal, setShowClearModal] = useState(false);
 
-  // PWA Install
   const { canInstall, isInstalled, isIOS, promptInstall } = useInstallPrompt();
-
-  // Storage quota
   const { quota } = useStorageQuota();
+  const {
+    isSupported: pushSupported,
+    pushEnabled,
+    permissionStatus,
+    notificationPreferences,
+    togglePush,
+    toggleCategory,
+  } = usePushNotifications();
 
   const handleExport = () => {
     downloadCatchesCSV(catches);
@@ -102,7 +115,6 @@ export default function Settings() {
     }
   };
 
-  // Determine what to show in the App section
   const showInstallButton = canInstall;
   const showInstalledBadge = isInstalled;
   const showIOSInstructions = isIOS;
@@ -237,7 +249,108 @@ export default function Settings() {
           </div>
         </section>
 
-        {/* Language */}
+        <section className="settings-section">
+          <h2 className="settings-section-title">
+            {t("settings.sections.notifications") || "Notifications"}
+          </h2>
+          <div className="settings-card">
+            <div className="app-row">
+              <div className="app-row-label">
+                {pushEnabled ? <Bell size={20} /> : <BellOff size={20} />}
+                <span>
+                  {t("settings.notifications.pushNotifications") ||
+                    "Push Notifications"}
+                </span>
+              </div>
+              <div className="app-row-value">
+                {!pushSupported ? (
+                  <span className="install-unavailable">
+                    {t("settings.notifications.notSupported") ||
+                      "Not supported"}
+                  </span>
+                ) : permissionStatus === "denied" ? (
+                  <span className="install-unavailable">
+                    {t("settings.notifications.blocked") ||
+                      "Blocked in browser"}
+                  </span>
+                ) : (
+                  <button
+                    onClick={togglePush}
+                    className={`notification-toggle ${pushEnabled ? "active" : ""}`}
+                  >
+                    {pushEnabled
+                      ? t("settings.notifications.enabled") || "Enabled"
+                      : t("settings.notifications.enable") || "Enable"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {pushEnabled && pushSupported && (
+              <>
+                <div className="notification-category-row">
+                  <div className="app-row-label">
+                    <Heart size={18} />
+                    <span>{t("settings.notifications.likes") || "Likes"}</span>
+                  </div>
+                  <button
+                    onClick={() => toggleCategory("likes")}
+                    className={`category-toggle ${notificationPreferences.likes ? "active" : ""}`}
+                  />
+                </div>
+                <div className="notification-category-row">
+                  <div className="app-row-label">
+                    <MessageCircle size={18} />
+                    <span>
+                      {t("settings.notifications.comments") || "Comments"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => toggleCategory("comments")}
+                    className={`category-toggle ${notificationPreferences.comments ? "active" : ""}`}
+                  />
+                </div>
+                <div className="notification-category-row">
+                  <div className="app-row-label">
+                    <UserPlus size={18} />
+                    <span>
+                      {t("settings.notifications.follows") || "New Followers"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => toggleCategory("follows")}
+                    className={`category-toggle ${notificationPreferences.follows ? "active" : ""}`}
+                  />
+                </div>
+                <div className="notification-category-row">
+                  <div className="app-row-label">
+                    <MessageSquare size={18} />
+                    <span>
+                      {t("settings.notifications.messages") || "Messages"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => toggleCategory("messages")}
+                    className={`category-toggle ${notificationPreferences.messages ? "active" : ""}`}
+                  />
+                </div>
+                <div className="notification-category-row">
+                  <div className="app-row-label">
+                    <Trophy size={18} />
+                    <span>
+                      {t("settings.notifications.leaderboard") || "Leaderboard"}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => toggleCategory("leaderboard")}
+                    className={`category-toggle ${notificationPreferences.leaderboard ? "active" : ""}`}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+
         <section className="settings-section">
           <h2 className="settings-section-title">
             {t("settings.sections.language")}

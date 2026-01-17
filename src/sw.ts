@@ -4,21 +4,15 @@ import { clientsClaim } from "workbox-core";
 import { registerRoute } from "workbox-routing";
 import { CacheFirst, NetworkFirst } from "workbox-strategies";
 import { ExpirationPlugin } from "workbox-expiration";
-// import { BackgroundSyncPlugin } from "workbox-background-sync";
 
 declare let self: ServiceWorkerGlobalScope;
 
-// Cleanup old caches
 cleanupOutdatedCaches();
-
-// Take control immediately
 self.skipWaiting();
 clientsClaim();
 
-// Precache app shell
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Cache API responses (OpenWeatherMap)
 registerRoute(
   ({ url }) => url.origin === "https://api.openweathermap.org",
   new NetworkFirst({
@@ -27,28 +21,12 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 50,
-        maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        maxAgeSeconds: 24 * 60 * 60,
       }),
     ],
   }),
 );
 
-// ============================================================================
-// Mapbox Offline Tile Caching
-// ============================================================================
-// Mapbox GL JS loads resources from multiple domains:
-// - api.mapbox.com: Styles, sprites, fonts (glyphs), and API requests
-// - tiles.mapbox.com: Vector and raster tiles (with a/b/c/d subdomains)
-//
-// We use CacheFirst strategy for tiles and styles since map data changes
-// infrequently and we want fast offline access to previously viewed areas.
-// ============================================================================
-
-// Cache Mapbox API resources (styles, sprites, fonts/glyphs)
-// This includes:
-// - Style JSON: api.mapbox.com/styles/v1/...
-// - Sprites: api.mapbox.com/styles/v1/.../sprite...
-// - Fonts/Glyphs: api.mapbox.com/fonts/v1/...
 registerRoute(
   ({ url }) => url.origin === "https://api.mapbox.com",
   new CacheFirst({
@@ -56,16 +34,12 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({
         maxEntries: 200,
-        maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        maxAgeSeconds: 7 * 24 * 60 * 60,
       }),
     ],
   }),
 );
 
-// Cache Mapbox vector/raster tiles from tiles.mapbox.com and subdomains
-// Tiles are loaded from: a.tiles.mapbox.com, b.tiles.mapbox.com, etc.
-// This is the most important cache for offline map functionality.
-// Mapbox recommends max 6000 tiles for offline (we use 2000 to be safe).
 registerRoute(
   ({ url }) =>
     url.hostname === "tiles.mapbox.com" ||
@@ -74,29 +48,85 @@ registerRoute(
     cacheName: "mapbox-tiles",
     plugins: [
       new ExpirationPlugin({
-        maxEntries: 2000, // ~50-100MB depending on tile size
-        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days (tiles rarely change)
+        maxEntries: 2000,
+        maxAgeSeconds: 30 * 24 * 60 * 60,
       }),
     ],
   }),
 );
 
-// Background sync for weather
-// Note: This registers a sync event that fires when connectivity returns
-// const bgSyncPlugin = new BackgroundSyncPlugin("weatherQueue", {
-//   maxRetentionTime: 24 * 60, // Retry for 24 hours (in minutes)
-// });
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
 
-// We don't have a specific API endpoint to retry for weather syncing via BackgroundSyncPlugin
-// because our sync logic is complex (read DB -> fetch -> update DB).
-// Workbox Background Sync is mostly for replaying failed fetch requests.
-//
-// However, we can use the 'sync' event listener manually if we wanted,
-// but since our app logic handles queue processing on 'online' event,
-// we rely primarily on that in the foreground.
-//
-// The BackgroundSyncPlugin is useful if we were sending POST requests to a server.
-// Here we are just fetching data.
-//
-// For now, we rely on the foreground 'online' listener in App.tsx.
-// But we keep the SW ready for asset caching.
+  let payload: {
+    title: string;
+    body: string;
+    icon?: string;
+    badge?: string;
+    tag?: string;
+    data?: { url?: string };
+  };
+
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = {
+      title: "Catchpoint",
+      body: event.data.text(),
+    };
+  }
+
+  const options: NotificationOptions = {
+    body: payload.body,
+    icon: payload.icon || "/icons/pwa-192x192.png",
+    badge: payload.badge || "/icons/pwa-192x192.png",
+    tag: payload.tag || `catchpoint-${Date.now()}`,
+    data: payload.data,
+    requireInteraction: false,
+  };
+
+  event.waitUntil(self.registration.showNotification(payload.title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const urlToOpen =
+    event.notification.data?.url || self.registration.scope + "notifications";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        for (const client of windowClients) {
+          if (
+            client.url.includes(self.registration.scope) &&
+            "focus" in client
+          ) {
+            client.navigate(urlToOpen);
+            return client.focus();
+          }
+        }
+        return self.clients.openWindow(urlToOpen);
+      }),
+  );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SET_BADGE") {
+    const count = event.data.count || 0;
+    if ("setAppBadge" in self.navigator) {
+      if (count > 0) {
+        (
+          self.navigator as Navigator & {
+            setAppBadge: (n: number) => Promise<void>;
+          }
+        ).setAppBadge(count);
+      } else {
+        (
+          self.navigator as Navigator & { clearAppBadge: () => Promise<void> }
+        ).clearAppBadge();
+      }
+    }
+  }
+});
