@@ -353,5 +353,18 @@
     "minutesAgo": "il y a {{count}}m",
     "hoursAgo": "il y a {{count}}h",
     "daysAgo": "il y a {{count}}j"
+  },
+  "share": {
+    "title": "Partager la prise",
+    "shareTitle": "Regardez ce {{species}} que j'ai attrapé !",
+    "shareText": "Je viens d'attraper un {{species}} ! Découvrez-le sur Catchpoint.",
+    "privateNotice": "Cette prise est actuellement privée",
+    "makePublicPrompt": "Pour partager cette prise, vous devez d'abord la rendre publique. D'autres pourront la voir.",
+    "makePublicAndShare": "Rendre public et partager",
+    "readyToShare": "Partagez cette prise avec vos amis et autres pêcheurs !",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié !",
+    "shareNow": "Partager",
+    "shareFailed": "Impossible de partager"
   }
 }

@@ -331,3 +331,35 @@
 [data-theme="dark"] .feed-card-comment-count:hover {
   background-color: var(--color-surface-active);
 }
+
+/* ============================================================================
+   Share Button
+   ============================================================================ */
+
+.feed-card-share-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  margin-left: var(--spacing-xs);
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-card-share-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--color-primary);
+}
+
+.feed-card-share-button:active {
+  transform: scale(0.9);
+}

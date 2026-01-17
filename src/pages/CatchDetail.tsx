@@ -21,8 +21,10 @@ import {
   MapPin,
   Cloud,
   Calendar,
+  Share2,
 } from "lucide-react";
 import { ConfirmModal } from "../components/ConfirmModal";
+import { useShareStore } from "../stores/shareStore";
 import { useTranslation } from "@/i18n";
 import "../styles/pages/CatchDetail.css";
 
@@ -48,6 +50,7 @@ export default function CatchDetail() {
   const navigate = useNavigate();
   const { updateCatch, deleteCatch } = useCatchStore();
   const { weightUnit, lengthUnit } = useSettingsStore();
+  const { openShareModal } = useShareStore();
 
   const [catchData, setCatchData] = useState<Catch | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,6 +148,12 @@ export default function CatchDetail() {
   const handleDeleteClick = () => {
     triggerHaptic("tap");
     setShowDeleteModal(true);
+  };
+
+  const handleShareClick = () => {
+    if (!catchData) return;
+    triggerHaptic("tap");
+    openShareModal(catchData);
   };
 
   const handleConfirmDelete = async () => {
@@ -324,11 +333,16 @@ export default function CatchDetail() {
           />
         </div>
 
-        {/* Delete Button */}
-        <button className="catch-detail-delete" onClick={handleDeleteClick}>
-          <Trash2 size={18} />
-          {t("catch.deleteCatch")}
-        </button>
+        <div className="catch-detail-actions">
+          <button className="catch-detail-share" onClick={handleShareClick}>
+            <Share2 size={18} />
+            {t("share.title")}
+          </button>
+          <button className="catch-detail-delete" onClick={handleDeleteClick}>
+            <Trash2 size={18} />
+            {t("catch.deleteCatch")}
+          </button>
+        </div>
       </div>
 
       <ConfirmModal

@@ -21,6 +21,7 @@ export interface Catch {
   pendingLocationRefresh?: boolean; // True if location needs async GPS refresh
   syncStatus: SyncStatus; // Cloud sync status
   lastSyncError?: string; // Last sync error message
+  isPublic?: boolean; // Whether catch is publicly shareable (defaults to false)
   createdAt: Date;
   updatedAt: Date;
 }
@@ -131,6 +132,17 @@ db.version(5).stores({
 // Version 6: Add comments table
 db.version(6).stores({
   catches: "id, timestamp, species, pendingWeatherFetch, userId, syncStatus",
+  userProfiles: "userId",
+  follows: "id, followerId, followedId",
+  likes: "id, catchId, userId, catchOwnerId, createdAt",
+  notifications: "id, userId, type, read, createdAt",
+  comments: "id, catchId, userId, catchOwnerId, createdAt",
+});
+
+// Version 7: Add isPublic index for sharing feature
+db.version(7).stores({
+  catches:
+    "id, timestamp, species, pendingWeatherFetch, userId, syncStatus, isPublic",
   userProfiles: "userId",
   follows: "id, followerId, followedId",
   likes: "id, catchId, userId, catchOwnerId, createdAt",

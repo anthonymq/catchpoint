@@ -6,6 +6,7 @@ import { CloudSyncProvider } from "./components/CloudSyncProvider";
 import { MigrationProvider } from "./components/MigrationProvider";
 import { LikersModal } from "./components/LikersModal";
 import { CommentsModal } from "./components/CommentsModal";
+import { ShareModalContainer } from "./components/ShareModalContainer";
 import Home from "./pages/Home";
 import Feed from "./pages/Feed";
 import Discover from "./pages/Discover";
@@ -63,6 +64,7 @@ function App() {
             </Routes>
             <LikersModal />
             <CommentsModal />
+            <ShareModalContainer />
           </BrowserRouter>
         </MigrationProvider>
       </CloudSyncProvider>

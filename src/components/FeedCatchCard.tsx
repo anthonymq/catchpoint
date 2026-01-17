@@ -1,10 +1,19 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scale, Ruler, Camera, User, Heart, MessageCircle } from "lucide-react";
+import {
+  Scale,
+  Ruler,
+  Camera,
+  User,
+  Heart,
+  MessageCircle,
+  Share2,
+} from "lucide-react";
 import { type FeedItem } from "../db/repository";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useLikeStore } from "../stores/likeStore";
 import { useCommentStore } from "../stores/commentStore";
+import { useShareStore } from "../stores/shareStore";
 import { useAuthStore } from "../stores/authStore";
 import { formatCatchDate, formatWeight, formatLength } from "../utils/format";
 import { useTranslation } from "@/i18n";
@@ -28,6 +37,7 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
   } = useLikeStore();
   const { initializeComments, getCommentCount, openCommentsModal } =
     useCommentStore();
+  const { openShareModal } = useShareStore();
   const { catch: catchData, userProfile } = item;
 
   const likeCount = getLikeCount(catchData.id);
@@ -72,6 +82,11 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
     if (catchData.userId) {
       openCommentsModal(catchData.id, catchData.userId);
     }
+  };
+
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    openShareModal(catchData);
   };
 
   return (
@@ -169,6 +184,13 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
               : t("comments.comments")}
           </button>
         )}
+        <button
+          className="feed-card-share-button"
+          onClick={handleShareClick}
+          aria-label={t("share.title")}
+        >
+          <Share2 size={22} />
+        </button>
       </div>
     </article>
   );

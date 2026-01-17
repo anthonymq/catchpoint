@@ -353,5 +353,18 @@
     "minutesAgo": "{{count}}m ago",
     "hoursAgo": "{{count}}h ago",
     "daysAgo": "{{count}}d ago"
+  },
+  "share": {
+    "title": "Share Catch",
+    "shareTitle": "Check out this {{species}} I caught!",
+    "shareText": "I just caught a {{species}}! Check it out on Catchpoint.",
+    "privateNotice": "This catch is currently private",
+    "makePublicPrompt": "To share this catch, you need to make it public first. Others will be able to see it.",
+    "makePublicAndShare": "Make Public & Share",
+    "readyToShare": "Share this catch with friends and fellow anglers!",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied to clipboard!",
+    "shareNow": "Share",
+    "shareFailed": "Unable to share"
   }
 }
