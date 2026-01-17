@@ -33,3 +33,6 @@ blob-report/
 # Ralph logs (keep directory, ignore contents)
 ralph/logs/*
 !ralph/logs/.gitkeep
+
+# Firebase
+.firebase/
