@@ -339,5 +339,19 @@
     "likedBy": "Liked by",
     "viewLikers": "View who liked",
     "noLikesYet": "No likes yet"
+  },
+  "comments": {
+    "title": "Comments",
+    "comment": "comment",
+    "comments": "comments",
+    "noComments": "No comments yet",
+    "beFirst": "Be the first to comment!",
+    "placeholder": "Add a comment...",
+    "send": "Send",
+    "delete": "Delete comment",
+    "justNow": "just now",
+    "minutesAgo": "{{count}}m ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}}d ago"
   }
 }

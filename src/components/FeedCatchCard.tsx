@@ -1,9 +1,10 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scale, Ruler, Camera, User, Heart } from "lucide-react";
+import { Scale, Ruler, Camera, User, Heart, MessageCircle } from "lucide-react";
 import { type FeedItem } from "../db/repository";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useLikeStore } from "../stores/likeStore";
+import { useCommentStore } from "../stores/commentStore";
 import { useAuthStore } from "../stores/authStore";
 import { formatCatchDate, formatWeight, formatLength } from "../utils/format";
 import { useTranslation } from "@/i18n";
@@ -25,16 +26,20 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
     isLiked,
     openLikersModal,
   } = useLikeStore();
+  const { initializeComments, getCommentCount, openCommentsModal } =
+    useCommentStore();
   const { catch: catchData, userProfile } = item;
 
   const likeCount = getLikeCount(catchData.id);
   const liked = isLiked(catchData.id);
+  const commentCount = getCommentCount(catchData.id);
 
   useEffect(() => {
     if (user?.uid) {
       initializeLikes([catchData.id], user.uid);
+      initializeComments([catchData.id]);
     }
-  }, [catchData.id, user?.uid, initializeLikes]);
+  }, [catchData.id, user?.uid, initializeLikes, initializeComments]);
 
   const speciesName = catchData.species || t("catch.unknownSpecies");
 
@@ -59,6 +64,13 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
     e.stopPropagation();
     if (likeCount > 0) {
       openLikersModal(catchData.id);
+    }
+  };
+
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (catchData.userId) {
+      openCommentsModal(catchData.id, catchData.userId);
     }
   };
 
@@ -137,6 +149,24 @@ export const FeedCatchCard: React.FC<FeedCatchCardProps> = ({ item }) => {
             aria-label={t("likes.viewLikers")}
           >
             {likeCount} {likeCount === 1 ? t("likes.like") : t("likes.likes")}
+          </button>
+        )}
+        <button
+          className="feed-card-comment-button"
+          onClick={handleCommentClick}
+          aria-label={t("comments.title")}
+        >
+          <MessageCircle size={22} />
+        </button>
+        {commentCount > 0 && (
+          <button
+            className="feed-card-comment-count"
+            onClick={handleCommentClick}
+          >
+            {commentCount}{" "}
+            {commentCount === 1
+              ? t("comments.comment")
+              : t("comments.comments")}
           </button>
         )}
       </div>

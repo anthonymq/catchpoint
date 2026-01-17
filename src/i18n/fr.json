@@ -339,5 +339,19 @@
     "likedBy": "Aimé par",
     "viewLikers": "Voir qui a aimé",
     "noLikesYet": "Pas encore de j'aime"
+  },
+  "comments": {
+    "title": "Commentaires",
+    "comment": "commentaire",
+    "comments": "commentaires",
+    "noComments": "Aucun commentaire",
+    "beFirst": "Soyez le premier à commenter !",
+    "placeholder": "Ajouter un commentaire...",
+    "send": "Envoyer",
+    "delete": "Supprimer le commentaire",
+    "justNow": "à l'instant",
+    "minutesAgo": "il y a {{count}}m",
+    "hoursAgo": "il y a {{count}}h",
+    "daysAgo": "il y a {{count}}j"
   }
 }

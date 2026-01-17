@@ -275,3 +275,59 @@
 [data-theme="dark"] .feed-card-like-count:hover {
   background-color: var(--color-surface-active);
 }
+
+/* ============================================================================
+   Comment Button
+   ============================================================================ */
+
+.feed-card-comment-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  margin-left: auto;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-card-comment-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--color-primary);
+}
+
+.feed-card-comment-button:active {
+  transform: scale(0.9);
+}
+
+.feed-card-comment-count {
+  background: none;
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-card-comment-count:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+[data-theme="dark"] .feed-card-comment-count:hover {
+  background-color: var(--color-surface-active);
+}

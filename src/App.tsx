@@ -5,6 +5,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import { CloudSyncProvider } from "./components/CloudSyncProvider";
 import { MigrationProvider } from "./components/MigrationProvider";
 import { LikersModal } from "./components/LikersModal";
+import { CommentsModal } from "./components/CommentsModal";
 import Home from "./pages/Home";
 import Feed from "./pages/Feed";
 import Discover from "./pages/Discover";
@@ -61,6 +62,7 @@ function App() {
               </Route>
             </Routes>
             <LikersModal />
+            <CommentsModal />
           </BrowserRouter>
         </MigrationProvider>
       </CloudSyncProvider>

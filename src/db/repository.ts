@@ -7,6 +7,7 @@ import {
   type Follow,
   type Like,
   type Notification,
+  type Comment,
 } from "./index";
 
 export const catchRepository = {
@@ -524,5 +525,87 @@ export const notificationRepository = {
     const cutoff = new Date();
     cutoff.setDate(cutoff.getDate() - days);
     await db.notifications.filter((n) => n.createdAt < cutoff).delete();
+  },
+};
+
+export interface CommentWithProfile {
+  comment: Comment;
+  userProfile: UserProfile | null;
+}
+
+export const commentRepository = {
+  add: async (
+    catchId: string,
+    userId: string,
+    catchOwnerId: string,
+    content: string,
+  ): Promise<string> => {
+    const id = crypto.randomUUID();
+    const comment: Comment = {
+      id,
+      catchId,
+      userId,
+      catchOwnerId,
+      content: content.slice(0, 500),
+      createdAt: new Date(),
+    };
+    await db.comments.add(comment);
+    return id;
+  },
+
+  delete: async (commentId: string): Promise<void> => {
+    await db.comments.delete(commentId);
+  },
+
+  get: async (commentId: string): Promise<Comment | undefined> => {
+    return await db.comments.get(commentId);
+  },
+
+  getForCatch: async (catchId: string): Promise<CommentWithProfile[]> => {
+    const comments = await db.comments
+      .where("catchId")
+      .equals(catchId)
+      .sortBy("createdAt");
+
+    const results: CommentWithProfile[] = [];
+    for (const comment of comments) {
+      const profile = await profileRepository.get(comment.userId);
+      results.push({
+        comment,
+        userProfile: profile ?? null,
+      });
+    }
+    return results;
+  },
+
+  getCommentCount: async (catchId: string): Promise<number> => {
+    return await db.comments.where("catchId").equals(catchId).count();
+  },
+
+  getCommentCountsBatch: async (
+    catchIds: string[],
+  ): Promise<Map<string, number>> => {
+    const counts = new Map<string, number>();
+    for (const catchId of catchIds) {
+      counts.set(catchId, 0);
+    }
+
+    const comments = await db.comments
+      .where("catchId")
+      .anyOf(catchIds)
+      .toArray();
+
+    for (const comment of comments) {
+      const current = counts.get(comment.catchId) || 0;
+      counts.set(comment.catchId, current + 1);
+    }
+
+    return counts;
+  },
+
+  canDelete: async (commentId: string, userId: string): Promise<boolean> => {
+    const comment = await db.comments.get(commentId);
+    if (!comment) return false;
+    return comment.userId === userId || comment.catchOwnerId === userId;
   },
 };

@@ -74,12 +74,25 @@ export interface Notification {
 // Minimal type for insertion
 export type InsertNotification = Omit<Notification, "createdAt">;
 
+export interface Comment {
+  id: string; // UUID
+  catchId: string; // The catch being commented on
+  userId: string; // User who wrote the comment
+  catchOwnerId: string; // Owner of the catch (for notifications/delete permissions)
+  content: string; // Comment text (max 500 chars)
+  createdAt: Date;
+}
+
+// Minimal type for insertion
+export type InsertComment = Omit<Comment, "createdAt">;
+
 const db = new Dexie("CatchpointDatabase") as Dexie & {
   catches: EntityTable<Catch, "id">;
   userProfiles: EntityTable<UserProfile, "userId">;
   follows: EntityTable<Follow, "id">;
   likes: EntityTable<Like, "id">;
   notifications: EntityTable<Notification, "id">;
+  comments: EntityTable<Comment, "id">;
 };
 
 // Schema declaration:
@@ -113,6 +126,16 @@ db.version(5).stores({
   follows: "id, followerId, followedId",
   likes: "id, catchId, userId, catchOwnerId, createdAt",
   notifications: "id, userId, type, read, createdAt",
+});
+
+// Version 6: Add comments table
+db.version(6).stores({
+  catches: "id, timestamp, species, pendingWeatherFetch, userId, syncStatus",
+  userProfiles: "userId",
+  follows: "id, followerId, followedId",
+  likes: "id, catchId, userId, catchOwnerId, createdAt",
+  notifications: "id, userId, type, read, createdAt",
+  comments: "id, catchId, userId, catchOwnerId, createdAt",
 });
 
 export { db };
