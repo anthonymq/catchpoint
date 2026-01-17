@@ -159,4 +159,68 @@ export const followRepository = {
   getFollowing: async (userId: string): Promise<Follow[]> => {
     return await db.follows.where("followerId").equals(userId).toArray();
   },
+
+  getFollowingIds: async (userId: string): Promise<string[]> => {
+    const follows = await db.follows
+      .where("followerId")
+      .equals(userId)
+      .toArray();
+    return follows.map((f) => f.followedId);
+  },
+};
+
+export interface FeedItem {
+  catch: Catch;
+  userProfile: UserProfile | null;
+}
+
+export const feedRepository = {
+  getFeed: async (
+    currentUserId: string,
+    limit: number = 20,
+    beforeTimestamp?: Date,
+  ): Promise<FeedItem[]> => {
+    const followedIds = await followRepository.getFollowingIds(currentUserId);
+
+    if (followedIds.length === 0) {
+      return [];
+    }
+
+    const query = db.catches.where("userId").anyOf(followedIds);
+    let catches = await query.toArray();
+
+    catches = catches.filter((c) => c.syncStatus === "synced");
+
+    if (beforeTimestamp) {
+      catches = catches.filter(
+        (c) => c.timestamp.getTime() < beforeTimestamp.getTime(),
+      );
+    }
+
+    catches.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    catches = catches.slice(0, limit);
+
+    const userIds = [...new Set(catches.map((c) => c.userId).filter(Boolean))];
+    const profileMap = new Map<string, UserProfile | null>();
+
+    for (const uid of userIds) {
+      if (uid) {
+        const profile = await profileRepository.get(uid);
+        if (profile?.isPublic) {
+          profileMap.set(uid, profile);
+        } else {
+          profileMap.set(uid, null);
+        }
+      }
+    }
+
+    const feedItems: FeedItem[] = catches
+      .filter((c) => c.userId && profileMap.get(c.userId) !== null)
+      .map((c) => ({
+        catch: c,
+        userProfile: c.userId ? (profileMap.get(c.userId) ?? null) : null,
+      }));
+
+    return feedItems;
+  },
 };

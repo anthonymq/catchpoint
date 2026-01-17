@@ -15,6 +15,7 @@
   },
   "nav": {
     "home": "Accueil",
+    "feed": "Fil",
     "log": "Journal",
     "map": "Carte",
     "stats": "Stats",
@@ -297,5 +298,14 @@
     "errorTitle": "Erreur de synchronisation",
     "errorMessage": "Une erreur s'est produite. Veuillez réessayer.",
     "retry": "Réessayer"
+  },
+  "feed": {
+    "title": "Fil d'actualité",
+    "refresh": "Actualiser",
+    "empty": {
+      "title": "Aucune prise",
+      "description": "Suivez d'autres pêcheurs pour voir leurs prises dans votre fil."
+    },
+    "endOfFeed": "Vous êtes à jour !"
   }
 }

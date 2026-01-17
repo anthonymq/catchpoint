@@ -1,5 +1,12 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Fish, Map as MapIcon, BarChart2, Settings } from "lucide-react";
+import {
+  Home,
+  Rss,
+  Fish,
+  Map as MapIcon,
+  BarChart2,
+  Settings,
+} from "lucide-react";
 import clsx from "clsx";
 import { useTranslation } from "@/i18n";
 import "../styles/components/BottomNav.css";
@@ -17,6 +24,7 @@ export default function BottomNav() {
 
   const navItems = [
     { to: "/", icon: Home, labelKey: "nav.home" },
+    { to: "/feed", icon: Rss, labelKey: "nav.feed" },
     { to: "/log", icon: Fish, labelKey: "nav.log" },
     { to: "/map", icon: MapIcon, labelKey: "nav.map" },
     { to: "/stats", icon: BarChart2, labelKey: "nav.stats" },

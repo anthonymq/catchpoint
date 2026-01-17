@@ -5,6 +5,7 @@ import { AuthProvider } from "./components/AuthProvider";
 import { CloudSyncProvider } from "./components/CloudSyncProvider";
 import { MigrationProvider } from "./components/MigrationProvider";
 import Home from "./pages/Home";
+import Feed from "./pages/Feed";
 import Log from "./pages/Log";
 import MapPage from "./pages/Map";
 import Stats from "./pages/Stats";
@@ -47,6 +48,7 @@ function App() {
 
               <Route element={<Layout />}>
                 <Route path="/" element={<Home />} />
+                <Route path="/feed" element={<Feed />} />
                 <Route path="/log" element={<Log />} />
                 <Route path="/map" element={<MapPage />} />
                 <Route path="/stats" element={<Stats />} />
