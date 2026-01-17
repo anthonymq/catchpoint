@@ -4,6 +4,7 @@ import { useTranslation } from "@/i18n";
 import { Mail, Lock, Fish, AlertCircle, ArrowRight } from "lucide-react";
 import { signUp } from "@/services/auth";
 import { useAuthStore } from "@/stores/authStore";
+import SocialSignInButtons from "@/components/SocialSignInButtons";
 import "@/styles/pages/Auth.css";
 
 const SignUp: React.FC = () => {
@@ -80,6 +81,12 @@ const SignUp: React.FC = () => {
               <span>{error}</span>
             </div>
           )}
+
+          <SocialSignInButtons onError={setError} disabled={isLoading} />
+
+          <div className="auth-divider">
+            <span>{t("auth.orContinueWith") || "or"}</span>
+          </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
