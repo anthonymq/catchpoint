@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Moon,
   Sun,
@@ -15,8 +16,14 @@ import {
   FileText,
   Shield,
   ExternalLink,
+  LogIn,
+  LogOut,
+  Mail,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useCatchStore } from "@/stores/catchStore";
 import { downloadCatchesCSV } from "@/services/export";
 import { generateTestCatches } from "@/data/testCatches";
@@ -24,10 +31,12 @@ import { ConfirmModal } from "@/components/ConfirmModal";
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import { useStorageQuota } from "@/hooks/useStorageQuota";
 import { useTranslation } from "@/i18n";
+import { signOut } from "@/services/auth";
 import "@/styles/pages/Settings.css";
 
 export default function Settings() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const {
     theme,
     setTheme,
@@ -39,6 +48,7 @@ export default function Settings() {
     setLengthUnit,
   } = useSettingsStore();
 
+  const { user, setUser } = useAuthStore();
   const { catches, addCatch, deleteCatch } = useCatchStore();
   const [showClearModal, setShowClearModal] = useState(false);
 
@@ -82,6 +92,16 @@ export default function Settings() {
     await promptInstall();
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setUser(null);
+      navigate("/auth/sign-in");
+    } catch (error) {
+      console.error("[Settings] Sign out error:", error);
+    }
+  };
+
   // Determine what to show in the App section
   const showInstallButton = canInstall;
   const showInstalledBadge = isInstalled;
@@ -94,6 +114,73 @@ export default function Settings() {
       </header>
 
       <div className="settings-content">
+        {/* Account Section */}
+        <section className="settings-section">
+          <h2 className="settings-section-title">
+            {t("settings.sections.account") || "Account"}
+          </h2>
+          <div className="settings-card">
+            {user ? (
+              <>
+                <div className="app-row">
+                  <div className="app-row-label">
+                    <Mail size={20} />
+                    <span>{user.email}</span>
+                  </div>
+                  <div className="app-row-value">
+                    {user.emailVerified ? (
+                      <span className="installed-badge">
+                        <CheckCircle size={14} />
+                        {t("settings.account.verified") || "Verified"}
+                      </span>
+                    ) : (
+                      <span className="install-unavailable">
+                        <AlertCircle size={14} />
+                        {t("settings.account.notVerified") || "Not Verified"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="action-button action-button--danger"
+                >
+                  <div className="action-icon action-icon--red">
+                    <LogOut size={18} />
+                  </div>
+                  <div className="action-content">
+                    <p className="action-title action-title--danger">
+                      {t("auth.signOut") || "Sign Out"}
+                    </p>
+                    <p className="action-subtitle action-subtitle--danger">
+                      {t("settings.account.signOutSubtitle") ||
+                        "Sign out of your account"}
+                    </p>
+                  </div>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => navigate("/auth/sign-in")}
+                className="action-button"
+              >
+                <div className="action-icon action-icon--blue">
+                  <LogIn size={18} />
+                </div>
+                <div className="action-content">
+                  <p className="action-title">
+                    {t("auth.signIn") || "Sign In"}
+                  </p>
+                  <p className="action-subtitle">
+                    {t("settings.account.signInSubtitle") ||
+                      "Sign in to sync your catches"}
+                  </p>
+                </div>
+              </button>
+            )}
+          </div>
+        </section>
+
         {/* App Section - PWA Install & Storage */}
         <section className="settings-section">
           <h2 className="settings-section-title">
