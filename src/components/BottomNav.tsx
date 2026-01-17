@@ -2,6 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
   Home,
   Rss,
+  Compass,
   Fish,
   Map as MapIcon,
   BarChart2,
@@ -25,6 +26,7 @@ export default function BottomNav() {
   const navItems = [
     { to: "/", icon: Home, labelKey: "nav.home" },
     { to: "/feed", icon: Rss, labelKey: "nav.feed" },
+    { to: "/discover", icon: Compass, labelKey: "nav.discover" },
     { to: "/log", icon: Fish, labelKey: "nav.log" },
     { to: "/map", icon: MapIcon, labelKey: "nav.map" },
     { to: "/stats", icon: BarChart2, labelKey: "nav.stats" },

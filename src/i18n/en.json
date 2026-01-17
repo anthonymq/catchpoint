@@ -16,6 +16,7 @@
   "nav": {
     "home": "Home",
     "feed": "Feed",
+    "discover": "Discover",
     "log": "Log",
     "map": "Map",
     "stats": "Stats",
@@ -307,5 +308,28 @@
       "description": "Follow other anglers to see their catches in your feed."
     },
     "endOfFeed": "You're all caught up!"
+  },
+  "discover": {
+    "title": "Discover",
+    "refresh": "Refresh",
+    "searchPlaceholder": "Search users...",
+    "tabs": {
+      "catches": "Catches",
+      "users": "Users"
+    },
+    "trendingSpecies": "Trending This Week",
+    "recentCatches": "Recent Catches",
+    "suggestedUsers": "Suggested Anglers",
+    "catches": "catches",
+    "empty": {
+      "title": "No catches yet",
+      "description": "Be the first to share your catches with the community!"
+    },
+    "endOfFeed": "You've seen it all!",
+    "noUsersFound": "No users found",
+    "noSuggestions": {
+      "title": "No suggestions yet",
+      "description": "Keep fishing and we'll find anglers for you to follow!"
+    }
   }
 }

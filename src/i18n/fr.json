@@ -16,6 +16,7 @@
   "nav": {
     "home": "Accueil",
     "feed": "Fil",
+    "discover": "Découvrir",
     "log": "Journal",
     "map": "Carte",
     "stats": "Stats",
@@ -307,5 +308,28 @@
       "description": "Suivez d'autres pêcheurs pour voir leurs prises dans votre fil."
     },
     "endOfFeed": "Vous êtes à jour !"
+  },
+  "discover": {
+    "title": "Découvrir",
+    "refresh": "Actualiser",
+    "searchPlaceholder": "Rechercher des utilisateurs...",
+    "tabs": {
+      "catches": "Prises",
+      "users": "Utilisateurs"
+    },
+    "trendingSpecies": "Tendances de la semaine",
+    "recentCatches": "Prises récentes",
+    "suggestedUsers": "Pêcheurs suggérés",
+    "catches": "prises",
+    "empty": {
+      "title": "Aucune prise",
+      "description": "Soyez le premier à partager vos prises avec la communauté !"
+    },
+    "endOfFeed": "Vous avez tout vu !",
+    "noUsersFound": "Aucun utilisateur trouvé",
+    "noSuggestions": {
+      "title": "Aucune suggestion",
+      "description": "Continuez à pêcher et nous trouverons des pêcheurs à suivre !"
+    }
   }
 }
