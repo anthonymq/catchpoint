@@ -14,6 +14,7 @@ import {
 } from "firebase/storage";
 import { firestore, storage } from "../lib/firebase";
 import { db, type Catch, type SyncStatus } from "../db";
+import { applyFuzzyOffset } from "./fuzzyLocation";
 
 const CATCHES_COLLECTION = "catches";
 const PHOTOS_PATH = "catch-photos";
@@ -21,8 +22,9 @@ const PHOTOS_PATH = "catch-photos";
 interface FirestoreCatch {
   userId: string;
   timestamp: Timestamp;
-  latitude: number;
-  longitude: number;
+  fuzzyLatitude: number;
+  fuzzyLongitude: number;
+  waterBodyName?: string;
   species?: string;
   weight?: number;
   length?: number;
@@ -37,11 +39,17 @@ function catchToFirestore(
   localCatch: Catch,
   userId: string,
 ): Omit<FirestoreCatch, "createdAt"> {
+  const fuzzyCoords = applyFuzzyOffset(
+    localCatch.latitude,
+    localCatch.longitude,
+    localCatch.id,
+  );
   return {
     userId,
     timestamp: Timestamp.fromDate(localCatch.timestamp),
-    latitude: localCatch.latitude,
-    longitude: localCatch.longitude,
+    fuzzyLatitude: fuzzyCoords.latitude,
+    fuzzyLongitude: fuzzyCoords.longitude,
+    waterBodyName: localCatch.waterBodyName,
     species: localCatch.species,
     weight: localCatch.weight,
     length: localCatch.length,
@@ -61,8 +69,9 @@ function firestoreToCatch(
     id,
     userId: firestoreData.userId,
     timestamp: firestoreData.timestamp.toDate(),
-    latitude: firestoreData.latitude,
-    longitude: firestoreData.longitude,
+    latitude: localCatch?.latitude ?? 0,
+    longitude: localCatch?.longitude ?? 0,
+    waterBodyName: firestoreData.waterBodyName ?? localCatch?.waterBodyName,
     species: firestoreData.species,
     weight: firestoreData.weight,
     length: firestoreData.length,

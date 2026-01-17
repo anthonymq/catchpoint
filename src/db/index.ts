@@ -7,8 +7,9 @@ export interface Catch {
   id: string; // UUID
   userId?: string; // Firebase user ID (for multi-user support)
   timestamp: Date; // When caught
-  latitude: number; // GPS lat
-  longitude: number; // GPS lon
+  latitude: number; // GPS lat (exact, stored locally only)
+  longitude: number; // GPS lon (exact, stored locally only)
+  waterBodyName?: string; // Optional water body name (lake, river, etc.)
   species?: string; // Fish species
   weight?: number; // In user's preferred unit (stored as lbs)
   length?: number; // In user's preferred unit (stored as inches)
