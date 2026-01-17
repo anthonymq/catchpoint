@@ -271,6 +271,10 @@
     "publicHint": "Tout le monde peut voir votre profil et vos stats",
     "privateHint": "Vous seul pouvez voir votre profil",
     "topSpecies": "Espèces les plus pêchées",
+    "followers": "Abonnés",
+    "following": "Abonnements",
+    "follow": "S'abonner",
+    "unfollow": "Se désabonner",
     "stats": {
       "title": "Statistiques de pêche",
       "totalCatches": "Total prises",

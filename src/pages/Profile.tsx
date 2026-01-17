@@ -12,10 +12,13 @@ import {
   Scale,
   Hash,
   User,
+  UserPlus,
+  UserMinus,
 } from "lucide-react";
 import { useProfileStore } from "@/stores/profileStore";
 import { useAuthStore } from "@/stores/authStore";
 import { useCatchStore } from "@/stores/catchStore";
+import { useFollowStore } from "@/stores/followStore";
 import { cropAndCompressImage } from "@/services/profile";
 import { calculateStatistics } from "@/utils/statistics";
 import { useTranslation } from "@/i18n";
@@ -40,10 +43,21 @@ export default function Profile() {
   } = useProfileStore();
   const { catches, fetchCatches } = useCatchStore();
   const { weightUnit } = useSettingsStore();
+  const {
+    isFollowing,
+    followersCount,
+    followingCount,
+    fetchFollowStatus,
+    fetchCounts,
+    follow,
+    unfollow,
+    reset: resetFollowState,
+  } = useFollowStore();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const isOwnProfile = user?.uid === userId;
   const targetUserId = userId || user?.uid;
@@ -52,8 +66,18 @@ export default function Profile() {
     if (targetUserId) {
       fetchProfile(targetUserId);
       fetchCatches();
+      fetchCounts(targetUserId);
     }
-  }, [targetUserId, fetchProfile, fetchCatches]);
+    return () => {
+      resetFollowState();
+    };
+  }, [targetUserId, fetchProfile, fetchCatches, fetchCounts, resetFollowState]);
+
+  useEffect(() => {
+    if (user?.uid && targetUserId && user.uid !== targetUserId) {
+      fetchFollowStatus(user.uid, targetUserId);
+    }
+  }, [user?.uid, targetUserId, fetchFollowStatus]);
 
   useEffect(() => {
     if (!profile && user && isOwnProfile && !loading) {
@@ -113,6 +137,20 @@ export default function Profile() {
 
   const handleToggleVisibility = async () => {
     await toggleVisibility();
+  };
+
+  const handleFollowToggle = async () => {
+    if (!user?.uid || !targetUserId) return;
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        await unfollow(user.uid, targetUserId);
+      } else {
+        await follow(user.uid, targetUserId);
+      }
+    } finally {
+      setFollowLoading(false);
+    }
   };
 
   const formatWeight = (weight: number) => {
@@ -244,6 +282,48 @@ export default function Profile() {
                 </button>
               )}
             </div>
+          )}
+        </div>
+
+        <div className="profile-follow-section">
+          <div className="profile-follow-counts">
+            <div className="profile-follow-count">
+              <span className="profile-follow-count-value">
+                {followersCount}
+              </span>
+              <span className="profile-follow-count-label">
+                {t("profile.followers")}
+              </span>
+            </div>
+            <div className="profile-follow-divider" />
+            <div className="profile-follow-count">
+              <span className="profile-follow-count-value">
+                {followingCount}
+              </span>
+              <span className="profile-follow-count-label">
+                {t("profile.following")}
+              </span>
+            </div>
+          </div>
+
+          {!isOwnProfile && user && (
+            <button
+              onClick={handleFollowToggle}
+              disabled={followLoading}
+              className={`profile-follow-button ${isFollowing ? "following" : ""}`}
+            >
+              {isFollowing ? (
+                <>
+                  <UserMinus size={18} />
+                  <span>{t("profile.unfollow")}</span>
+                </>
+              ) : (
+                <>
+                  <UserPlus size={18} />
+                  <span>{t("profile.follow")}</span>
+                </>
+              )}
+            </button>
           )}
         </div>
 

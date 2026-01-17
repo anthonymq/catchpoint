@@ -40,9 +40,20 @@ export interface UserProfile {
 // Minimal type for insertion
 export type InsertUserProfile = Omit<UserProfile, "createdAt" | "updatedAt">;
 
+export interface Follow {
+  id: string; // Composite key: `${followerId}_${followedId}`
+  followerId: string; // User who is following
+  followedId: string; // User being followed
+  createdAt: Date;
+}
+
+// Minimal type for insertion
+export type InsertFollow = Omit<Follow, "createdAt">;
+
 const db = new Dexie("CatchpointDatabase") as Dexie & {
   catches: EntityTable<Catch, "id">;
   userProfiles: EntityTable<UserProfile, "userId">;
+  follows: EntityTable<Follow, "id">;
 };
 
 // Schema declaration:
@@ -60,6 +71,13 @@ db.version(2).stores({
 db.version(3).stores({
   catches: "id, timestamp, species, pendingWeatherFetch, userId, syncStatus",
   userProfiles: "userId",
+});
+
+// Version 4: Add follows table for follow/unfollow feature
+db.version(4).stores({
+  catches: "id, timestamp, species, pendingWeatherFetch, userId, syncStatus",
+  userProfiles: "userId",
+  follows: "id, followerId, followedId",
 });
 
 export { db };
