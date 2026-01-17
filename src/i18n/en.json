@@ -404,5 +404,23 @@
       "title": "No notifications yet",
       "description": "Activity from your catches will appear here."
     }
+  },
+  "leaderboards": {
+    "title": "Leaderboards",
+    "tabs": {
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "overall": "Overall",
+      "species": "By Species"
+    },
+    "weeklyBiggest": "Weekly Biggest Catch",
+    "monthlyMost": "Monthly Most Catches",
+    "overallMost": "All-Time Most Catches",
+    "biggestBySpecies": "Biggest {{species}}",
+    "myRankings": "My Rankings",
+    "notRanked": "Not ranked yet",
+    "awayFromTop": "{{count}} away from Top 10",
+    "catches": "catches",
+    "empty": "No rankings yet. Start fishing to compete!"
   }
 }

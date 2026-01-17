@@ -3,10 +3,10 @@
   "sessionId": "99a3a9ef-3fdf-4735-aeff-4a3f7ebf19f2",
   "status": "running",
   "startedAt": "2026-01-17T07:49:07.513Z",
-  "updatedAt": "2026-01-17T09:48:00.306Z",
-  "currentIteration": 12,
+  "updatedAt": "2026-01-17T10:02:13.742Z",
+  "currentIteration": 14,
   "maxIterations": 20,
-  "tasksCompleted": 12,
+  "tasksCompleted": 14,
   "isPaused": false,
   "agentPlugin": "opencode",
   "trackerState": {
@@ -89,14 +89,14 @@
       {
         "id": "US-013",
         "title": "Direct Messages",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-014",
         "title": "In-App Notifications",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-015",
@@ -250,12 +250,32 @@
       "durationMs": 529314,
       "startedAt": "2026-01-17T09:39:09.982Z",
       "endedAt": "2026-01-17T09:47:59.296Z"
+    },
+    {
+      "iteration": 13,
+      "status": "completed",
+      "taskId": "US-013",
+      "taskTitle": "Direct Messages",
+      "taskCompleted": true,
+      "durationMs": 433579,
+      "startedAt": "2026-01-17T09:48:00.303Z",
+      "endedAt": "2026-01-17T09:55:13.882Z"
+    },
+    {
+      "iteration": 14,
+      "status": "completed",
+      "taskId": "US-014",
+      "taskTitle": "In-App Notifications",
+      "taskCompleted": true,
+      "durationMs": 417839,
+      "startedAt": "2026-01-17T09:55:14.890Z",
+      "endedAt": "2026-01-17T10:02:12.729Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/Users/antmarqu3/workspace-perso/opencode/catchpoint-fishing/catchpoint",
   "activeTaskIds": [
-    "US-013"
+    "US-015"
   ],
   "subagentPanelVisible": true
 }

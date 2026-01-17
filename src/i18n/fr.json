@@ -404,5 +404,23 @@
       "title": "Aucune notification",
       "description": "L'activité sur vos prises apparaîtra ici."
     }
+  },
+  "leaderboards": {
+    "title": "Classements",
+    "tabs": {
+      "weekly": "Semaine",
+      "monthly": "Mois",
+      "overall": "Global",
+      "species": "Par espèce"
+    },
+    "weeklyBiggest": "Plus grosse prise de la semaine",
+    "monthlyMost": "Plus de prises ce mois",
+    "overallMost": "Plus de prises (tout temps)",
+    "biggestBySpecies": "Plus gros {{species}}",
+    "myRankings": "Mes classements",
+    "notRanked": "Pas encore classé",
+    "awayFromTop": "{{count}} pour le Top 10",
+    "catches": "prises",
+    "empty": "Aucun classement. Commencez à pêcher pour concourir !"
   }
 }

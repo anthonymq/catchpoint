@@ -211,9 +211,10 @@
         "Block user option available"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-014",
@@ -228,9 +229,10 @@
         "Unread badge count on nav item"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "labels": [],
-      "dependsOn": []
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-015",
@@ -316,6 +318,6 @@
   "metadata": {
     "createdAt": "2026-01-17T07:46:02.877Z",
     "version": "1.0.0",
-    "updatedAt": "2026-01-17T09:48:00.303Z"
+    "updatedAt": "2026-01-17T10:02:13.739Z"
   }
 }

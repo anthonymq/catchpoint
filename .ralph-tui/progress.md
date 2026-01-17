@@ -161,3 +161,29 @@ VITE_FIREBASE_APP_ID=xxx
 - `src/i18n/en.json` & `fr.json` - Added share translations
 
 ---
+## ✓ Iteration 13 - US-013: Direct Messages
+*2026-01-17T09:55:13.886Z (434s)*
+
+**Status:** Completed
+
+**Notes:**
+- `src/db/index.ts` - Added `Conversation` and `Message` tables (schema v8)
+- `src/db/repository.ts` - Added `conversationRepository` and `messageRepository`
+- `src/App.tsx` - Added `/messages` and `/messages/:conversationId` routes
+- `src/components/BottomNav.tsx` - Added Messages nav item
+- `src/i18n/en.json` & `src/i18n/fr.json` - Added message translations
+
+---
+## ✓ Iteration 14 - US-014: In-App Notifications
+*2026-01-17T10:02:12.735Z (418s)*
+
+**Status:** Completed
+
+**Notes:**
+- **Type-specific icons**: Heart (like), MessageCircle (comment), UserPlus (follow), Trophy (leaderboard)
+- **Mark as read**: Individual + "Mark all read" button
+- **Navigation**: Clicking notification navigates to relevant content
+- **Premium UI**: Gradient header, pulsing unread dot, avatar with type badge
+- **i18n**: Full EN/FR support
+
+---

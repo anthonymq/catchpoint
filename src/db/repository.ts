@@ -807,3 +807,355 @@ export const messageRepository = {
     await db.messages.delete(messageId);
   },
 };
+
+// Leaderboard types
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  photoUrl?: string;
+  value: number; // weight for biggest fish, count for most catches
+  species?: string;
+  rank: number;
+}
+
+export interface UserRanking {
+  rank: number;
+  value: number;
+  distanceToTopTen: number; // How many more needed to reach top 10
+}
+
+export const leaderboardRepository = {
+  /**
+   * Get top catches by weight for a specific species (top 10)
+   */
+  getBiggestFishBySpecies: async (
+    species: string,
+    limit: number = 10,
+  ): Promise<LeaderboardEntry[]> => {
+    const catches = await db.catches
+      .filter(
+        (c) =>
+          c.species === species &&
+          c.weight !== undefined &&
+          c.weight > 0 &&
+          c.syncStatus === "synced" &&
+          !!c.userId,
+      )
+      .toArray();
+
+    // Group by user, keep only their biggest catch per species
+    const userBiggest = new Map<
+      string,
+      { weight: number; catchItem: (typeof catches)[0] }
+    >();
+    for (const catchItem of catches) {
+      if (!catchItem.userId) continue;
+      const existing = userBiggest.get(catchItem.userId);
+      if (!existing || (catchItem.weight ?? 0) > existing.weight) {
+        userBiggest.set(catchItem.userId, {
+          weight: catchItem.weight ?? 0,
+          catchItem,
+        });
+      }
+    }
+
+    // Sort by weight descending
+    const sorted = Array.from(userBiggest.values())
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, limit);
+
+    const entries: LeaderboardEntry[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      const { weight, catchItem } = sorted[i];
+      const profile = catchItem.userId
+        ? await profileRepository.get(catchItem.userId)
+        : null;
+      entries.push({
+        userId: catchItem.userId!,
+        displayName: profile?.displayName || "Anonymous",
+        photoUrl: profile?.photoUrl,
+        value: weight,
+        species,
+        rank: i + 1,
+      });
+    }
+
+    return entries;
+  },
+
+  /**
+   * Get all unique species from catches
+   */
+  getAllSpecies: async (): Promise<string[]> => {
+    const catches = await db.catches
+      .filter((c) => !!c.species && c.syncStatus === "synced")
+      .toArray();
+
+    const speciesSet = new Set<string>();
+    for (const catchItem of catches) {
+      if (catchItem.species) {
+        speciesSet.add(catchItem.species);
+      }
+    }
+
+    return Array.from(speciesSet).sort();
+  },
+
+  /**
+   * Get users with most catches overall (top 50)
+   */
+  getMostCatchesOverall: async (
+    limit: number = 50,
+  ): Promise<LeaderboardEntry[]> => {
+    const catches = await db.catches
+      .filter((c) => c.syncStatus === "synced" && !!c.userId)
+      .toArray();
+
+    const userCounts = new Map<string, number>();
+    for (const catchItem of catches) {
+      if (!catchItem.userId) continue;
+      const current = userCounts.get(catchItem.userId) || 0;
+      userCounts.set(catchItem.userId, current + 1);
+    }
+
+    const sorted = Array.from(userCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit);
+
+    const entries: LeaderboardEntry[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      const [userId, count] = sorted[i];
+      const profile = await profileRepository.get(userId);
+      entries.push({
+        userId,
+        displayName: profile?.displayName || "Anonymous",
+        photoUrl: profile?.photoUrl,
+        value: count,
+        rank: i + 1,
+      });
+    }
+
+    return entries;
+  },
+
+  /**
+   * Get weekly biggest catch (any species)
+   */
+  getWeeklyBiggestCatch: async (
+    limit: number = 10,
+  ): Promise<LeaderboardEntry[]> => {
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const catches = await db.catches
+      .filter(
+        (c) =>
+          c.weight !== undefined &&
+          c.weight > 0 &&
+          c.syncStatus === "synced" &&
+          !!c.userId &&
+          c.timestamp.getTime() >= oneWeekAgo.getTime(),
+      )
+      .toArray();
+
+    // Group by user, keep only their biggest catch this week
+    const userBiggest = new Map<
+      string,
+      { weight: number; catchItem: (typeof catches)[0] }
+    >();
+    for (const catchItem of catches) {
+      if (!catchItem.userId) continue;
+      const existing = userBiggest.get(catchItem.userId);
+      if (!existing || (catchItem.weight ?? 0) > existing.weight) {
+        userBiggest.set(catchItem.userId, {
+          weight: catchItem.weight ?? 0,
+          catchItem,
+        });
+      }
+    }
+
+    const sorted = Array.from(userBiggest.values())
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, limit);
+
+    const entries: LeaderboardEntry[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      const { weight, catchItem } = sorted[i];
+      const profile = catchItem.userId
+        ? await profileRepository.get(catchItem.userId)
+        : null;
+      entries.push({
+        userId: catchItem.userId!,
+        displayName: profile?.displayName || "Anonymous",
+        photoUrl: profile?.photoUrl,
+        value: weight,
+        species: catchItem.species,
+        rank: i + 1,
+      });
+    }
+
+    return entries;
+  },
+
+  /**
+   * Get monthly most catches
+   */
+  getMonthlyMostCatches: async (
+    limit: number = 10,
+  ): Promise<LeaderboardEntry[]> => {
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const catches = await db.catches
+      .filter(
+        (c) =>
+          c.syncStatus === "synced" &&
+          !!c.userId &&
+          c.timestamp.getTime() >= oneMonthAgo.getTime(),
+      )
+      .toArray();
+
+    const userCounts = new Map<string, number>();
+    for (const catchItem of catches) {
+      if (!catchItem.userId) continue;
+      const current = userCounts.get(catchItem.userId) || 0;
+      userCounts.set(catchItem.userId, current + 1);
+    }
+
+    const sorted = Array.from(userCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit);
+
+    const entries: LeaderboardEntry[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      const [userId, count] = sorted[i];
+      const profile = await profileRepository.get(userId);
+      entries.push({
+        userId,
+        displayName: profile?.displayName || "Anonymous",
+        photoUrl: profile?.photoUrl,
+        value: count,
+        rank: i + 1,
+      });
+    }
+
+    return entries;
+  },
+
+  /**
+   * Get user's rankings across all leaderboards
+   */
+  getUserRankings: async (
+    userId: string,
+  ): Promise<{
+    overallCatches: UserRanking | null;
+    weeklyCatch: UserRanking | null;
+    monthlyCatches: UserRanking | null;
+  }> => {
+    // Overall catches ranking
+    const allCatches = await db.catches
+      .filter((c) => c.syncStatus === "synced" && !!c.userId)
+      .toArray();
+
+    const userCounts = new Map<string, number>();
+    for (const catchItem of allCatches) {
+      if (!catchItem.userId) continue;
+      const current = userCounts.get(catchItem.userId) || 0;
+      userCounts.set(catchItem.userId, current + 1);
+    }
+
+    const sortedOverall = Array.from(userCounts.entries()).sort(
+      (a, b) => b[1] - a[1],
+    );
+    const overallRankIndex = sortedOverall.findIndex(([id]) => id === userId);
+    const overallCatches =
+      overallRankIndex >= 0
+        ? {
+            rank: overallRankIndex + 1,
+            value: sortedOverall[overallRankIndex][1],
+            distanceToTopTen:
+              overallRankIndex >= 10
+                ? sortedOverall[9][1] - sortedOverall[overallRankIndex][1] + 1
+                : 0,
+          }
+        : null;
+
+    // Weekly biggest catch ranking
+    const oneWeekAgo = new Date();
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+    const weeklyCatches = await db.catches
+      .filter(
+        (c) =>
+          c.weight !== undefined &&
+          c.weight > 0 &&
+          c.syncStatus === "synced" &&
+          !!c.userId &&
+          c.timestamp.getTime() >= oneWeekAgo.getTime(),
+      )
+      .toArray();
+
+    const weeklyUserBiggest = new Map<string, number>();
+    for (const catchItem of weeklyCatches) {
+      if (!catchItem.userId) continue;
+      const existing = weeklyUserBiggest.get(catchItem.userId) || 0;
+      if ((catchItem.weight ?? 0) > existing) {
+        weeklyUserBiggest.set(catchItem.userId, catchItem.weight ?? 0);
+      }
+    }
+
+    const sortedWeekly = Array.from(weeklyUserBiggest.entries()).sort(
+      (a, b) => b[1] - a[1],
+    );
+    const weeklyRankIndex = sortedWeekly.findIndex(([id]) => id === userId);
+    const weeklyCatch =
+      weeklyRankIndex >= 0
+        ? {
+            rank: weeklyRankIndex + 1,
+            value: sortedWeekly[weeklyRankIndex][1],
+            distanceToTopTen:
+              weeklyRankIndex >= 10
+                ? sortedWeekly[9][1] - sortedWeekly[weeklyRankIndex][1] + 0.1
+                : 0,
+          }
+        : null;
+
+    // Monthly catches ranking
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const monthlyCatchesList = await db.catches
+      .filter(
+        (c) =>
+          c.syncStatus === "synced" &&
+          !!c.userId &&
+          c.timestamp.getTime() >= oneMonthAgo.getTime(),
+      )
+      .toArray();
+
+    const monthlyUserCounts = new Map<string, number>();
+    for (const catchItem of monthlyCatchesList) {
+      if (!catchItem.userId) continue;
+      const current = monthlyUserCounts.get(catchItem.userId) || 0;
+      monthlyUserCounts.set(catchItem.userId, current + 1);
+    }
+
+    const sortedMonthly = Array.from(monthlyUserCounts.entries()).sort(
+      (a, b) => b[1] - a[1],
+    );
+    const monthlyRankIndex = sortedMonthly.findIndex(([id]) => id === userId);
+    const monthlyCatches =
+      monthlyRankIndex >= 0
+        ? {
+            rank: monthlyRankIndex + 1,
+            value: sortedMonthly[monthlyRankIndex][1],
+            distanceToTopTen:
+              monthlyRankIndex >= 10
+                ? sortedMonthly[9][1] - sortedMonthly[monthlyRankIndex][1] + 1
+                : 0,
+          }
+        : null;
+
+    return { overallCatches, weeklyCatch, monthlyCatches };
+  },
+};
