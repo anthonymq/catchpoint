@@ -411,7 +411,8 @@
       "weekly": "Weekly",
       "monthly": "Monthly",
       "overall": "Overall",
-      "species": "By Species"
+      "species": "By Species",
+      "regional": "Regional"
     },
     "weeklyBiggest": "Weekly Biggest Catch",
     "monthlyMost": "Monthly Most Catches",
@@ -421,6 +422,17 @@
     "notRanked": "Not ranked yet",
     "awayFromTop": "{{count}} away from Top 10",
     "catches": "catches",
-    "empty": "No rankings yet. Start fishing to compete!"
+    "empty": "No rankings yet. Start fishing to compete!",
+    "regional": {
+      "yourRegion": "Your region:",
+      "noRegion": "No region detected",
+      "noRegionHint": "Log some catches to see your regional leaderboard!",
+      "myRegionalRanks": "My Regional Rankings",
+      "biggestFish": "Biggest Fish",
+      "totalCatches": "Total Catches",
+      "localHeroes": "Local Heroes",
+      "biggestFishTitle": "Regional Biggest Fish",
+      "localHeroesTitle": "Top Anglers In Your Area"
+    }
   }
 }

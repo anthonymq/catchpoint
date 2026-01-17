@@ -7,6 +7,7 @@ import {
   type LeaderboardEntry,
   type UserRanking,
 } from "../db/repository";
+import { getRegionFromId, type Region } from "../utils/region";
 import {
   Trophy,
   Fish,
@@ -15,16 +16,25 @@ import {
   ChevronRight,
   Award,
   Target,
+  MapPin,
+  Users,
 } from "lucide-react";
 import "../styles/pages/Leaderboards.css";
 
-type LeaderboardTab = "weekly" | "monthly" | "overall" | "species";
+type LeaderboardTab = "weekly" | "monthly" | "overall" | "species" | "regional";
 
 interface UserRankings {
   overallCatches: UserRanking | null;
   weeklyCatch: UserRanking | null;
   monthlyCatches: UserRanking | null;
 }
+
+interface RegionalUserRankings {
+  biggestFish: UserRanking | null;
+  totalCatches: UserRanking | null;
+}
+
+type RegionalSubTab = "biggest" | "heroes";
 
 function LeaderboardSkeleton() {
   return (
@@ -151,6 +161,31 @@ function MyRankingCard({
   );
 }
 
+function RegionalHeader({
+  region,
+  t,
+}: {
+  region: Region | null;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}) {
+  if (!region) {
+    return (
+      <div className="regional-header regional-header--empty">
+        <MapPin size={20} />
+        <span>{t("leaderboards.regional.noRegion")}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="regional-header">
+      <MapPin size={20} />
+      <span>{t("leaderboards.regional.yourRegion")}</span>
+      <span className="regional-name">{region.displayName}</span>
+    </div>
+  );
+}
+
 export default function Leaderboards() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -169,6 +204,42 @@ export default function Leaderboards() {
     weeklyCatch: null,
     monthlyCatches: null,
   });
+
+  const [userRegion, setUserRegion] = useState<Region | null>(null);
+  const [regionalSubTab, setRegionalSubTab] =
+    useState<RegionalSubTab>("biggest");
+  const [regionalBiggestData, setRegionalBiggestData] = useState<
+    LeaderboardEntry[]
+  >([]);
+  const [localHeroesData, setLocalHeroesData] = useState<LeaderboardEntry[]>(
+    [],
+  );
+  const [regionalUserRankings, setRegionalUserRankings] =
+    useState<RegionalUserRankings>({
+      biggestFish: null,
+      totalCatches: null,
+    });
+
+  const loadRegionalData = useCallback(
+    async (regionId: string) => {
+      const [biggest, heroes] = await Promise.all([
+        leaderboardRepository.getRegionalBiggestFish(regionId, 10),
+        leaderboardRepository.getLocalHeroes(regionId, 10),
+      ]);
+
+      setRegionalBiggestData(biggest);
+      setLocalHeroesData(heroes);
+
+      if (user) {
+        const rankings = await leaderboardRepository.getRegionalUserRanking(
+          user.uid,
+          regionId,
+        );
+        setRegionalUserRankings(rankings);
+      }
+    },
+    [user],
+  );
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -193,13 +264,22 @@ export default function Leaderboards() {
       }
 
       if (user) {
-        const rankings = await leaderboardRepository.getUserRankings(user.uid);
+        const [rankings, regionId] = await Promise.all([
+          leaderboardRepository.getUserRankings(user.uid),
+          leaderboardRepository.getUserPrimaryRegion(user.uid),
+        ]);
         setUserRankings(rankings);
+
+        if (regionId) {
+          const region = getRegionFromId(regionId);
+          setUserRegion(region);
+          await loadRegionalData(regionId);
+        }
       }
     } finally {
       setLoading(false);
     }
-  }, [user, selectedSpecies]);
+  }, [user, selectedSpecies, loadRegionalData]);
 
   useEffect(() => {
     loadData();
@@ -224,6 +304,10 @@ export default function Leaderboards() {
         return overallData;
       case "species":
         return speciesData;
+      case "regional":
+        return regionalSubTab === "biggest"
+          ? regionalBiggestData
+          : localHeroesData;
       default:
         return [];
     }
@@ -235,6 +319,11 @@ export default function Leaderboards() {
         return `${entry.value.toFixed(1)} lb`;
       case "species":
         return `${entry.value.toFixed(1)} lb`;
+      case "regional":
+        if (regionalSubTab === "biggest") {
+          return `${entry.value.toFixed(1)} lb`;
+        }
+        return `${entry.value} ${t("leaderboards.catches")}`;
       case "monthly":
       case "overall":
         return `${entry.value} ${t("leaderboards.catches")}`;
@@ -248,6 +337,7 @@ export default function Leaderboards() {
     { id: "monthly", label: t("leaderboards.tabs.monthly"), icon: TrendingUp },
     { id: "overall", label: t("leaderboards.tabs.overall"), icon: Trophy },
     { id: "species", label: t("leaderboards.tabs.species"), icon: Fish },
+    { id: "regional", label: t("leaderboards.tabs.regional"), icon: MapPin },
   ];
 
   return (
@@ -259,7 +349,7 @@ export default function Leaderboards() {
         </div>
       </header>
 
-      {user && (
+      {user && activeTab !== "regional" && (
         <section className="my-rankings-section">
           <h2 className="my-rankings-title">
             <Award size={18} />
@@ -286,6 +376,34 @@ export default function Leaderboards() {
               title={t("leaderboards.tabs.overall")}
               icon={Trophy}
               ranking={userRankings.overallCatches}
+              valueFormatter={(v) => String(Math.round(v))}
+              valueUnit={t("leaderboards.catches")}
+              t={t}
+            />
+          </div>
+        </section>
+      )}
+
+      {user && activeTab === "regional" && (
+        <section className="my-rankings-section">
+          <RegionalHeader region={userRegion} t={t} />
+          <h2 className="my-rankings-title">
+            <Award size={18} />
+            {t("leaderboards.regional.myRegionalRanks")}
+          </h2>
+          <div className="my-rankings-grid my-rankings-grid--two">
+            <MyRankingCard
+              title={t("leaderboards.regional.biggestFish")}
+              icon={Fish}
+              ranking={regionalUserRankings.biggestFish}
+              valueFormatter={(v) => v.toFixed(1)}
+              valueUnit="lb"
+              t={t}
+            />
+            <MyRankingCard
+              title={t("leaderboards.regional.totalCatches")}
+              icon={Target}
+              ranking={regionalUserRankings.totalCatches}
               valueFormatter={(v) => String(Math.round(v))}
               valueUnit={t("leaderboards.catches")}
               t={t}
@@ -323,6 +441,25 @@ export default function Leaderboards() {
         </div>
       )}
 
+      {activeTab === "regional" && (
+        <div className="regional-subtabs">
+          <button
+            className={`regional-subtab ${regionalSubTab === "biggest" ? "regional-subtab--active" : ""}`}
+            onClick={() => setRegionalSubTab("biggest")}
+          >
+            <Fish size={16} />
+            <span>{t("leaderboards.regional.biggestFish")}</span>
+          </button>
+          <button
+            className={`regional-subtab ${regionalSubTab === "heroes" ? "regional-subtab--active" : ""}`}
+            onClick={() => setRegionalSubTab("heroes")}
+          >
+            <Users size={16} />
+            <span>{t("leaderboards.regional.localHeroes")}</span>
+          </button>
+        </div>
+      )}
+
       <section className="leaderboard-section">
         <h2 className="leaderboard-section-title">
           {activeTab === "weekly" && t("leaderboards.weeklyBiggest")}
@@ -330,10 +467,21 @@ export default function Leaderboards() {
           {activeTab === "overall" && t("leaderboards.overallMost")}
           {activeTab === "species" &&
             t("leaderboards.biggestBySpecies", { species: selectedSpecies })}
+          {activeTab === "regional" &&
+            regionalSubTab === "biggest" &&
+            t("leaderboards.regional.biggestFishTitle")}
+          {activeTab === "regional" &&
+            regionalSubTab === "heroes" &&
+            t("leaderboards.regional.localHeroesTitle")}
         </h2>
 
         {loading ? (
           <LeaderboardSkeleton />
+        ) : activeTab === "regional" && !userRegion ? (
+          <div className="leaderboard-empty">
+            <MapPin size={48} className="leaderboard-empty-icon" />
+            <p>{t("leaderboards.regional.noRegionHint")}</p>
+          </div>
         ) : getActiveData().length === 0 ? (
           <div className="leaderboard-empty">
             <Fish size={48} className="leaderboard-empty-icon" />

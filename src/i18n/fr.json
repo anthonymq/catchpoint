@@ -411,7 +411,8 @@
       "weekly": "Semaine",
       "monthly": "Mois",
       "overall": "Global",
-      "species": "Par espèce"
+      "species": "Par espèce",
+      "regional": "Régional"
     },
     "weeklyBiggest": "Plus grosse prise de la semaine",
     "monthlyMost": "Plus de prises ce mois",
@@ -421,6 +422,17 @@
     "notRanked": "Pas encore classé",
     "awayFromTop": "{{count}} pour le Top 10",
     "catches": "prises",
-    "empty": "Aucun classement. Commencez à pêcher pour concourir !"
+    "empty": "Aucun classement. Commencez à pêcher pour concourir !",
+    "regional": {
+      "yourRegion": "Votre région :",
+      "noRegion": "Aucune région détectée",
+      "noRegionHint": "Enregistrez des prises pour voir votre classement régional !",
+      "myRegionalRanks": "Mes classements régionaux",
+      "biggestFish": "Plus gros poisson",
+      "totalCatches": "Total prises",
+      "localHeroes": "Héros locaux",
+      "biggestFishTitle": "Plus gros poisson régional",
+      "localHeroesTitle": "Meilleurs pêcheurs de votre région"
+    }
   }
 }

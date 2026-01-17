@@ -1158,4 +1158,229 @@ export const leaderboardRepository = {
 
     return { overallCatches, weeklyCatch, monthlyCatches };
   },
+
+  getUserPrimaryRegion: async (userId: string): Promise<string | null> => {
+    const { getRegionId } = await import("../utils/region");
+
+    const catches = await db.catches
+      .filter(
+        (c) =>
+          c.userId === userId &&
+          c.syncStatus === "synced" &&
+          c.latitude !== undefined &&
+          c.longitude !== undefined,
+      )
+      .toArray();
+
+    if (catches.length === 0) return null;
+
+    const regionCounts = new Map<string, number>();
+    for (const catchItem of catches) {
+      const regionId = getRegionId(catchItem.latitude, catchItem.longitude);
+      const current = regionCounts.get(regionId) || 0;
+      regionCounts.set(regionId, current + 1);
+    }
+
+    let maxCount = 0;
+    let primaryRegion: string | null = null;
+    for (const [regionId, count] of regionCounts) {
+      if (count > maxCount) {
+        maxCount = count;
+        primaryRegion = regionId;
+      }
+    }
+
+    return primaryRegion;
+  },
+
+  getRegionalBiggestFish: async (
+    regionId: string,
+    limit: number = 10,
+  ): Promise<LeaderboardEntry[]> => {
+    const { getRegionId, getNearbyRegionIds } = await import("../utils/region");
+
+    const nearbyRegions = new Set(getNearbyRegionIds(regionId, true));
+
+    const catches = await db.catches
+      .filter(
+        (c) =>
+          c.weight !== undefined &&
+          c.weight > 0 &&
+          c.syncStatus === "synced" &&
+          !!c.userId &&
+          c.latitude !== undefined &&
+          c.longitude !== undefined,
+      )
+      .toArray();
+
+    const regionalCatches = catches.filter((c) => {
+      const catchRegion = getRegionId(c.latitude, c.longitude);
+      return nearbyRegions.has(catchRegion);
+    });
+
+    const userBiggest = new Map<
+      string,
+      { weight: number; catchItem: (typeof catches)[0] }
+    >();
+    for (const catchItem of regionalCatches) {
+      if (!catchItem.userId) continue;
+      const existing = userBiggest.get(catchItem.userId);
+      if (!existing || (catchItem.weight ?? 0) > existing.weight) {
+        userBiggest.set(catchItem.userId, {
+          weight: catchItem.weight ?? 0,
+          catchItem,
+        });
+      }
+    }
+
+    const sorted = Array.from(userBiggest.values())
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, limit);
+
+    const entries: LeaderboardEntry[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      const { weight, catchItem } = sorted[i];
+      const profile = catchItem.userId
+        ? await profileRepository.get(catchItem.userId)
+        : null;
+      entries.push({
+        userId: catchItem.userId!,
+        displayName: profile?.displayName || "Anonymous",
+        photoUrl: profile?.photoUrl,
+        value: weight,
+        species: catchItem.species,
+        rank: i + 1,
+      });
+    }
+
+    return entries;
+  },
+
+  getLocalHeroes: async (
+    regionId: string,
+    limit: number = 10,
+  ): Promise<LeaderboardEntry[]> => {
+    const { getRegionId, getNearbyRegionIds } = await import("../utils/region");
+
+    const nearbyRegions = new Set(getNearbyRegionIds(regionId, true));
+
+    const catches = await db.catches
+      .filter(
+        (c) =>
+          c.syncStatus === "synced" &&
+          !!c.userId &&
+          c.latitude !== undefined &&
+          c.longitude !== undefined,
+      )
+      .toArray();
+
+    const regionalCatches = catches.filter((c) => {
+      const catchRegion = getRegionId(c.latitude, c.longitude);
+      return nearbyRegions.has(catchRegion);
+    });
+
+    const userCounts = new Map<string, number>();
+    for (const catchItem of regionalCatches) {
+      if (!catchItem.userId) continue;
+      const current = userCounts.get(catchItem.userId) || 0;
+      userCounts.set(catchItem.userId, current + 1);
+    }
+
+    const sorted = Array.from(userCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit);
+
+    const entries: LeaderboardEntry[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      const [userId, count] = sorted[i];
+      const profile = await profileRepository.get(userId);
+      entries.push({
+        userId,
+        displayName: profile?.displayName || "Anonymous",
+        photoUrl: profile?.photoUrl,
+        value: count,
+        rank: i + 1,
+      });
+    }
+
+    return entries;
+  },
+
+  getRegionalUserRanking: async (
+    userId: string,
+    regionId: string,
+  ): Promise<{
+    biggestFish: UserRanking | null;
+    totalCatches: UserRanking | null;
+  }> => {
+    const { getRegionId, getNearbyRegionIds } = await import("../utils/region");
+
+    const nearbyRegions = new Set(getNearbyRegionIds(regionId, true));
+
+    const allCatches = await db.catches
+      .filter(
+        (c) =>
+          c.syncStatus === "synced" &&
+          !!c.userId &&
+          c.latitude !== undefined &&
+          c.longitude !== undefined,
+      )
+      .toArray();
+
+    const regionalCatches = allCatches.filter((c) => {
+      const catchRegion = getRegionId(c.latitude, c.longitude);
+      return nearbyRegions.has(catchRegion);
+    });
+
+    const userBiggest = new Map<string, number>();
+    const userCounts = new Map<string, number>();
+
+    for (const catchItem of regionalCatches) {
+      if (!catchItem.userId) continue;
+
+      const currentCount = userCounts.get(catchItem.userId) || 0;
+      userCounts.set(catchItem.userId, currentCount + 1);
+
+      if (catchItem.weight && catchItem.weight > 0) {
+        const currentBiggest = userBiggest.get(catchItem.userId) || 0;
+        if (catchItem.weight > currentBiggest) {
+          userBiggest.set(catchItem.userId, catchItem.weight);
+        }
+      }
+    }
+
+    const sortedBiggest = Array.from(userBiggest.entries()).sort(
+      (a, b) => b[1] - a[1],
+    );
+    const biggestRankIndex = sortedBiggest.findIndex(([id]) => id === userId);
+    const biggestFish =
+      biggestRankIndex >= 0
+        ? {
+            rank: biggestRankIndex + 1,
+            value: sortedBiggest[biggestRankIndex][1],
+            distanceToTopTen:
+              biggestRankIndex >= 10
+                ? sortedBiggest[9][1] - sortedBiggest[biggestRankIndex][1] + 0.1
+                : 0,
+          }
+        : null;
+
+    const sortedCounts = Array.from(userCounts.entries()).sort(
+      (a, b) => b[1] - a[1],
+    );
+    const countRankIndex = sortedCounts.findIndex(([id]) => id === userId);
+    const totalCatches =
+      countRankIndex >= 0
+        ? {
+            rank: countRankIndex + 1,
+            value: sortedCounts[countRankIndex][1],
+            distanceToTopTen:
+              countRankIndex >= 10
+                ? sortedCounts[9][1] - sortedCounts[countRankIndex][1] + 1
+                : 0,
+          }
+        : null;
+
+    return { biggestFish, totalCatches };
+  },
 };
