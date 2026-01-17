@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Home,
   Rss,
   Compass,
+  Bell,
   MessageCircle,
   Fish,
   Map as MapIcon,
@@ -11,6 +13,8 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { useTranslation } from "@/i18n";
+import { useAuthStore } from "../stores/authStore";
+import { useNotificationStore } from "../stores/notificationStore";
 import "../styles/components/BottomNav.css";
 
 /** Light haptic tap for navigation */
@@ -23,11 +27,25 @@ const triggerHaptic = () => {
 export default function BottomNav() {
   const location = useLocation();
   const { t } = useTranslation();
+  const { user } = useAuthStore();
+  const { unreadCount, fetchUnreadCount } = useNotificationStore();
+
+  useEffect(() => {
+    if (user?.uid) {
+      fetchUnreadCount(user.uid);
+    }
+  }, [user?.uid, fetchUnreadCount]);
 
   const navItems = [
     { to: "/", icon: Home, labelKey: "nav.home" },
     { to: "/feed", icon: Rss, labelKey: "nav.feed" },
     { to: "/discover", icon: Compass, labelKey: "nav.discover" },
+    {
+      to: "/notifications",
+      icon: Bell,
+      labelKey: "nav.notifications",
+      badge: unreadCount,
+    },
     { to: "/messages", icon: MessageCircle, labelKey: "nav.messages" },
     { to: "/log", icon: Fish, labelKey: "nav.log" },
     { to: "/map", icon: MapIcon, labelKey: "nav.map" },
@@ -53,14 +71,19 @@ export default function BottomNav() {
         }}
       />
 
-      {navItems.map(({ to, icon: Icon, labelKey }) => (
+      {navItems.map(({ to, icon: Icon, labelKey, badge }) => (
         <NavLink
           key={to}
           to={to}
           className={({ isActive }) => clsx("nav-item", { active: isActive })}
           onClick={triggerHaptic}
         >
-          <Icon size={24} />
+          <div className="nav-icon-wrapper">
+            <Icon size={24} />
+            {badge !== undefined && badge > 0 && (
+              <span className="nav-badge">{badge > 99 ? "99+" : badge}</span>
+            )}
+          </div>
           <span className="nav-label">{t(labelKey)}</span>
         </NavLink>
       ))}

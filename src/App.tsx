@@ -10,6 +10,7 @@ import { ShareModalContainer } from "./components/ShareModalContainer";
 import Home from "./pages/Home";
 import Feed from "./pages/Feed";
 import Discover from "./pages/Discover";
+import Notifications from "./pages/Notifications";
 import Messages from "./pages/Messages";
 import Chat from "./pages/Chat";
 import Log from "./pages/Log";
@@ -56,6 +57,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="/feed" element={<Feed />} />
                 <Route path="/discover" element={<Discover />} />
+                <Route path="/notifications" element={<Notifications />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/messages/:conversationId" element={<Chat />} />
                 <Route path="/log" element={<Log />} />

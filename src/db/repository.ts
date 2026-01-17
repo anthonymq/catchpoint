@@ -477,6 +477,7 @@ export const notificationRepository = {
     type: Notification["type"],
     actorId: string,
     targetId?: string,
+    metadata?: Record<string, unknown>,
   ): Promise<string> => {
     const id = crypto.randomUUID();
     const notification: Notification = {
@@ -485,6 +486,7 @@ export const notificationRepository = {
       type,
       actorId,
       targetId,
+      metadata,
       read: false,
       createdAt: new Date(),
     };

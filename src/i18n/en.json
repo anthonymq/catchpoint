@@ -18,6 +18,7 @@
     "feed": "Feed",
     "discover": "Discover",
     "messages": "Messages",
+    "notifications": "Alerts",
     "log": "Log",
     "map": "Map",
     "stats": "Stats",
@@ -388,5 +389,20 @@
     "accept": "Accept",
     "requestNotice": "This person isn't following you. Accept their request to start chatting.",
     "startConversation": "Send a message to start the conversation"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "someone": "Someone",
+    "likedYourCatch": "{{name}} liked your catch",
+    "commentedOnYourCatch": "{{name}} commented on your catch",
+    "startedFollowingYou": "{{name}} started following you",
+    "leaderboardRankChange": "You moved up to #{{rank}} on the leaderboard!",
+    "leaderboardUpdate": "Your leaderboard rank has changed",
+    "newNotification": "New notification",
+    "empty": {
+      "title": "No notifications yet",
+      "description": "Activity from your catches will appear here."
+    }
   }
 }

@@ -65,15 +65,21 @@ export type InsertLike = Omit<Like, "createdAt">;
 export interface Notification {
   id: string; // UUID
   userId: string; // User who receives the notification
-  type: "like" | "follow" | "comment"; // Notification type
-  actorId: string; // User who triggered the notification
+  type: "like" | "follow" | "comment" | "leaderboard_rank"; // Notification type
+  actorId: string; // User who triggered the notification (or 'system' for leaderboard)
   targetId?: string; // Related entity (catchId for likes, etc.)
+  metadata?: Record<string, unknown>; // Additional data (e.g., rank position, previous rank)
   read: boolean;
   createdAt: Date;
 }
 
 // Minimal type for insertion
-export type InsertNotification = Omit<Notification, "createdAt">;
+export type InsertNotification = Omit<
+  Notification,
+  "createdAt" | "metadata"
+> & {
+  metadata?: Record<string, unknown>;
+};
 
 export interface Comment {
   id: string; // UUID

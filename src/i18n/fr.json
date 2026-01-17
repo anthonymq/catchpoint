@@ -18,6 +18,7 @@
     "feed": "Fil",
     "discover": "Découvrir",
     "messages": "Messages",
+    "notifications": "Alertes",
     "log": "Journal",
     "map": "Carte",
     "stats": "Stats",
@@ -388,5 +389,20 @@
     "accept": "Accepter",
     "requestNotice": "Cette personne ne vous suit pas. Acceptez sa demande pour commencer à discuter.",
     "startConversation": "Envoyez un message pour démarrer la conversation"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Tout marquer lu",
+    "someone": "Quelqu'un",
+    "likedYourCatch": "{{name}} a aimé votre prise",
+    "commentedOnYourCatch": "{{name}} a commenté votre prise",
+    "startedFollowingYou": "{{name}} a commencé à vous suivre",
+    "leaderboardRankChange": "Vous êtes passé #{{rank}} au classement !",
+    "leaderboardUpdate": "Votre rang au classement a changé",
+    "newNotification": "Nouvelle notification",
+    "empty": {
+      "title": "Aucune notification",
+      "description": "L'activité sur vos prises apparaîtra ici."
+    }
   }
 }
