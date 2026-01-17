@@ -1,0 +1,321 @@
+{
+  "name": "Catchpoint Backend & Social Features PRD",
+  "description": "**Version:** 1.0 **Date:** 2026-01-17 **Status:** Draft",
+  "branchName": "feature/backend-social",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Email/Password Authentication",
+      "description": "Email/Password Authentication",
+      "acceptanceCriteria": [
+        "User can sign up with email and password",
+        "Email verification is sent and required",
+        "User can sign in with verified email/password",
+        "Password reset flow works correctly",
+        "Session persists across app restarts"
+      ],
+      "priority": 1,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-002",
+      "title": "Social Authentication (Google/Apple)",
+      "description": "Social Authentication (Google/Apple)",
+      "acceptanceCriteria": [
+        "Google Sign-In works (one-tap on mobile, popup on desktop)",
+        "Apple Sign-In works (required for iOS)",
+        "Account linking works (same email = same account)",
+        "Social auth creates profile with name/photo from provider"
+      ],
+      "priority": 1,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-003",
+      "title": "User Profile CRUD",
+      "description": "User Profile CRUD",
+      "acceptanceCriteria": [
+        "User can set display name",
+        "User can upload/change profile photo (cropped, compressed)",
+        "User can toggle profile visibility (public/private)",
+        "Profile shows stats (total catches, species count, biggest fish)",
+        "Profile page accessible at /profile/{userId}"
+      ],
+      "priority": 1,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-004",
+      "title": "Catch Cloud Sync",
+      "description": "Catch Cloud Sync",
+      "acceptanceCriteria": [
+        "New catches sync to Firestore when online",
+        "Offline catches queue and sync when connectivity returns",
+        "Sync status indicator shows per-catch (✓ synced, ↻ syncing, ⚠ failed)",
+        "Photos upload to Cloud Storage",
+        "Conflict resolution uses last-write-wins with timestamp"
+      ],
+      "priority": 1,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-005",
+      "title": "Existing Catches Migration",
+      "description": "Existing Catches Migration",
+      "acceptanceCriteria": [
+        "Migration prompt shows on first sign-in (\"Sync X existing catches?\")",
+        "All local catches get syncStatus: 'pending' and isPublic: false",
+        "Background batch upload with progress indicator",
+        "Migration completes successfully for all catches"
+      ],
+      "priority": 1,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-006",
+      "title": "Fuzzy Location Processing",
+      "description": "Fuzzy Location Processing",
+      "acceptanceCriteria": [
+        "Exact GPS stored locally only, never sent to cloud",
+        "Cloud receives fuzzy coordinates (~1 mile radius offset)",
+        "Fuzzy location algorithm applies consistent random offset",
+        "Water body name detected and stored (optional)"
+      ],
+      "priority": 1,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-007",
+      "title": "Follow/Unfollow Users",
+      "description": "Follow/Unfollow Users",
+      "acceptanceCriteria": [
+        "Follow button on other users' profiles",
+        "Following/followers counts update in real-time",
+        "Unfollow removes user from feed",
+        "Follow creates entry in /follows collection"
+      ],
+      "priority": 4,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-008",
+      "title": "Home Feed (Following)",
+      "description": "Home Feed (Following)",
+      "acceptanceCriteria": [
+        "Feed shows chronological catches from followed users",
+        "Only public catches appear in feed",
+        "Pull-to-refresh updates feed",
+        "Infinite scroll pagination works",
+        "Each catch card shows user avatar, name, timestamp, photo, species, size"
+      ],
+      "priority": 4,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-009",
+      "title": "Discover Feed (Public)",
+      "description": "Discover Feed (Public)",
+      "acceptanceCriteria": [
+        "Discover tab shows recent public catches from all users",
+        "User search by name works",
+        "Suggested users based on region/activity",
+        "Trending species this week displayed"
+      ],
+      "priority": 4,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-010",
+      "title": "Likes on Catches",
+      "description": "Likes on Catches",
+      "acceptanceCriteria": [
+        "Tap heart to like/unlike (animated)",
+        "Like count updates optimistically",
+        "Tap like count shows who liked",
+        "Catch owner gets notification on like"
+      ],
+      "priority": 4,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-011",
+      "title": "Comments on Catches",
+      "description": "Comments on Catches",
+      "acceptanceCriteria": [
+        "View all comments on a catch",
+        "Add comment (max 500 chars)",
+        "Delete own comments",
+        "Catch owner can delete any comment on their catch",
+        "Catch owner gets notification on new comment"
+      ],
+      "priority": 4,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-012",
+      "title": "Share Catch Externally",
+      "description": "Share Catch Externally",
+      "acceptanceCriteria": [
+        "Share button triggers native share sheet",
+        "Copy link to catch works",
+        "Sharing private catch prompts to make public first"
+      ],
+      "priority": 3,
+      "passes": true,
+      "labels": [],
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-013",
+      "title": "Direct Messages",
+      "description": "Direct Messages",
+      "acceptanceCriteria": [
+        "Conversations list at /messages",
+        "Real-time messaging in chat view",
+        "Unread indicator on conversations",
+        "Messages from non-followers go to \"Requests\" folder",
+        "Block user option available"
+      ],
+      "priority": 3,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-014",
+      "title": "In-App Notifications",
+      "description": "In-App Notifications",
+      "acceptanceCriteria": [
+        "Notifications page at /notifications",
+        "New follower notification",
+        "Like on your catch notification",
+        "Comment on your catch notification",
+        "Leaderboard rank change notification",
+        "Unread badge count on nav item"
+      ],
+      "priority": 4,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-015",
+      "title": "Global Leaderboards",
+      "description": "Global Leaderboards",
+      "acceptanceCriteria": [
+        "Biggest fish per species (top 10)",
+        "Most catches overall (top 50)",
+        "Weekly biggest catch board",
+        "Monthly most catches board",
+        "User's current ranks displayed (\"My Rankings\")",
+        "\"X away from Top 10\" motivation message"
+      ],
+      "priority": 3,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-016",
+      "title": "Regional Leaderboards",
+      "description": "Regional Leaderboards",
+      "acceptanceCriteria": [
+        "Region auto-detected from user's catches",
+        "Regional biggest fish leaderboard",
+        "\"Local Heroes\" top anglers in area",
+        "Tap leaderboard entry to view profile"
+      ],
+      "priority": 3,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-017",
+      "title": "Push Notifications",
+      "description": "Push Notifications",
+      "acceptanceCriteria": [
+        "User can opt-in per notification category in settings",
+        "Badge count shows on app icon",
+        "Tap notification deep links to relevant screen",
+        "Push works when app is closed"
+      ],
+      "priority": 3,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-018",
+      "title": "Firestore Security Rules",
+      "description": "Firestore Security Rules",
+      "acceptanceCriteria": [
+        "Users: Read public or own, write own",
+        "Catches: Read public or own or follower's, write own",
+        "Follows: Read any, write own",
+        "Likes/Comments: Read if can read parent, write own",
+        "Messages: Read/write only participants",
+        "Security rules audit completed"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    },
+    {
+      "id": "US-019",
+      "title": "Offline Mode with Auth",
+      "description": "Offline Mode with Auth",
+      "acceptanceCriteria": [
+        "App works fully offline (existing behavior preserved)",
+        "Catches save locally first, sync when online",
+        "Auth state persists offline",
+        "Graceful degradation for social features when offline",
+        "Sync resumes automatically on reconnection"
+      ],
+      "priority": 1,
+      "passes": false,
+      "labels": [],
+      "dependsOn": []
+    }
+  ],
+  "metadata": {
+    "createdAt": "2026-01-17T07:46:02.877Z",
+    "version": "1.0.0",
+    "updatedAt": "2026-01-17T09:48:00.303Z"
+  }
+}

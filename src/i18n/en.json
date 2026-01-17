@@ -17,6 +17,7 @@
     "home": "Home",
     "feed": "Feed",
     "discover": "Discover",
+    "messages": "Messages",
     "log": "Log",
     "map": "Map",
     "stats": "Stats",
@@ -366,5 +367,26 @@
     "linkCopied": "Link copied to clipboard!",
     "shareNow": "Share",
     "shareFailed": "Unable to share"
+  },
+  "messages": {
+    "title": "Messages",
+    "inbox": "Inbox",
+    "requests": "Requests",
+    "empty": {
+      "title": "No messages yet",
+      "description": "Start a conversation with other anglers!"
+    },
+    "emptyRequests": {
+      "title": "No message requests",
+      "description": "Messages from people you don't follow will appear here."
+    },
+    "unknownUser": "Unknown User",
+    "noMessages": "No messages yet",
+    "placeholder": "Type a message...",
+    "send": "Send",
+    "block": "Block user",
+    "accept": "Accept",
+    "requestNotice": "This person isn't following you. Accept their request to start chatting.",
+    "startConversation": "Send a message to start the conversation"
   }
 }

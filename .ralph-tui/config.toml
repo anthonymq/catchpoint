@@ -1,0 +1,10 @@
+maxIterations = 20
+agent = "opencode"
+tracker = "beads-bv"
+autoCommit = true
+subagentTracingDetail = "full"
+
+[agentOptions]
+[trackerOptions]
+beadsDir = ".beads"
+labels = "ralph"

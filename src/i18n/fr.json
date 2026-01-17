@@ -17,6 +17,7 @@
     "home": "Accueil",
     "feed": "Fil",
     "discover": "Découvrir",
+    "messages": "Messages",
     "log": "Journal",
     "map": "Carte",
     "stats": "Stats",
@@ -366,5 +367,26 @@
     "linkCopied": "Lien copié !",
     "shareNow": "Partager",
     "shareFailed": "Impossible de partager"
+  },
+  "messages": {
+    "title": "Messages",
+    "inbox": "Boîte de réception",
+    "requests": "Demandes",
+    "empty": {
+      "title": "Aucun message",
+      "description": "Commencez une conversation avec d'autres pêcheurs !"
+    },
+    "emptyRequests": {
+      "title": "Aucune demande de message",
+      "description": "Les messages de personnes que vous ne suivez pas apparaîtront ici."
+    },
+    "unknownUser": "Utilisateur inconnu",
+    "noMessages": "Aucun message",
+    "placeholder": "Écrivez un message...",
+    "send": "Envoyer",
+    "block": "Bloquer l'utilisateur",
+    "accept": "Accepter",
+    "requestNotice": "Cette personne ne vous suit pas. Acceptez sa demande pour commencer à discuter.",
+    "startConversation": "Envoyez un message pour démarrer la conversation"
   }
 }

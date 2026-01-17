@@ -8,6 +8,8 @@ import {
   type Like,
   type Notification,
   type Comment,
+  type Conversation,
+  type Message,
 } from "./index";
 
 export const catchRepository = {
@@ -607,5 +609,199 @@ export const commentRepository = {
     const comment = await db.comments.get(commentId);
     if (!comment) return false;
     return comment.userId === userId || comment.catchOwnerId === userId;
+  },
+};
+
+export interface ConversationWithProfile {
+  conversation: Conversation;
+  otherUser: UserProfile | null;
+  unreadCount: number;
+}
+
+export const conversationRepository = {
+  getOrCreate: async (
+    currentUserId: string,
+    otherUserId: string,
+  ): Promise<Conversation> => {
+    const existing = await db.conversations
+      .filter(
+        (c) =>
+          c.participantIds.includes(currentUserId) &&
+          c.participantIds.includes(otherUserId),
+      )
+      .first();
+
+    if (existing) return existing;
+
+    const isFollowing = await followRepository.isFollowing(
+      otherUserId,
+      currentUserId,
+    );
+
+    const conversation: Conversation = {
+      id: crypto.randomUUID(),
+      participantIds: [currentUserId, otherUserId].sort(),
+      isRequest: !isFollowing,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await db.conversations.add(conversation);
+    return conversation;
+  },
+
+  get: async (conversationId: string): Promise<Conversation | undefined> => {
+    return await db.conversations.get(conversationId);
+  },
+
+  getForUser: async (
+    userId: string,
+    includeRequests: boolean = false,
+  ): Promise<ConversationWithProfile[]> => {
+    let conversations = await db.conversations
+      .filter((c) => c.participantIds.includes(userId) && !c.blockedBy)
+      .toArray();
+
+    if (!includeRequests) {
+      conversations = conversations.filter((c) => !c.isRequest);
+    } else {
+      conversations = conversations.filter((c) => c.isRequest);
+    }
+
+    conversations.sort((a, b) => {
+      const aTime = a.lastMessageAt?.getTime() || a.createdAt.getTime();
+      const bTime = b.lastMessageAt?.getTime() || b.createdAt.getTime();
+      return bTime - aTime;
+    });
+
+    const results: ConversationWithProfile[] = [];
+
+    for (const conversation of conversations) {
+      const otherUserId = conversation.participantIds.find(
+        (id) => id !== userId,
+      );
+      const otherUser = otherUserId
+        ? ((await profileRepository.get(otherUserId)) ?? null)
+        : null;
+
+      const unreadCount = await db.messages
+        .where("conversationId")
+        .equals(conversation.id)
+        .filter((m) => m.senderId !== userId && !m.read)
+        .count();
+
+      results.push({ conversation, otherUser, unreadCount });
+    }
+
+    return results;
+  },
+
+  updateLastMessage: async (
+    conversationId: string,
+    messageId: string,
+    messageText: string,
+  ): Promise<void> => {
+    await db.conversations.update(conversationId, {
+      lastMessageId: messageId,
+      lastMessageText: messageText.slice(0, 100),
+      lastMessageAt: new Date(),
+      updatedAt: new Date(),
+    });
+  },
+
+  acceptRequest: async (conversationId: string): Promise<void> => {
+    await db.conversations.update(conversationId, {
+      isRequest: false,
+      updatedAt: new Date(),
+    });
+  },
+
+  block: async (conversationId: string, userId: string): Promise<void> => {
+    await db.conversations.update(conversationId, {
+      blockedBy: userId,
+      updatedAt: new Date(),
+    });
+  },
+
+  unblock: async (conversationId: string): Promise<void> => {
+    await db.conversations.update(conversationId, {
+      blockedBy: undefined,
+      updatedAt: new Date(),
+    });
+  },
+
+  getTotalUnreadCount: async (userId: string): Promise<number> => {
+    const conversations = await db.conversations
+      .filter((c) => c.participantIds.includes(userId) && !c.blockedBy)
+      .toArray();
+
+    let total = 0;
+    for (const conversation of conversations) {
+      const count = await db.messages
+        .where("conversationId")
+        .equals(conversation.id)
+        .filter((m) => m.senderId !== userId && !m.read)
+        .count();
+      total += count;
+    }
+    return total;
+  },
+};
+
+export const messageRepository = {
+  send: async (
+    conversationId: string,
+    senderId: string,
+    content: string,
+  ): Promise<Message> => {
+    const message: Message = {
+      id: crypto.randomUUID(),
+      conversationId,
+      senderId,
+      content: content.slice(0, 1000),
+      read: false,
+      createdAt: new Date(),
+    };
+
+    await db.messages.add(message);
+    await conversationRepository.updateLastMessage(
+      conversationId,
+      message.id,
+      content,
+    );
+
+    return message;
+  },
+
+  getForConversation: async (
+    conversationId: string,
+    limit: number = 50,
+    beforeTimestamp?: Date,
+  ): Promise<Message[]> => {
+    let messages = await db.messages
+      .where("conversationId")
+      .equals(conversationId)
+      .toArray();
+
+    if (beforeTimestamp) {
+      messages = messages.filter(
+        (m) => m.createdAt.getTime() < beforeTimestamp.getTime(),
+      );
+    }
+
+    messages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return messages.slice(0, limit).reverse();
+  },
+
+  markAsRead: async (conversationId: string, userId: string): Promise<void> => {
+    await db.messages
+      .where("conversationId")
+      .equals(conversationId)
+      .filter((m) => m.senderId !== userId && !m.read)
+      .modify({ read: true });
+  },
+
+  delete: async (messageId: string): Promise<void> => {
+    await db.messages.delete(messageId);
   },
 };

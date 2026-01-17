@@ -87,6 +87,33 @@ export interface Comment {
 // Minimal type for insertion
 export type InsertComment = Omit<Comment, "createdAt">;
 
+export interface Conversation {
+  id: string; // UUID
+  participantIds: string[]; // Array of user IDs (always 2 for DMs)
+  lastMessageId?: string; // ID of last message for preview
+  lastMessageText?: string; // Preview text
+  lastMessageAt?: Date; // Timestamp of last message
+  isRequest: boolean; // True if sender is not followed by receiver
+  blockedBy?: string; // User ID who blocked the conversation
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Minimal type for insertion
+export type InsertConversation = Omit<Conversation, "createdAt" | "updatedAt">;
+
+export interface Message {
+  id: string; // UUID
+  conversationId: string; // Parent conversation
+  senderId: string; // User who sent the message
+  content: string; // Message text (max 1000 chars)
+  read: boolean; // Whether the message has been read
+  createdAt: Date;
+}
+
+// Minimal type for insertion
+export type InsertMessage = Omit<Message, "createdAt">;
+
 const db = new Dexie("CatchpointDatabase") as Dexie & {
   catches: EntityTable<Catch, "id">;
   userProfiles: EntityTable<UserProfile, "userId">;
@@ -94,6 +121,8 @@ const db = new Dexie("CatchpointDatabase") as Dexie & {
   likes: EntityTable<Like, "id">;
   notifications: EntityTable<Notification, "id">;
   comments: EntityTable<Comment, "id">;
+  conversations: EntityTable<Conversation, "id">;
+  messages: EntityTable<Message, "id">;
 };
 
 // Schema declaration:
@@ -148,6 +177,19 @@ db.version(7).stores({
   likes: "id, catchId, userId, catchOwnerId, createdAt",
   notifications: "id, userId, type, read, createdAt",
   comments: "id, catchId, userId, catchOwnerId, createdAt",
+});
+
+// Version 8: Add conversations and messages tables for Direct Messages
+db.version(8).stores({
+  catches:
+    "id, timestamp, species, pendingWeatherFetch, userId, syncStatus, isPublic",
+  userProfiles: "userId",
+  follows: "id, followerId, followedId",
+  likes: "id, catchId, userId, catchOwnerId, createdAt",
+  notifications: "id, userId, type, read, createdAt",
+  comments: "id, catchId, userId, catchOwnerId, createdAt",
+  conversations: "id, *participantIds, lastMessageAt, isRequest, blockedBy",
+  messages: "id, conversationId, senderId, read, createdAt",
 });
 
 export { db };
