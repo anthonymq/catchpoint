@@ -21,6 +21,12 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+export const isUsingMockAuth =
+  import.meta.env.DEV &&
+  (!firebaseConfig.apiKey ||
+    firebaseConfig.apiKey === "your_firebase_api_key" ||
+    firebaseConfig.apiKey.includes("placeholder"));
+
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const firestore = getFirestore(app);

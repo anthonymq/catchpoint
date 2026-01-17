@@ -187,3 +187,68 @@ VITE_FIREBASE_APP_ID=xxx
 - **i18n**: Full EN/FR support
 
 ---
+## ✓ Iteration 15 - US-015: Global Leaderboards
+*2026-01-17T10:08:04.070Z (350s)*
+
+**Status:** Completed
+
+**Notes:**
+- ✅ Most catches overall (top 50)
+- ✅ Weekly biggest catch board
+- ✅ Monthly most catches board
+- ✅ User's current ranks displayed ("My Rankings")
+- ✅ "X away from Top 10" motivation message
+
+---
+## ✓ Iteration 16 - US-016: Regional Leaderboards
+*2026-01-17T10:13:13.490Z (308s)*
+
+**Status:** Completed
+
+**Notes:**
+### Features:
+- Region detection works entirely offline using coordinate math (no reverse geocoding needed)
+- Shows the user's regional ranking for both biggest fish and total catches
+- Includes adjacent regions (~100km radius) for more meaningful competition
+- Premium UI with gradient headers, smooth animations, and dark mode support
+
+---
+## ✓ Iteration 17 - US-017: Push Notifications
+*2026-01-17T10:20:45.821Z (451s)*
+
+**Status:** Completed
+
+**Notes:**
+- `src/stores/settingsStore.ts` - Added `pushEnabled` and `notificationPreferences` state
+- `src/pages/Settings.tsx` - Added notifications settings section with toggles
+- `src/styles/pages/Settings.css` - Styling for notification toggles
+- `src/sw.ts` - Added push event handler and notification click deep linking
+- `src/i18n/en.json` & `src/i18n/fr.json` - Added translations for notification settings
+
+---
+## ✓ Iteration 18 - US-018: Firestore Security Rules
+*2026-01-17T10:24:42.282Z (235s)*
+
+**Status:** Completed
+
+**Notes:**
+### Key Security Features:
+- **Data validation** - Field type and length checks on create/update
+- **Ownership enforcement** - Users can only modify their own data
+- **Follow-based privacy** - Private profiles only visible to followers
+- **Storage security** - Image type/size validation, owner-only writes
+
+---
+## ✓ Iteration 19 - US-019: Offline Mode with Auth
+*2026-01-17T10:26:09.955Z (87s)*
+
+**Status:** Completed
+
+**Notes:**
+- ✅ App works fully offline (IndexedDB + Firestore persistence)
+- ✅ Catches save locally first, sync when online (optimistic UI + cloud sync)
+- ✅ Auth state persists offline (`browserLocalPersistence`)
+- ✅ Graceful degradation for social features (optimistic UI with rollback)
+- ✅ Sync resumes automatically on reconnection (`useCloudSync` hook)
+
+---

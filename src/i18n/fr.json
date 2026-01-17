@@ -121,6 +121,12 @@
       "data": "Données",
       "about": "À propos"
     },
+    "account": {
+      "verified": "Vérifié",
+      "unverified": "Non vérifié",
+      "signOut": "Déconnexion",
+      "signOutSubtitle": "Se déconnecter de votre compte"
+    },
     "language": {
       "label": "Langue",
       "system": "Système",
@@ -274,6 +280,7 @@
     "verifyEmailSubtitle": "Nous avons envoyé un email de vérification à votre adresse",
     "resendEmail": "Renvoyer l'email",
     "emailSent": "Email de vérification envoyé !",
+    "imVerified": "J'ai vérifié mon email",
     "resetPassword": "Réinitialiser le mot de passe",
     "resetPasswordSubtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
     "sendResetLink": "Envoyer le lien",

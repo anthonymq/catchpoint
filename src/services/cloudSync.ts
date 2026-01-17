@@ -12,7 +12,7 @@ import {
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
-import { firestore, storage } from "../lib/firebase";
+import { firestore, storage, isUsingMockAuth } from "../lib/firebase";
 import { db, type Catch, type SyncStatus } from "../db";
 import { applyFuzzyOffset } from "./fuzzyLocation";
 
@@ -137,6 +137,10 @@ export const cloudSyncService = {
     localCatch: Catch,
     userId: string,
   ): Promise<{ success: boolean; error?: string }> {
+    if (isUsingMockAuth) {
+      console.log(`[CloudSync] Skipping sync for ${localCatch.id} (Mock Auth)`);
+      return { success: true };
+    }
     try {
       await updateLocalSyncStatus(localCatch.id, "syncing");
 

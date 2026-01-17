@@ -121,6 +121,12 @@
       "data": "Data",
       "about": "About"
     },
+    "account": {
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "signOut": "Sign Out",
+      "signOutSubtitle": "Log out of your account"
+    },
     "language": {
       "label": "Language",
       "system": "System",
@@ -274,6 +280,7 @@
     "verifyEmailSubtitle": "We've sent a verification email to your address",
     "resendEmail": "Resend Email",
     "emailSent": "Verification email sent!",
+    "imVerified": "I've verified my email",
     "resetPassword": "Reset Password",
     "resetPasswordSubtitle": "Enter your email to receive a reset link",
     "sendResetLink": "Send Reset Link",
